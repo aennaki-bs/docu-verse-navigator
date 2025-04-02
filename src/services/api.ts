@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create axios instance with default configuration
 const api = axios.create({
-  baseURL: 'https://api.docuverse.com/api', // Replace with your actual API URL
+  baseURL: 'http://localhost:5204/api', // Updated to local development server
   headers: {
     'Content-Type': 'application/json',
   },
