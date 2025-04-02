@@ -130,7 +130,7 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        password: formData.password,
+        passwordHash: formData.password,
         confirmPassword: formData.confirmPassword,
         username: formData.username,
         adminSecretKey: formData.adminSecretKey,
