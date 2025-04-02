@@ -12,6 +12,8 @@ export interface RegisterCredentials {
   confirmPassword: string;
   firstName: string;
   lastName: string;
+  username?: string;
+  adminSecretKey?: string;
 }
 
 export interface UserInfo {
@@ -19,6 +21,7 @@ export interface UserInfo {
   email: string;
   firstName: string;
   lastName: string;
+  username?: string;
   profilePicture?: string;
 }
 
@@ -34,7 +37,12 @@ const authService = {
   },
 
   register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
-    const response = await api.post('/Auth/register', credentials);
+    // If admin secret key is provided, add it to headers
+    const headers = credentials.adminSecretKey 
+      ? { 'Admin-Secret-Key': credentials.adminSecretKey } 
+      : undefined;
+    
+    const response = await api.post('/Auth/register', credentials, { headers });
     return response.data;
   },
 
@@ -46,6 +54,21 @@ const authService = {
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+  },
+
+  validateUsername: async (username: string): Promise<boolean> => {
+    const response = await api.post('/Auth/validate-username', { username });
+    return response.data;
+  },
+
+  validateEmail: async (email: string): Promise<boolean> => {
+    const response = await api.post('/Auth/validate-email', { email });
+    return response.data;
+  },
+
+  verifyEmail: async (email: string, code: string): Promise<boolean> => {
+    const response = await api.post('/Auth/verify-email', { email, code });
+    return response.data;
   }
 };
 
