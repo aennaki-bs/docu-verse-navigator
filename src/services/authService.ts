@@ -52,7 +52,7 @@ const authService = {
     return response.data;
   },
 
-  register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
+  register: async (credentials: RegisterCredentials): Promise<any> => {
     // If admin secret key is provided, add it to headers
     const headers = credentials.adminSecretKey 
       ? { 'AdminSecret': credentials.adminSecretKey } 

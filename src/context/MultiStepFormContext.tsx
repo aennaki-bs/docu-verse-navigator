@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from 'react';
 import { toast } from 'sonner';
 import authService from '@/services/authService';
@@ -150,7 +149,7 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
     setStepValidation((prev) => ({ ...prev, isLoading: true, errors: {} }));
     try {
       // Call API to register user
-      await authService.register({
+      const response = await authService.register({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -159,6 +158,7 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
         username: formData.username,
         adminSecretKey: formData.adminSecretKey,
       });
+      
       setStepValidation((prev) => ({ ...prev, isLoading: false }));
       toast.success('Registration successful! Please check your email for verification.');
       return true;

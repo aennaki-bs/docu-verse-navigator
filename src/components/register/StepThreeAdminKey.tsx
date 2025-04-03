@@ -30,12 +30,8 @@ const StepThreeAdminKey = () => {
     const success = await registerUser();
     if (success) {
       // If registration is successful, navigate to the email verification step (step 4)
-      nextStep();
+      navigate('/verify-email', { state: { email: formData.email } });
     }
-  };
-
-  const nextStep = () => {
-    navigate('/verify-email', { state: { email: formData.email } });
   };
 
   return (
@@ -58,7 +54,7 @@ const StepThreeAdminKey = () => {
               type="password"
               placeholder="Enter admin secret key"
               className="pl-10"
-              value={formData.adminSecretKey}
+              value={formData.adminSecretKey || ''}
               onChange={handleChange}
             />
           </div>
