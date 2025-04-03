@@ -149,6 +149,16 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
   const registerUser = async (): Promise<boolean> => {
     setStepValidation((prev) => ({ ...prev, isLoading: true, errors: {} }));
     try {
+      console.log("Registering user with data:", {
+        email: formData.email,
+        passwordHash: formData.password,
+        confirmPassword: formData.confirmPassword,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        username: formData.username,
+        adminSecretKey: formData.adminSecretKey ? formData.adminSecretKey : undefined
+      });
+      
       // Call API to register user
       const response = await authService.register({
         firstName: formData.firstName,
@@ -159,6 +169,8 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
         username: formData.username,
         adminSecretKey: formData.adminSecretKey,
       });
+      
+      console.log("Registration response:", response);
       
       setStepValidation((prev) => ({ ...prev, isLoading: false }));
       toast.success('Registration successful! Please check your email for verification.');

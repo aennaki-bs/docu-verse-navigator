@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,14 @@ const EmailVerification = () => {
   const location = useLocation();
   const email = location.state?.email || '';
 
+  useEffect(() => {
+    // If no email is provided, redirect to registration
+    if (!email) {
+      navigate('/register');
+    }
+    console.log("Email verification page loaded with email:", email);
+  }, [email, navigate]);
+
   const handleVerify = async () => {
     if (verificationCode.length !== 6) {
       setError('Please enter the 6-digit code sent to your email');
@@ -27,6 +35,7 @@ const EmailVerification = () => {
     setError('');
 
     try {
+      console.log("Verifying email with code:", verificationCode);
       await authService.verifyEmail(email, verificationCode);
       
       toast.success('Email verified successfully!');
@@ -58,10 +67,18 @@ const EmailVerification = () => {
     }
   };
 
+  // Show a loading state if email is not yet available
   if (!email) {
-    // Redirect to registration if no email is provided
-    navigate('/register');
-    return null;
+    return (
+      <div className="auth-container animate-fade-in">
+        <div className="w-full max-w-md">
+          <div className="text-center">
+            <DocuVerseLogo className="mx-auto h-14 w-auto" />
+            <p>Redirecting...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
