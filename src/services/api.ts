@@ -1,5 +1,6 @@
 
 import axios from 'axios';
+import { toast } from 'sonner';
 
 // Create axios instance with default configuration
 const api = axios.create({
@@ -48,7 +49,7 @@ api.interceptors.response.use(
     
     const originalRequest = error.config;
     
-    // If the error is 401 and hasn't already been retried
+    // If the error is 401 (Unauthorized) and hasn't already been retried
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       
@@ -57,6 +58,16 @@ api.interceptors.response.use(
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login';
+      }
+    }
+    
+    // Handle 403 Forbidden errors (e.g., accessing admin endpoints without permission)
+    if (error.response?.status === 403) {
+      toast.error('You do not have permission to perform this action.');
+      
+      // If accessing admin endpoint, redirect to dashboard
+      if (originalRequest.url.includes('/Admin/')) {
+        window.location.href = '/dashboard';
       }
     }
     

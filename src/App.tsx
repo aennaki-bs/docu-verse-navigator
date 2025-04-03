@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import Welcome from "./pages/Welcome";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EmailVerification from "./components/register/EmailVerification";
+import AdminPage from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/admin" element={<AdminPage />} />
               {/* Add more protected routes here */}
             </Route>
             
