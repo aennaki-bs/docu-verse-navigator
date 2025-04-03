@@ -13,7 +13,7 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => void;
 }
@@ -23,7 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   token: null,
   isAuthenticated: false,
   isLoading: true,
-  login: async () => {},
+  login: async () => false,
   register: async () => {},
   logout: () => {},
 });
@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
+  const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
       setIsLoading(true);
       const response = await authService.login(credentials);
@@ -74,13 +74,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
       
-      toast.success('Login successful!');
-      navigate('/dashboard');
+      console.log('Login successful, user set:', response.user);
+      return true;
     } catch (error: any) {
       console.error('Login failed', error);
       const errorMessage = error.response?.data?.message || 'Login failed. Please check your credentials.';
       toast.error(errorMessage);
-      throw error;
+      return false;
     } finally {
       setIsLoading(false);
     }

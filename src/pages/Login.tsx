@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
+import { toast } from 'sonner';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,6 +16,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const { login, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -43,12 +45,18 @@ const Login = () => {
     if (!validateForm()) return;
     
     try {
-      await login({ 
-        emailOrUsername: email,  // Using emailOrUsername instead of email
+      const success = await login({ 
+        emailOrUsername: email, 
         password 
       });
+      
+      if (success) {
+        toast.success('Login successful!');
+        navigate('/dashboard');
+      }
     } catch (error) {
-      // Error is handled in the AuthContext
+      console.error('Login error handled in component:', error);
+      // Error is also handled in the AuthContext
     }
   };
 
