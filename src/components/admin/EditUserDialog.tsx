@@ -57,13 +57,26 @@ interface EditUserDialogProps {
 export function EditUserDialog({ user, open, onOpenChange, onSuccess }: EditUserDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Helper function to get the role name as a string
+  const getRoleString = (role: string | { roleId?: number; roleName?: string }): string => {
+    if (typeof role === 'string') {
+      return role;
+    }
+    
+    if (role && typeof role === 'object' && 'roleName' in role) {
+      return role.roleName || 'Unknown';
+    }
+    
+    return 'Unknown';
+  };
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
-      roleName: user.role as 'Admin' | 'FullUser' | 'SimpleUser',
+      roleName: getRoleString(user.role) as 'Admin' | 'FullUser' | 'SimpleUser',
       isActive: user.isActive,
       isEmailConfirmed: user.isEmailConfirmed,
       passwordHash: '',
@@ -87,18 +100,46 @@ export function EditUserDialog({ user, open, onOpenChange, onSuccess }: EditUser
 
   const onSubmit = (data: FormValues) => {
     setIsSubmitting(true);
-    const updateData: UpdateUserRequest = {
-      username: data.username,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      roleName: data.roleName,
-      isActive: data.isActive,
-      isEmailConfirmed: data.isEmailConfirmed,
-    };
     
-    // Only include password if it's provided
+    // Only include fields that have changed or have values
+    const updateData: UpdateUserRequest = {};
+    
+    if (data.username !== user.username) {
+      updateData.username = data.username;
+    }
+    
+    if (data.firstName !== user.firstName) {
+      updateData.firstName = data.firstName;
+    }
+    
+    if (data.lastName !== user.lastName) {
+      updateData.lastName = data.lastName;
+    }
+    
+    const currentRole = getRoleString(user.role);
+    if (data.roleName !== currentRole) {
+      updateData.roleName = data.roleName;
+    }
+    
+    if (data.isActive !== user.isActive) {
+      updateData.isActive = data.isActive;
+    }
+    
+    if (data.isEmailConfirmed !== user.isEmailConfirmed) {
+      updateData.isEmailConfirmed = data.isEmailConfirmed;
+    }
+    
+    // Only include password if it's provided and not empty
     if (data.passwordHash && data.passwordHash.trim() !== '') {
       updateData.passwordHash = data.passwordHash;
+    }
+    
+    // If no changes were made, inform the user
+    if (Object.keys(updateData).length === 0) {
+      toast.info('No changes were made');
+      setIsSubmitting(false);
+      onOpenChange(false);
+      return;
     }
     
     updateUserMutation.mutate(updateData);
