@@ -43,7 +43,10 @@ const Login = () => {
     if (!validateForm()) return;
     
     try {
-      await login({ email, password });
+      await login({ 
+        emailOrUsername: email,  // Using emailOrUsername instead of email
+        password 
+      });
     } catch (error) {
       // Error is handled in the AuthContext
     }
