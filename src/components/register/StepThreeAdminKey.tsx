@@ -35,12 +35,18 @@ const StepThreeAdminKey = () => {
       
       // Force a small delay to ensure state is updated
       setTimeout(() => {
-        // Explicitly navigate to the email verification page with the email in state
-        navigate('/verify-email', { 
-          state: { email: formData.email },
-          replace: true
-        });
-      }, 200); // Increased delay to 200ms for better state handling
+        // Make sure email is defined before navigating
+        if (formData.email) {
+          // Explicitly navigate to the email verification page with the email in state
+          navigate('/verify-email', { 
+            state: { email: formData.email },
+            replace: true
+          });
+        } else {
+          console.error("Email is missing in formData");
+          navigate('/verify-email');
+        }
+      }, 300); // Increased delay further for better state handling
     }
   };
 

@@ -1,7 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { 
+  InputOTP, 
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator 
+} from '@/components/ui/input-otp';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Check, RefreshCw } from 'lucide-react';
@@ -51,7 +56,7 @@ const EmailVerification = () => {
       setTimeout(() => {
         navigate('/login', { replace: true });
       }, 2000);
-    } catch (error: any) {
+    } catch (error) {
       const errorMessage = error.response?.data?.message || 'Verification failed. Please try again.';
       setError(errorMessage);
       toast.error(errorMessage);
@@ -73,7 +78,7 @@ const EmailVerification = () => {
       console.log("Resending verification code to:", email);
       await authService.validateEmail(email);
       toast.success('Verification code resent to your email');
-    } catch (error: any) {
+    } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to resend verification code';
       toast.error(errorMessage);
       console.error("Resend code error:", error);
@@ -124,18 +129,17 @@ const EmailVerification = () => {
               <InputOTP 
                 maxLength={6}
                 value={verificationCode}
-                onChange={(value) => {
-                  setVerificationCode(value);
-                  setError('');
-                }}
-                render={({ slots }) => (
-                  <InputOTPGroup className="gap-2">
-                    {slots.map((slot, index) => (
-                      <InputOTPSlot key={index} {...slot} index={index} />
-                    ))}
-                  </InputOTPGroup>
-                )}
-              />
+                onChange={setVerificationCode}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
             </div>
             
             {error && (
