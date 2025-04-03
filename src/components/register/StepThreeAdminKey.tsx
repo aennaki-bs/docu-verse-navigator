@@ -40,7 +40,7 @@ const StepThreeAdminKey = () => {
           state: { email: formData.email },
           replace: true
         });
-      }, 100);
+      }, 200); // Increased delay to 200ms for better state handling
     }
   };
 

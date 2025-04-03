@@ -121,7 +121,7 @@ const EmailVerification = () => {
           
           <CardContent className="space-y-4">
             <div className="flex justify-center">
-              <InputOTP
+              <InputOTP 
                 maxLength={6}
                 value={verificationCode}
                 onChange={(value) => {
