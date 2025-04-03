@@ -39,7 +39,7 @@ const Dashboard = () => {
             <h1 className="ml-4 text-xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
           </div>
           <div className="flex items-center space-x-4">
-            {user?.role === 'Admin' && (
+            {user && user.role === 'Admin' && (
               <Link to="/admin">
                 <Button variant="outline" size="sm" className="flex items-center gap-2">
                   <UserCog className="h-4 w-4" />

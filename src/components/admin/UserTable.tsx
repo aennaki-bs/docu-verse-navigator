@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import adminService, { UserDto } from '@/services/adminService';
@@ -152,7 +153,7 @@ export function UserTable() {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
                   <Badge variant={user.role === 'Admin' ? 'default' : user.role === 'FullUser' ? 'secondary' : 'outline'}>
-                    {user.role}
+                    {typeof user.role === 'string' ? user.role : user.role?.roleName || 'Unknown'}
                   </Badge>
                 </TableCell>
                 <TableCell>
