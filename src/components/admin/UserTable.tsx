@@ -94,6 +94,19 @@ export function UserTable() {
     return <div className="text-red-500 py-10">Error loading users. Please try again.</div>;
   }
 
+  // Helper function to safely get the role name as a string
+  const getRoleString = (role: string | { roleId?: number; roleName?: string }): string => {
+    if (typeof role === 'string') {
+      return role;
+    }
+    
+    if (role && typeof role === 'object' && 'roleName' in role) {
+      return role.roleName || 'Unknown';
+    }
+    
+    return 'Unknown';
+  };
+
   return (
     <div>
       {selectedUsers.length > 0 && (
@@ -152,8 +165,8 @@ export function UserTable() {
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
-                  <Badge variant={user.role === 'Admin' ? 'default' : user.role === 'FullUser' ? 'secondary' : 'outline'}>
-                    {typeof user.role === 'string' ? user.role : user.role?.roleName || 'Unknown'}
+                  <Badge variant={getRoleString(user.role) === 'Admin' ? 'default' : getRoleString(user.role) === 'FullUser' ? 'secondary' : 'outline'}>
+                    {getRoleString(user.role)}
                   </Badge>
                 </TableCell>
                 <TableCell>
