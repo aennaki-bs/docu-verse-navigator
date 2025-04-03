@@ -32,11 +32,15 @@ const StepThreeAdminKey = () => {
     
     if (success) {
       console.log("Registration successful, navigating to verification page with email:", formData.email);
-      // Explicitly navigate to the email verification page with the email in state
-      navigate('/verify-email', { 
-        state: { email: formData.email },
-        replace: true
-      });
+      
+      // Force a small delay to ensure state is updated
+      setTimeout(() => {
+        // Explicitly navigate to the email verification page with the email in state
+        navigate('/verify-email', { 
+          state: { email: formData.email },
+          replace: true
+        });
+      }, 100);
     }
   };
 

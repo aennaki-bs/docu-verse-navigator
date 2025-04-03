@@ -16,13 +16,20 @@ const EmailVerification = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email || '';
+  
+  // Debug logs to track state
+  console.log("EmailVerification component rendering");
+  console.log("Email from location state:", email);
+  console.log("Location state:", location.state);
 
   useEffect(() => {
     // If no email is provided, redirect to registration
     if (!email) {
+      console.warn("No email found in state, redirecting to registration");
       navigate('/register');
+    } else {
+      console.log("Email verification page loaded with email:", email);
     }
-    console.log("Email verification page loaded with email:", email);
   }, [email, navigate]);
 
   const handleVerify = async () => {
@@ -35,33 +42,41 @@ const EmailVerification = () => {
     setError('');
 
     try {
-      console.log("Verifying email with code:", verificationCode);
+      console.log("Verifying email with code:", verificationCode, "for email:", email);
       await authService.verifyEmail(email, verificationCode);
       
       toast.success('Email verified successfully!');
       
       // Redirect to login page after successful verification
       setTimeout(() => {
-        navigate('/login');
+        navigate('/login', { replace: true });
       }, 2000);
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Verification failed. Please try again.';
       setError(errorMessage);
       toast.error(errorMessage);
+      console.error("Email verification error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleResendCode = async () => {
+    if (!email) {
+      toast.error('Email address is missing. Please go back to registration.');
+      return;
+    }
+
     setIsLoading(true);
     try {
       // Call API to resend verification code
+      console.log("Resending verification code to:", email);
       await authService.validateEmail(email);
       toast.success('Verification code resent to your email');
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to resend verification code';
       toast.error(errorMessage);
+      console.error("Resend code error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +89,7 @@ const EmailVerification = () => {
         <div className="w-full max-w-md">
           <div className="text-center">
             <DocuVerseLogo className="mx-auto h-14 w-auto" />
-            <p>Redirecting...</p>
+            <p>Redirecting to registration page...</p>
           </div>
         </div>
       </div>
@@ -90,7 +105,7 @@ const EmailVerification = () => {
             Verify Your Email
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            We've sent a 6-digit verification code to {email}
+            We've sent a 6-digit verification code to <span className="font-medium">{email}</span>
           </p>
         </div>
         
