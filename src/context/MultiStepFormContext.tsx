@@ -88,10 +88,22 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
     setStepValidation((prev) => ({ ...prev, isLoading: true, errors: {} }));
     try {
       // Call API to validate username
-      await authService.validateUsername(formData.username);
+      const isValid = await authService.validateUsername(formData.username);
+      
+      if (!isValid) {
+        setStepValidation((prev) => ({
+          ...prev,
+          isLoading: false,
+          errors: { username: 'Username validation failed. This username may already be taken.' },
+        }));
+        toast.error('Username validation failed. This username may already be taken.');
+        return false;
+      }
+      
       setStepValidation((prev) => ({ ...prev, isLoading: false }));
       return true;
     } catch (error: any) {
+      console.error('Username validation error:', error);
       const errorMessage = error.response?.data?.message || 'Username validation failed.';
       setStepValidation((prev) => ({
         ...prev,
@@ -107,10 +119,22 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
     setStepValidation((prev) => ({ ...prev, isLoading: true, errors: {} }));
     try {
       // Call API to validate email
-      await authService.validateEmail(formData.email);
+      const isValid = await authService.validateEmail(formData.email);
+      
+      if (!isValid) {
+        setStepValidation((prev) => ({
+          ...prev,
+          isLoading: false,
+          errors: { email: 'Email validation failed. This email may already be registered.' },
+        }));
+        toast.error('Email validation failed. This email may already be registered.');
+        return false;
+      }
+      
       setStepValidation((prev) => ({ ...prev, isLoading: false }));
       return true;
     } catch (error: any) {
+      console.error('Email validation error:', error);
       const errorMessage = error.response?.data?.message || 'Email validation failed.';
       setStepValidation((prev) => ({
         ...prev,
@@ -139,6 +163,7 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
       toast.success('Registration successful! Please check your email for verification.');
       return true;
     } catch (error: any) {
+      console.error('Registration error:', error);
       const errorMessage = error.response?.data?.message || 'Registration failed.';
       setStepValidation((prev) => ({
         ...prev,
@@ -154,11 +179,23 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
     setStepValidation((prev) => ({ ...prev, isLoading: true, errors: {} }));
     try {
       // Call API to verify email
-      await authService.verifyEmail(formData.email, code);
+      const isVerified = await authService.verifyEmail(formData.email, code);
+      
+      if (!isVerified) {
+        setStepValidation((prev) => ({
+          ...prev,
+          isLoading: false,
+          errors: { verification: 'Email verification failed. The code may be invalid or expired.' },
+        }));
+        toast.error('Email verification failed. The code may be invalid or expired.');
+        return false;
+      }
+      
       setStepValidation((prev) => ({ ...prev, isLoading: false }));
       toast.success('Email verified successfully!');
       return true;
     } catch (error: any) {
+      console.error('Email verification error:', error);
       const errorMessage = error.response?.data?.message || 'Email verification failed.';
       setStepValidation((prev) => ({
         ...prev,
