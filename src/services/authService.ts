@@ -1,8 +1,7 @@
-
 import api from './api';
 
 export interface LoginCredentials {
-  emailOrUsername: string;  // Changed from 'email' to match backend
+  emailOrUsername: string;
   password: string;
 }
 
@@ -23,6 +22,7 @@ export interface UserInfo {
   lastName: string;
   username?: string;
   profilePicture?: string;
+  role?: string;
 }
 
 export interface AuthResponse {
@@ -48,8 +48,39 @@ interface EmailVerificationRequest {
 
 const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await api.post('/Auth/login', credentials);
-    return response.data;
+    try {
+      const response = await api.post('/Auth/login', credentials);
+      console.log('Auth response data:', response.data);
+      
+      // If API returns accessToken directly
+      if (response.data.accessToken) {
+        // Get user info with the token
+        localStorage.setItem('token', response.data.accessToken);
+        
+        // Fetch user info immediately
+        try {
+          const userInfoResponse = await api.get('/Account/user-info');
+          console.log('User info fetched:', userInfoResponse.data);
+          
+          return {
+            token: response.data.accessToken,
+            user: userInfoResponse.data
+          };
+        } catch (error) {
+          console.error('Error fetching user info:', error);
+          throw error;
+        }
+      } 
+      // If API already returns both token and user
+      else if (response.data.token && response.data.user) {
+        return response.data;
+      }
+      
+      throw new Error('Invalid response format from authentication server');
+    } catch (error) {
+      console.error('Login error in service:', error);
+      throw error;
+    }
   },
 
   register: async (credentials: RegisterCredentials): Promise<any> => {
@@ -67,8 +98,14 @@ const authService = {
   },
 
   getUserInfo: async (): Promise<UserInfo> => {
-    const response = await api.get('/Account/user-info');
-    return response.data;
+    try {
+      const response = await api.get('/Account/user-info');
+      console.log('User info response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get user info:', error);
+      throw error;
+    }
   },
 
   logout: () => {

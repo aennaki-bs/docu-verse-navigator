@@ -43,12 +43,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const storedUser = localStorage.getItem('user');
       
       if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        
         try {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+          
           // Verify token is still valid by fetching user info
           const userInfo = await authService.getUserInfo();
+          console.log('User info verified on init:', userInfo);
           setUser(userInfo);
           localStorage.setItem('user', JSON.stringify(userInfo));
         } catch (error) {
@@ -68,14 +69,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       const response = await authService.login(credentials);
       
-      setToken(response.token);
-      setUser(response.user);
-      
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      
-      console.log('Login successful, user set:', response.user);
-      return true;
+      if (response && response.token) {
+        setToken(response.token);
+        setUser(response.user);
+        
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        
+        console.log('Login successful, user set:', response.user);
+        return true;
+      }
+      return false;
     } catch (error: any) {
       console.error('Login failed', error);
       const errorMessage = error.response?.data?.message || 'Login failed. Please check your credentials.';
@@ -113,22 +117,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     authService.logout();
     setUser(null);
     setToken(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     toast.info('You have been logged out');
     navigate('/login');
   };
 
+  const authValue = {
+    user,
+    token,
+    isAuthenticated: !!user && !!token,
+    isLoading,
+    login,
+    register,
+    logout,
+  };
+
+  console.log('Auth context current state:', { 
+    isAuthenticated: !!user && !!token, 
+    user, 
+    isLoading 
+  });
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isAuthenticated: !!user,
-        isLoading,
-        login,
-        register,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={authValue}>
       {children}
     </AuthContext.Provider>
   );

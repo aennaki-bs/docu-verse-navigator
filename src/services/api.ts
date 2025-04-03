@@ -46,11 +46,18 @@ api.interceptors.response.use(
   async (error) => {
     console.error('API Response Error:', error.response || error);
     
+    const originalRequest = error.config;
+    
     // If the error is 401 and hasn't already been retried
-    if (error.response?.status === 401 && !error.config._retry) {
-      // Handle token refresh or logout here
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      // If the request is not a login attempt, redirect to login
+      if (!originalRequest.url.includes('/Auth/login')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     
     return Promise.reject(error);
