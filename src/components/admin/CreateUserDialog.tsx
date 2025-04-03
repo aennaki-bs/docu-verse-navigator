@@ -1,11 +1,10 @@
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { toast } from 'sonner';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import adminService, { CreateUserRequest } from '@/services/adminService';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +21,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -29,17 +29,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import adminService, { CreateUserRequest } from '@/services/adminService';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  username: z.string().min(3, { message: 'Username must be at least 3 characters' }),
-  passwordHash: z.string().min(8, { message: 'Password must be at least 8 characters' }),
-  firstName: z.string().min(2, { message: 'First name is required' }),
-  lastName: z.string().min(2, { message: 'Last name is required' }),
+  email: z.string().email({
+    message: 'Please enter a valid email address.',
+  }),
+  username: z.string().min(3, {
+    message: 'Username must be at least 3 characters.',
+  }),
+  firstName: z.string().min(2, {
+    message: 'First name must be at least 2 characters.',
+  }),
+  lastName: z.string().min(2, {
+    message: 'Last name must be at least 2 characters.',
+  }),
+  passwordHash: z.string().min(8, {
+    message: 'Password must be at least 8 characters.',
+  }),
   roleName: z.enum(['Admin', 'FullUser', 'SimpleUser'], {
-    required_error: 'Please select a role',
+    required_error: 'Please select a user role.',
   }),
 });
 
@@ -51,7 +60,6 @@ interface CreateUserDialogProps {
 }
 
 export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) {
-  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormValues>({
@@ -59,46 +67,78 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
     defaultValues: {
       email: '',
       username: '',
-      passwordHash: '',
       firstName: '',
       lastName: '',
+      passwordHash: '',
       roleName: 'SimpleUser',
     },
   });
 
-  const createUserMutation = useMutation({
-    mutationFn: (userData: CreateUserRequest) => adminService.createUser(userData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+  const onSubmit = async (values: FormValues) => {
+    setIsSubmitting(true);
+    try {
+      // Make sure all required properties are present when creating the user
+      const userData: CreateUserRequest = {
+        email: values.email,
+        username: values.username,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        passwordHash: values.passwordHash,
+        roleName: values.roleName,
+      };
+
+      await adminService.createUser(userData);
       toast.success('User created successfully');
       form.reset();
       onOpenChange(false);
-    },
-    onError: (error: any) => {
+    } catch (error: any) {
+      console.error('Error creating user:', error);
       toast.error(error.response?.data || 'Failed to create user');
-    },
-    onSettled: () => {
+    } finally {
       setIsSubmitting(false);
-    },
-  });
-
-  const onSubmit = (data: FormValues) => {
-    setIsSubmitting(true);
-    createUserMutation.mutate(data);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
+          <DialogTitle>Create User</DialogTitle>
           <DialogDescription>
-            Fill in the details to create a new user account
+            Create a new user with specific role and permissions.
           </DialogDescription>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="user@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="username" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -113,7 +153,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="lastName"
@@ -128,35 +168,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 )}
               />
             </div>
-            
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="john.doe@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="johndoe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
+
             <FormField
               control={form.control}
               name="passwordHash"
@@ -164,23 +176,20 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <Input type="password" placeholder="********" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="roleName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a role" />
@@ -196,16 +205,8 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 </FormItem>
               )}
             />
-            
+
             <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Creating...' : 'Create User'}
               </Button>

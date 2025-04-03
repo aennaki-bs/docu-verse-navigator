@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { File, FolderPlus, LogOut, Plus, Upload } from 'lucide-react';
+import { File, FolderPlus, LogOut, Plus, Upload, UserCog } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -38,6 +39,14 @@ const Dashboard = () => {
             <h1 className="ml-4 text-xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
           </div>
           <div className="flex items-center space-x-4">
+            {user?.role === 'Admin' && (
+              <Link to="/admin">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <UserCog className="h-4 w-4" />
+                  Admin Panel
+                </Button>
+              </Link>
+            )}
             <div className="text-right">
               <p className="text-sm font-medium text-gray-900 dark:text-white">
                 {user?.firstName} {user?.lastName}
