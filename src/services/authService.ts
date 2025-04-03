@@ -2,7 +2,7 @@
 import api from './api';
 
 export interface LoginCredentials {
-  email: string;
+  emailOrUsername: string;  // Changed from 'email' to match backend
   password: string;
 }
 
@@ -30,6 +30,22 @@ export interface AuthResponse {
   user: UserInfo;
 }
 
+// Interface for email validation requests
+interface EmailValidationRequest {
+  email: string;
+}
+
+// Interface for username validation requests
+interface UsernameValidationRequest {
+  username: string;
+}
+
+// Interface for email verification requests
+interface EmailVerificationRequest {
+  email: string;
+  verificationCode: string;
+}
+
 const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const response = await api.post('/Auth/login', credentials);
@@ -39,10 +55,17 @@ const authService = {
   register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
     // If admin secret key is provided, add it to headers
     const headers = credentials.adminSecretKey 
-      ? { 'Admin-Secret-Key': credentials.adminSecretKey } 
+      ? { 'AdminSecret': credentials.adminSecretKey } 
       : undefined;
     
-    const response = await api.post('/Auth/register', credentials, { headers });
+    const response = await api.post('/Auth/register', {
+      email: credentials.email,
+      passwordHash: credentials.passwordHash,
+      firstName: credentials.firstName,
+      lastName: credentials.lastName,
+      username: credentials.username,
+    }, { headers });
+    
     return response.data;
   },
 
@@ -58,18 +81,18 @@ const authService = {
 
   validateUsername: async (username: string): Promise<boolean> => {
     try {
-      const response = await api.post('/Auth/valide-username', { username });
-      // Check if the response is a boolean or an object with a success/valid property
-      if (typeof response.data === 'boolean') {
-        return response.data;
-      } else if (response.data && typeof response.data === 'object') {
-        // If it's an object, check for common response patterns
-        if ('success' in response.data) return response.data.success;
-        if ('valid' in response.data) return response.data.valid;
-        if ('isValid' in response.data) return response.data.isValid;
-        if ('available' in response.data) return response.data.available;
+      console.log('Validating username:', username);
+      const request: UsernameValidationRequest = { username };
+      const response = await api.post('/Auth/valide-username', request);
+      
+      console.log('Username validation response:', response.data);
+      
+      // Backend returns string "True" or "False"
+      if (typeof response.data === 'string') {
+        return response.data === "True";
       }
-      return true; // Default to true if response format is unknown
+      
+      return false;
     } catch (error) {
       console.error('Username validation error:', error);
       throw error;
@@ -78,18 +101,18 @@ const authService = {
 
   validateEmail: async (email: string): Promise<boolean> => {
     try {
-      const response = await api.post('/Auth/valide-email', { email });
-      // Check if the response is a boolean or an object with a success/valid property
-      if (typeof response.data === 'boolean') {
-        return response.data;
-      } else if (response.data && typeof response.data === 'object') {
-        // If it's an object, check for common response patterns
-        if ('success' in response.data) return response.data.success;
-        if ('valid' in response.data) return response.data.valid;
-        if ('isValid' in response.data) return response.data.isValid;
-        if ('available' in response.data) return response.data.available;
+      console.log('Validating email:', email);
+      const request: EmailValidationRequest = { email };
+      const response = await api.post('/Auth/valide-email', request);
+      
+      console.log('Email validation response:', response.data);
+      
+      // Backend returns string "True" or "False"
+      if (typeof response.data === 'string') {
+        return response.data === "True";
       }
-      return true; // Default to true if response format is unknown
+      
+      return false;
     } catch (error) {
       console.error('Email validation error:', error);
       throw error;
@@ -98,14 +121,16 @@ const authService = {
 
   verifyEmail: async (email: string, code: string): Promise<boolean> => {
     try {
-      const response = await api.post('/Auth/verify-email', { email, code });
-      // Check if the response is a boolean or an object with a success property
-      if (typeof response.data === 'boolean') {
-        return response.data;
-      } else if (response.data && typeof response.data === 'object' && 'success' in response.data) {
-        return response.data.success;
-      }
-      return true; // Default to true if response format is unknown
+      console.log('Verifying email:', email, 'with code:', code);
+      const request: EmailVerificationRequest = { 
+        email, 
+        verificationCode: code 
+      };
+      
+      const response = await api.post('/Auth/verify-email', request);
+      console.log('Email verification response:', response.data);
+      
+      return true;
     } catch (error) {
       console.error('Email verification error:', error);
       throw error;

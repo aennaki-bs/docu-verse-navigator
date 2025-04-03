@@ -3,11 +3,14 @@ import axios from 'axios';
 
 // Create axios instance with default configuration
 const api = axios.create({
-  baseURL: 'http://localhost:5204/api', // Local development server URL
+  baseURL: 'http://localhost:5204/api', // Update this URL to match your backend
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// Add CORS headers to help prevent CORS issues
+api.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 // Request interceptor for API calls
 api.interceptors.request.use(
@@ -16,9 +19,16 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+    console.log('API Request:', {
+      url: config.url,
+      method: config.method,
+      data: config.data,
+      headers: config.headers
+    });
     return config;
   },
   (error) => {
+    console.error('API Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -26,15 +36,19 @@ api.interceptors.request.use(
 // Response interceptor for API calls
 api.interceptors.response.use(
   (response) => {
+    console.log('API Response:', {
+      url: response.config.url,
+      status: response.status,
+      data: response.data
+    });
     return response;
   },
   async (error) => {
-    const originalRequest = error.config;
+    console.error('API Response Error:', error.response || error);
     
     // If the error is 401 and hasn't already been retried
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !error.config._retry) {
       // Handle token refresh or logout here
-      // For this initial implementation, we'll just clear the token and redirect to login
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
