@@ -57,12 +57,12 @@ const authService = {
   },
 
   validateUsername: async (username: string): Promise<boolean> => {
-    const response = await api.post('/Auth/validate-username', { username });
+    const response = await api.post('/Auth/valide-username', { username });
     return response.data;
   },
 
   validateEmail: async (email: string): Promise<boolean> => {
-    const response = await api.post('/Auth/validate-email', { email });
+    const response = await api.post('/Auth/valide-email', { email });
     return response.data;
   },
 
