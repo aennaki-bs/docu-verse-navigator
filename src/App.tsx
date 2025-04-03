@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import Welcome from "./pages/Welcome";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EmailVerification from "./components/register/EmailVerification";
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/verify-email" element={<EmailVerification />} />
+            <Route path="/welcome" element={<Welcome />} />
             
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>

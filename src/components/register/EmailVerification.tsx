@@ -52,9 +52,15 @@ const EmailVerification = () => {
       
       toast.success('Email verified successfully!');
       
-      // Redirect to login page after successful verification
+      // Redirect to welcome page after successful verification
       setTimeout(() => {
-        navigate('/login', { replace: true });
+        navigate('/welcome', { 
+          state: { 
+            verified: true,
+            email: email 
+          },
+          replace: true
+        });
       }, 2000);
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Verification failed. Please try again.';
