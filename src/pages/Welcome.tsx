@@ -35,7 +35,7 @@ const Welcome = () => {
             Welcome to DocuVerse
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            {userEmail ? `You've successfully registered with ${userEmail}` : 'You've successfully registered'}
+            {userEmail ? `You've successfully registered with ${userEmail}` : 'You\'ve successfully registered'}
           </p>
         </div>
 
