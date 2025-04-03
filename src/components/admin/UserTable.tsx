@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import adminService, { UserDto } from '@/services/adminService';
@@ -158,7 +157,7 @@ export function UserTable() {
                 </TableCell>
                 <TableCell>
                   {user.isActive ? (
-                    <Badge variant="success" className="bg-green-100 text-green-800">Active</Badge>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Active</Badge>
                   ) : (
                     <Badge variant="destructive" className="bg-red-100 text-red-800">Inactive</Badge>
                   )}
