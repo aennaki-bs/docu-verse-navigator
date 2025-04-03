@@ -28,9 +28,12 @@ const StepThreeAdminKey = () => {
   const handleSubmit = async () => {
     // Register user with or without admin key
     const success = await registerUser();
+    
     if (success) {
-      // If registration is successful, navigate to the email verification step (step 4)
-      navigate('/verify-email', { state: { email: formData.email } });
+      // If registration is successful, navigate to the email verification page
+      navigate('/verify-email', { 
+        state: { email: formData.email }
+      });
     }
   };
 

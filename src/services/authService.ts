@@ -58,13 +58,10 @@ const authService = {
       ? { 'AdminSecret': credentials.adminSecretKey } 
       : undefined;
     
-    const response = await api.post('/Auth/register', {
-      email: credentials.email,
-      passwordHash: credentials.passwordHash,
-      firstName: credentials.firstName,
-      lastName: credentials.lastName,
-      username: credentials.username,
-    }, { headers });
+    // Remove adminSecretKey from the request body as it should be in headers
+    const { adminSecretKey, ...requestBody } = credentials;
+    
+    const response = await api.post('/Auth/register', requestBody, { headers });
     
     return response.data;
   },

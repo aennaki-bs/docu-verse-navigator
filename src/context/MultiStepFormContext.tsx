@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState } from 'react';
 import { toast } from 'sonner';
 import authService from '@/services/authService';
@@ -161,6 +162,8 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
       
       setStepValidation((prev) => ({ ...prev, isLoading: false }));
       toast.success('Registration successful! Please check your email for verification.');
+      
+      // Return true to indicate successful registration
       return true;
     } catch (error: any) {
       console.error('Registration error:', error);
