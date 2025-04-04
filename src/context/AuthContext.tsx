@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import authService, { 
   LoginCredentials, 
   RegisterCredentials, 
-  UserInfo
+  UserInfo,
+  UpdateProfileRequest
 } from '../services/authService';
 import { toast } from 'sonner';
 
@@ -16,6 +17,8 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<boolean>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => void;
+  refreshUserInfo: () => Promise<void>;
+  updateUserProfile: (data: UpdateProfileRequest) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -26,6 +29,8 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => false,
   register: async () => {},
   logout: () => {},
+  refreshUserInfo: async () => {},
+  updateUserProfile: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -63,6 +68,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initAuth();
   }, []);
+
+  const refreshUserInfo = async () => {
+    if (!token) return;
+    
+    try {
+      setIsLoading(true);
+      const userInfo = await authService.getUserInfo();
+      setUser(userInfo);
+      localStorage.setItem('user', JSON.stringify(userInfo));
+      console.log('User info refreshed:', userInfo);
+    } catch (error) {
+      console.error('Error refreshing user info', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const updateUserProfile = async (data: UpdateProfileRequest) => {
+    try {
+      setIsLoading(true);
+      await authService.updateProfile(data);
+      await refreshUserInfo();
+      toast.success('Profile updated successfully');
+    } catch (error: any) {
+      console.error('Failed to update profile', error);
+      const errorMessage = error.response?.data || error.message || 'Failed to update profile';
+      toast.error(errorMessage);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
@@ -130,6 +167,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     register,
     logout,
+    refreshUserInfo,
+    updateUserProfile,
   };
 
   console.log('Auth context current state:', { 

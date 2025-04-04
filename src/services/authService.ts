@@ -23,6 +23,28 @@ export interface UserInfo {
   username?: string;
   profilePicture?: string;
   role?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  phoneNumber?: string;
+  isActive?: boolean;
+  isOnline?: boolean;
+}
+
+export interface UpdateProfileRequest {
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  phoneNumber?: string;
+  currentPassword?: string;
+  newPassword?: string;
+}
+
+export interface UpdateEmailRequest {
+  email: string;
 }
 
 export interface AuthResponse {
@@ -233,6 +255,57 @@ const authService = {
       return response.data;
     } catch (error) {
       console.error('Update password error:', error);
+      throw error;
+    }
+  },
+  
+  updateProfile: async (data: UpdateProfileRequest): Promise<string> => {
+    try {
+      const response = await api.put('/Account/update-profile', data);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      throw error;
+    }
+  },
+
+  uploadProfileImage: async (file: File): Promise<{ filePath: string, message: string }> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // For file uploads we need to set the content type to multipart/form-data
+      // but we don't set it explicitly as the browser will set the correct boundary
+      const response = await api.post('/Account/upload-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('Failed to upload profile image:', error);
+      throw error;
+    }
+  },
+
+  getProfileImage: async (userId: string): Promise<{ ProfilePicture: string }> => {
+    try {
+      const response = await api.get(`/Account/profile-image/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get profile image:', error);
+      throw error;
+    }
+  },
+
+  updateEmail: async (email: string): Promise<string> => {
+    try {
+      const request: UpdateEmailRequest = { email };
+      const response = await api.put('/Account/update-email', request);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update email:', error);
       throw error;
     }
   }

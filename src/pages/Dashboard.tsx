@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { File, FolderPlus, LogOut, Plus, Upload, UserCog } from 'lucide-react';
+import { File, FolderPlus, LogOut, Plus, Upload, UserCog, User } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { Link } from 'react-router-dom';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -29,6 +30,10 @@ const Dashboard = () => {
     }
   };
 
+  const getInitials = () => {
+    return `${user?.firstName?.[0] || ''}${user?.lastName?.[0] || ''}`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
@@ -47,12 +52,23 @@ const Dashboard = () => {
                 </Button>
               </Link>
             )}
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                {user?.firstName} {user?.lastName}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
-            </div>
+            <Link to="/profile">
+              <div className="flex items-center space-x-3 cursor-pointer">
+                <Avatar className="h-9 w-9">
+                  {user?.profilePicture ? (
+                    <AvatarImage src={user.profilePicture} alt="Profile" />
+                  ) : (
+                    <AvatarFallback className="text-sm">{getInitials()}</AvatarFallback>
+                  )}
+                </Avatar>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {user?.firstName} {user?.lastName}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                </div>
+              </div>
+            </Link>
             <Button variant="ghost" size="icon" onClick={logout}>
               <LogOut className="h-5 w-5" />
             </Button>
