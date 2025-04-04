@@ -23,6 +23,7 @@ import DocumentTypes from "./pages/DocumentTypes";
 import CreateDocument from "./pages/CreateDocument";
 import ViewDocument from "./pages/ViewDocument";
 import EditDocument from "./pages/EditDocument";
+import DocumentLignesPage from "./pages/DocumentLignesPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,7 +63,7 @@ const App = () => (
               <Route path="/documents/:id/edit" element={<ProtectedRoute requiredRole={["Admin", "FullUser"]}><EditDocument /></ProtectedRoute>} />
               
               {/* Document Lignes routes */}
-              <Route path="/documents/:id/lignes" element={<ProtectedRoute><ViewDocument /></ProtectedRoute>} />
+              <Route path="/documents/:id/lignes" element={<ProtectedRoute><DocumentLignesPage /></ProtectedRoute>} />
               <Route path="/documents/:id/lignes/:ligneId" element={<ProtectedRoute><ViewDocument /></ProtectedRoute>} />
               
               {/* Document SousLignes routes */}

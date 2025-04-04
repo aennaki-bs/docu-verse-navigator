@@ -48,27 +48,33 @@ const ViewDocument = () => {
   } = useQuery({
     queryKey: ['document', Number(id)],
     queryFn: () => documentService.getDocumentById(Number(id)),
-    enabled: !!id,
-    onError: (error) => {
-      console.error(`Failed to fetch document with ID ${id}:`, error);
-      toast.error('Failed to load document');
-      navigate('/documents');
-    }
+    enabled: !!id
   });
 
   // Fetch lignes for this document
   const {
     data: lignes = [],
-    isLoading: isLoadingLignes
+    isLoading: isLoadingLignes,
+    error: lignesError
   } = useQuery({
     queryKey: ['documentLignes', Number(id)],
     queryFn: () => documentService.getLignesByDocumentId(Number(id)),
-    enabled: !!id,
-    onError: (error) => {
-      console.error(`Failed to fetch lignes for document ${id}:`, error);
+    enabled: !!id
+  });
+
+  // Handle errors from queries using useEffect
+  useEffect(() => {
+    if (documentError) {
+      console.error(`Failed to fetch document with ID ${id}:`, documentError);
+      toast.error('Failed to load document');
+      navigate('/documents');
+    }
+
+    if (lignesError) {
+      console.error(`Failed to fetch lignes for document ${id}:`, lignesError);
       toast.error('Failed to load document lignes');
     }
-  });
+  }, [documentError, lignesError, id, navigate]);
 
   const handleLogout = () => {
     logout(navigate);

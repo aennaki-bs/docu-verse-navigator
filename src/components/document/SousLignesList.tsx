@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { SousLigne, Ligne, Document, CreateSousLigneRequest } from '@/models/document';
@@ -34,10 +33,22 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
   const queryClient = useQueryClient();
 
   // Fetch sous-lignes for this ligne
-  const { data: sousLignes = [], isLoading, error } = useQuery({
+  const { 
+    data: sousLignes = [], 
+    isLoading, 
+    error 
+  } = useQuery({
     queryKey: ['sousLignes', ligne.id],
     queryFn: () => documentService.getSousLignesByLigneId(ligne.id),
   });
+
+  // Handle error with useEffect if needed
+  useEffect(() => {
+    if (error) {
+      console.error(`Failed to fetch sousLignes for ligne ${ligne.id}:`, error);
+      toast.error('Failed to load sous-lignes');
+    }
+  }, [error, ligne.id]);
 
   const resetForm = () => {
     setTitle('');
