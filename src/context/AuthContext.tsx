@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import authService, { 
@@ -148,12 +149,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async (navigate?: NavigateFunction) => {
     try {
-      // Call the API logout endpoint with the user ID
-      await authService.logout(user?.id);
+      // Store userId before clearing state to ensure it's available for the API call
+      const userId = user?.id;
+      console.log('Attempting to logout user with ID:', userId);
+      
+      if (userId) {
+        // Call the API logout endpoint with the user ID
+        await authService.logout(userId);
+      } else {
+        console.warn('Cannot logout: No user ID available');
+      }
       
       // Clear local state
       setUser(null);
       setToken(null);
+      
+      // Clear all auth-related localStorage items
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       
       toast.info('You have been logged out');
       
@@ -165,6 +178,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Still clear state even if API call fails
       setUser(null);
       setToken(null);
+      
+      // Clear all auth-related localStorage items
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       
       if (navigate) {
         navigate('/login');

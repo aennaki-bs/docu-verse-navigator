@@ -145,16 +145,21 @@ const authService = {
     }
   },
 
-  logout: async (userId: string | undefined): Promise<void> => {
+  logout: async (userId: string): Promise<void> => {
     try {
-      if (userId) {
-        // Explicitly match the API endpoint and request structure
-        const request: LogoutRequest = { userId };
-        await api.post('/Auth/logout', request);
-        console.log('Logout API called successfully with userId:', userId);
-      } else {
-        console.error('Cannot call logout API: userId is undefined');
+      if (!userId) {
+        console.error('Cannot call logout API: userId is not provided');
+        return;
       }
+      
+      console.log('Calling logout API with userId:', userId);
+      
+      // Create a proper request object matching the expected backend format
+      const request: LogoutRequest = { userId };
+      
+      // Make sure we're calling the correct endpoint with the proper payload
+      const response = await api.post('/Auth/logout', request);
+      console.log('Logout API response:', response.data);
     } catch (error) {
       console.error('Error calling logout API:', error);
     } finally {
