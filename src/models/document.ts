@@ -14,6 +14,8 @@ export interface Document {
   circuitId?: number;
   createdByUserId: number;
   createdBy: DocumentUser;
+  lignesCount?: number;
+  sousLignesCount?: number;
 }
 
 export interface DocumentType {
@@ -47,4 +49,52 @@ export interface UpdateDocumentRequest {
   typeId?: number;
   docDate?: string;
   circuitId?: number;
+}
+
+export interface Ligne {
+  id: number;
+  documentId: number;
+  ligneKey: string;
+  title: string;
+  article: string;
+  prix: number;
+  createdAt: string;
+  updatedAt: string;
+  document?: Document;
+  sousLignesCount?: number;
+}
+
+export interface CreateLigneRequest {
+  documentId: number;
+  title: string;
+  article: string;
+  prix: number;
+}
+
+export interface UpdateLigneRequest {
+  title?: string;
+  article?: string;
+  prix?: number;
+}
+
+export interface SousLigne {
+  id: number;
+  ligneId: number;
+  sousLigneKey?: string;
+  title: string;
+  attribute: string;
+  createdAt?: string;
+  updatedAt?: string;
+  ligne?: Ligne;
+}
+
+export interface CreateSousLigneRequest {
+  ligneId: number;
+  title: string;
+  attribute: string;
+}
+
+export interface UpdateSousLigneRequest {
+  title?: string;
+  attribute?: string;
 }
