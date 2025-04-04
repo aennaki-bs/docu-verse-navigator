@@ -19,6 +19,7 @@ interface AuthContextType {
   logout: (navigate?: NavigateFunction) => void;
   refreshUserInfo: () => Promise<void>;
   updateUserProfile: (data: UpdateProfileRequest) => Promise<void>;
+  hasRole: (roles: string | string[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
   refreshUserInfo: async () => {},
   updateUserProfile: async () => {},
+  hasRole: () => false,
 });
 
 // Export the hook through a direct import
@@ -215,6 +217,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Helper method to check if user has specified role(s)
+  const hasRole = (roles: string | string[]): boolean => {
+    if (!user || !user.role) return false;
+    
+    const userRole = typeof user.role === 'string' ? user.role : user.role.roleName;
+    
+    if (Array.isArray(roles)) {
+      return roles.includes(userRole);
+    }
+    
+    return userRole === roles;
+  };
+
   const authValue = {
     user,
     token,
@@ -225,6 +240,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logout,
     refreshUserInfo,
     updateUserProfile,
+    hasRole,
   };
 
   console.log('Auth context current state:', { 

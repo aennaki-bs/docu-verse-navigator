@@ -10,12 +10,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import documentService from '@/services/documentService';
 import { Document } from '@/models/document';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [recentDocuments, setRecentDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Check if user has permissions to create/edit documents
+  const canManageDocuments = user?.role === 'Admin' || user?.role === 'FullUser';
 
   useEffect(() => {
     const fetchDocuments = async () => {
@@ -102,7 +106,14 @@ const Dashboard = () => {
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {user?.firstName} {user?.lastName}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                    {user?.role && (
+                      <Badge variant={user.role === "Admin" ? "success" : user.role === "FullUser" ? "info" : "outline"}>
+                        {user.role}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
             </Link>
@@ -117,21 +128,41 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Actions */}
         <div className="mb-8 flex flex-wrap gap-4">
-          <Button className="bg-blue-600 hover:bg-blue-700" asChild>
-            <Link to="/documents/create">
-              <Plus className="mr-2 h-4 w-4" /> Create Document
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/documents">
-              <File className="mr-2 h-4 w-4" /> View All Documents
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/document-types">
-              <FolderPlus className="mr-2 h-4 w-4" /> Manage Document Types
-            </Link>
-          </Button>
+          {canManageDocuments ? (
+            <>
+              <Button className="bg-blue-600 hover:bg-blue-700" asChild>
+                <Link to="/documents/create">
+                  <Plus className="mr-2 h-4 w-4" /> Create Document
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/documents">
+                  <File className="mr-2 h-4 w-4" /> View All Documents
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/document-types">
+                  <FolderPlus className="mr-2 h-4 w-4" /> Manage Document Types
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" disabled className="cursor-not-allowed opacity-60">
+                <Plus className="mr-2 h-4 w-4" /> Create Document
+                <span className="ml-2 text-xs text-red-500">(Requires FullUser or Admin role)</span>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/documents">
+                  <File className="mr-2 h-4 w-4" /> View All Documents
+                </Link>
+              </Button>
+              <Button variant="outline" disabled className="cursor-not-allowed opacity-60">
+                <FolderPlus className="mr-2 h-4 w-4" /> Manage Document Types
+                <span className="ml-2 text-xs text-red-500">(Requires FullUser or Admin role)</span>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Recent Documents */}

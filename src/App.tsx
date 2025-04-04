@@ -47,12 +47,12 @@ const App = () => (
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminPage /></ProtectedRoute>} />
               <Route path="/documents" element={<Documents />} />
               <Route path="/document-types" element={<DocumentTypes />} />
-              <Route path="/documents/create" element={<CreateDocument />} />
+              <Route path="/documents/create" element={<ProtectedRoute requiredRole={["Admin", "FullUser"]}><CreateDocument /></ProtectedRoute>} />
               <Route path="/documents/:id" element={<ViewDocument />} />
-              <Route path="/documents/:id/edit" element={<EditDocument />} />
+              <Route path="/documents/:id/edit" element={<ProtectedRoute requiredRole={["Admin", "FullUser"]}><EditDocument /></ProtectedRoute>} />
             </Route>
             
             {/* Catch-all route */}

@@ -21,12 +21,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { File, Plus, Trash, Edit, LogOut, UserCog } from 'lucide-react';
+import { File, Plus, Trash, Edit, LogOut, UserCog, Info } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import documentService from '@/services/documentService';
 import { Document } from '@/models/document';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from '@/components/ui/badge';
 
 const Documents = () => {
   const { user, logout } = useAuth();
@@ -39,6 +46,9 @@ const Documents = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 10;
+
+  // Check if user has permissions to create/edit/delete documents
+  const canManageDocuments = user?.role === 'Admin' || user?.role === 'FullUser';
 
   useEffect(() => {
     fetchDocuments();
@@ -63,6 +73,11 @@ const Documents = () => {
   };
 
   const handleSelectDocument = (id: number) => {
+    if (!canManageDocuments) {
+      toast.error('You do not have permission to select documents');
+      return;
+    }
+    
     setSelectedDocuments(prev => {
       if (prev.includes(id)) {
         return prev.filter(docId => docId !== id);
@@ -73,6 +88,11 @@ const Documents = () => {
   };
 
   const handleSelectAll = () => {
+    if (!canManageDocuments) {
+      toast.error('You do not have permission to select documents');
+      return;
+    }
+    
     if (selectedDocuments.length === getPageDocuments().length) {
       setSelectedDocuments([]);
     } else {
@@ -81,6 +101,11 @@ const Documents = () => {
   };
 
   const openDeleteDialog = (id?: number) => {
+    if (!canManageDocuments) {
+      toast.error('You do not have permission to delete documents');
+      return;
+    }
+    
     if (id) {
       setDocumentToDelete(id);
     } else if (selectedDocuments.length > 0) {
@@ -154,7 +179,14 @@ const Documents = () => {
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {user?.firstName} {user?.lastName}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                    {user?.role && (
+                      <Badge variant={user.role === "Admin" ? "success" : user.role === "FullUser" ? "info" : "outline"}>
+                        {user.role}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
             </Link>
@@ -170,18 +202,43 @@ const Documents = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Documents</h1>
           <div className="flex space-x-3">
-            <Button className="bg-blue-600 hover:bg-blue-700" asChild>
-              <Link to="/documents/create">
-                <Plus className="mr-2 h-4 w-4" /> New Document
-              </Link>
-            </Button>
-            {selectedDocuments.length > 0 && (
+            {canManageDocuments ? (
+              <Button className="bg-blue-600 hover:bg-blue-700" asChild>
+                <Link to="/documents/create">
+                  <Plus className="mr-2 h-4 w-4" /> New Document
+                </Link>
+              </Button>
+            ) : (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button className="bg-blue-600 hover:bg-blue-700" disabled>
+                      <Plus className="mr-2 h-4 w-4" /> New Document
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Only Admin or FullUser can create documents</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            {canManageDocuments && selectedDocuments.length > 0 && (
               <Button variant="destructive" onClick={() => openDeleteDialog()}>
                 <Trash className="mr-2 h-4 w-4" /> Delete Selected ({selectedDocuments.length})
               </Button>
             )}
           </div>
         </div>
+
+        {!canManageDocuments && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md flex items-center gap-3">
+            <Info className="h-5 w-5 text-yellow-500" />
+            <p className="text-sm text-yellow-700">
+              Your current role is <strong>{user?.role}</strong>. You can only view documents. 
+              Creating, editing, or deleting documents requires <strong>FullUser</strong> or <strong>Admin</strong> role.
+            </p>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="space-y-4">
@@ -197,10 +254,14 @@ const Documents = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">
-                      <Checkbox 
-                        checked={selectedDocuments.length === getPageDocuments().length && getPageDocuments().length > 0} 
-                        onCheckedChange={handleSelectAll}
-                      />
+                      {canManageDocuments ? (
+                        <Checkbox 
+                          checked={selectedDocuments.length === getPageDocuments().length && getPageDocuments().length > 0} 
+                          onCheckedChange={handleSelectAll}
+                        />
+                      ) : (
+                        <span>#</span>
+                      )}
                     </TableHead>
                     <TableHead className="w-64">Document Key</TableHead>
                     <TableHead>Title</TableHead>
@@ -211,13 +272,17 @@ const Documents = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {getPageDocuments().map((document) => (
+                  {getPageDocuments().map((document, index) => (
                     <TableRow key={document.id}>
                       <TableCell>
-                        <Checkbox 
-                          checked={selectedDocuments.includes(document.id)}
-                          onCheckedChange={() => handleSelectDocument(document.id)}
-                        />
+                        {canManageDocuments ? (
+                          <Checkbox 
+                            checked={selectedDocuments.includes(document.id)}
+                            onCheckedChange={() => handleSelectDocument(document.id)}
+                          />
+                        ) : (
+                          <span className="text-sm text-gray-500">{index + 1 + (page - 1) * pageSize}</span>
+                        )}
                       </TableCell>
                       <TableCell className="font-medium">{document.documentKey}</TableCell>
                       <TableCell>
@@ -230,19 +295,36 @@ const Documents = () => {
                       <TableCell>{document.createdBy.username}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end space-x-2">
-                          <Button variant="ghost" size="icon" asChild>
-                            <Link to={`/documents/${document.id}/edit`}>
-                              <Edit className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-red-500 hover:text-red-700"
-                            onClick={() => openDeleteDialog(document.id)}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
+                          {canManageDocuments ? (
+                            <>
+                              <Button variant="ghost" size="icon" asChild>
+                                <Link to={`/documents/${document.id}/edit`}>
+                                  <Edit className="h-4 w-4" />
+                                </Link>
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="text-red-500 hover:text-red-700"
+                                onClick={() => openDeleteDialog(document.id)}
+                              >
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="cursor-not-allowed opacity-50">
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Only Admin or FullUser can edit documents</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -287,15 +369,24 @@ const Documents = () => {
             <File className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">No documents found</h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Get started by creating your first document
+              {canManageDocuments 
+                ? "Get started by creating your first document"
+                : "No documents are available for viewing"}
             </p>
             <div className="mt-6">
-              <Button asChild>
-                <Link to="/documents/create">
+              {canManageDocuments ? (
+                <Button asChild>
+                  <Link to="/documents/create">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Document
+                  </Link>
+                </Button>
+              ) : (
+                <Button disabled className="cursor-not-allowed opacity-60">
                   <Plus className="mr-2 h-4 w-4" />
                   Create Document
-                </Link>
-              </Button>
+                </Button>
+              )}
             </div>
           </div>
         )}

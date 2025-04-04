@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -13,12 +12,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Edit, LogOut, UserCog, Trash, ArrowLeft } from 'lucide-react';
+import { Edit, LogOut, UserCog, Trash, ArrowLeft, Info } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import documentService from '@/services/documentService';
 import { Document } from '@/models/document';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from '@/components/ui/badge';
 
 const ViewDocument = () => {
   const { id } = useParams();
@@ -27,6 +33,9 @@ const ViewDocument = () => {
   const [document, setDocument] = useState<Document | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Check if user has permissions to edit/delete documents
+  const canManageDocuments = user?.role === 'Admin' || user?.role === 'FullUser';
 
   useEffect(() => {
     if (!id) {
@@ -57,6 +66,11 @@ const ViewDocument = () => {
   };
 
   const handleDelete = async () => {
+    if (!canManageDocuments) {
+      toast.error('You do not have permission to delete documents');
+      return;
+    }
+    
     try {
       if (document) {
         await documentService.deleteDocument(document.id);
@@ -78,13 +92,13 @@ const ViewDocument = () => {
   const getStatusBadge = (status: number) => {
     switch(status) {
       case 0:
-        return <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded-full">Draft</span>;
+        return <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Draft</span>;
       case 1:
-        return <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">Active</span>;
+        return <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Active</span>;
       case 2:
-        return <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">Archived</span>;
+        return <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Archived</span>;
       default:
-        return <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-0.5 rounded-full">Unknown</span>;
+        return <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Unknown</span>;
     }
   };
 
@@ -121,7 +135,14 @@ const ViewDocument = () => {
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {user?.firstName} {user?.lastName}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                    {user?.role && (
+                      <Badge variant={user.role === "Admin" ? "success" : user.role === "FullUser" ? "info" : "outline"}>
+                        {user.role}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
             </Link>
@@ -146,21 +167,50 @@ const ViewDocument = () => {
           
           {document && (
             <div className="flex space-x-3">
-              <Button variant="outline" className="flex items-center" asChild>
-                <Link to={`/documents/${document.id}/edit`}>
-                  <Edit className="h-4 w-4 mr-2" /> Edit
-                </Link>
-              </Button>
-              <Button 
-                variant="destructive" 
-                className="flex items-center"
-                onClick={() => setDeleteDialogOpen(true)}
-              >
-                <Trash className="h-4 w-4 mr-2" /> Delete
-              </Button>
+              {canManageDocuments ? (
+                <>
+                  <Button variant="outline" className="flex items-center" asChild>
+                    <Link to={`/documents/${document.id}/edit`}>
+                      <Edit className="h-4 w-4 mr-2" /> Edit
+                    </Link>
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    className="flex items-center"
+                    onClick={() => setDeleteDialogOpen(true)}
+                  >
+                    <Trash className="h-4 w-4 mr-2" /> Delete
+                  </Button>
+                </>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Button variant="outline" className="flex items-center" disabled>
+                          <Edit className="h-4 w-4 mr-2" /> Edit
+                        </Button>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Only Admin or FullUser can edit documents</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
           )}
         </div>
+
+        {!canManageDocuments && document && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md flex items-center gap-3">
+            <Info className="h-5 w-5 text-yellow-500" />
+            <p className="text-sm text-yellow-700">
+              Your current role is <strong>{user?.role}</strong>. You can only view this document. 
+              Editing or deleting documents requires <strong>FullUser</strong> or <strong>Admin</strong> role.
+            </p>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="space-y-4">
