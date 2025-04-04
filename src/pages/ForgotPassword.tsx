@@ -32,6 +32,11 @@ const ForgotPassword = () => {
       await authService.forgotPassword(email);
       toast.success('A password reset link has been sent to your email.');
       
+      // Only navigate to login on success
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+      
     } catch (err: any) {
       console.error('Password reset error:', err);
       
