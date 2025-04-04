@@ -16,6 +16,7 @@ export interface Document {
   createdBy: DocumentUser;
   lignesCount?: number;
   sousLignesCount?: number;
+  lignes?: Ligne[];
 }
 
 export interface DocumentType {
@@ -61,6 +62,7 @@ export interface Ligne {
   createdAt: string;
   updatedAt: string;
   document?: Document;
+  sousLignes?: SousLigne[];
   sousLignesCount?: number;
 }
 
