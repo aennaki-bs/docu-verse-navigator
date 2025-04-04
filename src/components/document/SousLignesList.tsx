@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, CheckCircle2, XCircle, FileStack, Settings } from 'lucide-react';
 import { SousLigne, Ligne, Document, CreateSousLigneRequest } from '@/models/document';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SousLignesListProps {
   document: Document;
@@ -152,91 +154,145 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
   };
 
   if (isLoading) {
-    return <div className="text-center py-4">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-red-500 py-4">Error loading sous-lignes</div>;
+    return (
+      <div className="py-8">
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm font-medium text-gray-700">
-          {sousLignes.length} Sous-ligne{sousLignes.length !== 1 && 's'}
-        </h4>
+        <div className="flex items-center">
+          <FileStack className="h-4 w-4 mr-2 text-blue-600" />
+          <h4 className="font-medium text-blue-900">
+            Sub-Lines <span className="text-gray-400 text-sm font-normal">({sousLignes.length})</span>
+          </h4>
+        </div>
         {canManageDocuments && (
-          <Button onClick={handleCreateDialogOpen} size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
-            <Plus className="h-3 w-3 mr-1" /> Add
+          <Button 
+            onClick={handleCreateDialogOpen} 
+            size="sm" 
+            variant="outline" 
+            className="border-blue-300 text-blue-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-400 transition-colors"
+          >
+            <Plus className="h-3 w-3 mr-1" /> Add Sub-Line
           </Button>
         )}
       </div>
 
-      {sousLignes.length === 0 ? (
-        <div className="text-sm text-gray-500 italic">No sous-lignes available.</div>
-      ) : (
-        <div className="space-y-2">
-          {sousLignes.map((sousLigne) => (
-            <Card key={sousLigne.id} className="p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h5 className="font-medium text-sm">{sousLigne.title}</h5>
-                    {sousLigne.sousLigneKey && (
-                      <Badge variant="outline" className="font-mono text-xs">
-                        {sousLigne.sousLigneKey}
-                      </Badge>
+      <AnimatePresence>
+        {sousLignes.length === 0 ? (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="text-sm text-gray-500 italic p-4 text-center bg-gray-100 bg-opacity-50 rounded-md"
+          >
+            No sub-lines available for this line yet.
+          </motion.div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {sousLignes.map((sousLigne, index) => (
+              <motion.div
+                key={sousLigne.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
+              >
+                <Card className="p-3 bg-white hover:shadow-md transition-shadow border-l-2 border-l-blue-400 group">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h5 className="font-medium text-sm">{sousLigne.title}</h5>
+                        {sousLigne.sousLigneKey && (
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {sousLigne.sousLigneKey}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 line-clamp-2">{sousLigne.attribute}</p>
+                    </div>
+                    {canManageDocuments && (
+                      <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0" 
+                          onClick={() => handleEditDialogOpen(sousLigne)}
+                        >
+                          <Edit className="h-3.5 w-3.5 text-blue-500" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0" 
+                          onClick={() => handleDeleteDialogOpen(sousLigne)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                        </Button>
+                      </div>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">{sousLigne.attribute}</p>
-                </div>
-                {canManageDocuments && (
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => handleEditDialogOpen(sousLigne)}>
-                      <Edit className="h-3 w-3 text-blue-500" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDeleteDialogOpen(sousLigne)}>
-                      <Trash2 className="h-3 w-3 text-red-500" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </AnimatePresence>
+      
       {/* Create SousLigne Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add Sous-Ligne</DialogTitle>
+            <DialogTitle className="flex items-center text-blue-600">
+              <Plus className="h-5 w-5 mr-2" /> Add Sub-Line
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="sl-title">Title*</Label>
+              <Label htmlFor="sl-title" className="text-sm font-medium">Title*</Label>
               <Input 
                 id="sl-title" 
                 value={title} 
                 onChange={(e) => setTitle(e.target.value)} 
-                placeholder="Enter sous-ligne title"
+                placeholder="Enter sub-line title"
+                className="border-gray-300 focus:ring-blue-500"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="sl-attribute">Attribute*</Label>
+              <Label htmlFor="sl-attribute" className="text-sm font-medium">Attribute*</Label>
               <Textarea 
                 id="sl-attribute" 
                 value={attribute} 
                 onChange={(e) => setAttribute(e.target.value)} 
                 placeholder="Enter attribute value"
                 rows={3}
+                className="border-gray-300 focus:ring-blue-500"
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreateSousLigne} disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create'}
+            <Button 
+              onClick={handleCreateSousLigne} 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-blue-500 to-blue-600"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Creating...
+                </div>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-1" /> Create
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -246,32 +302,40 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Sous-Ligne</DialogTitle>
+            <DialogTitle className="flex items-center text-blue-600">
+              <Settings className="h-5 w-5 mr-2" /> Edit Sub-Line
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-sl-title">Title*</Label>
+              <Label htmlFor="edit-sl-title" className="text-sm font-medium">Title*</Label>
               <Input 
                 id="edit-sl-title" 
                 value={title} 
                 onChange={(e) => setTitle(e.target.value)} 
-                placeholder="Enter sous-ligne title"
+                placeholder="Enter sub-line title"
+                className="border-gray-300 focus:ring-blue-500"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-sl-attribute">Attribute*</Label>
+              <Label htmlFor="edit-sl-attribute" className="text-sm font-medium">Attribute*</Label>
               <Textarea 
                 id="edit-sl-attribute" 
                 value={attribute} 
                 onChange={(e) => setAttribute(e.target.value)} 
                 placeholder="Enter attribute value"
                 rows={3}
+                className="border-gray-300 focus:ring-blue-500"
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleUpdateSousLigne} disabled={isSubmitting}>
+            <Button 
+              onClick={handleUpdateSousLigne} 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-blue-500 to-blue-700"
+            >
               {isSubmitting ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>
@@ -282,13 +346,41 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogTitle className="flex items-center text-red-600">
+              <Trash2 className="h-5 w-5 mr-2" /> Delete Sub-Line
+            </DialogTitle>
           </DialogHeader>
-          <p>Are you sure you want to delete this sous-ligne?</p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDeleteSousLigne} disabled={isSubmitting}>
-              {isSubmitting ? 'Deleting...' : 'Delete'}
+          <div className="py-4">
+            <p className="text-gray-700">Are you sure you want to delete this sub-line?</p>
+            {currentSousLigne && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-md">
+                <h4 className="font-medium text-red-800">{currentSousLigne.title}</h4>
+                {currentSousLigne.sousLigneKey && (
+                  <p className="text-xs text-red-600 font-mono mt-1">{currentSousLigne.sousLigneKey}</p>
+                )}
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              <XCircle className="h-4 w-4 mr-1" /> Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteSousLigne} 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-red-500 to-red-600"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Deleting...
+                </div>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-1" /> Delete
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

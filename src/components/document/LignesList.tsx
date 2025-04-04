@@ -1,10 +1,10 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Package, PlusCircle, DollarSign, FileText } from 'lucide-react';
 import { Ligne, Document, CreateLigneRequest } from '@/models/document';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import documentService from '@/services/documentService';
@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import SousLignesList from './SousLignesList';
 import { Badge } from '@/components/ui/badge';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface LignesListProps {
   document: Document;
@@ -142,105 +143,184 @@ const LignesList = ({ document, lignes, canManageDocuments }: LignesListProps) =
     setExpandedLigneId(expandedLigneId === ligneId ? null : ligneId);
   };
 
+  const getTotalPrice = () => {
+    return lignes.reduce((total, ligne) => total + ligne.prix, 0).toFixed(2);
+  };
+
   return (
-    <div className="mt-8">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Lignes</h2>
-        {canManageDocuments && (
-          <Button onClick={handleCreateDialogOpen} className="bg-green-600 hover:bg-green-700">
-            <Plus className="h-4 w-4 mr-2" /> Add Ligne
+    <div>
+      {canManageDocuments && (
+        <div className="p-4 sticky top-0 bg-white z-10 border-b flex items-center justify-between">
+          <div className="text-lg font-medium text-gray-700 flex items-center">
+            <Package className="h-5 w-5 mr-2 text-blue-500" />
+            Manage Document Lines
+          </div>
+          <Button 
+            onClick={handleCreateDialogOpen} 
+            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-md hover:shadow-lg"
+          >
+            <PlusCircle className="h-4 w-4 mr-2" /> Add New Line
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {lignes.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6 text-center text-gray-500">
-            No lines have been added to this document yet.
-          </CardContent>
-        </Card>
+        <div className="p-12 text-center bg-gray-50">
+          <div className="mx-auto w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mb-4">
+            <FileText className="h-8 w-8" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-700 mb-2">No Lines Found</h3>
+          <p className="text-gray-500 max-w-md mx-auto mb-6">
+            This document doesn't have any lines yet. Add your first line to get started.
+          </p>
+          {canManageDocuments && (
+            <Button 
+              onClick={handleCreateDialogOpen} 
+              variant="outline" 
+              className="border-dashed border-2"
+            >
+              <Plus className="h-4 w-4 mr-2" /> Add Your First Line
+            </Button>
+          )}
+        </div>
       ) : (
-        <div className="space-y-4">
-          {lignes.map((ligne) => (
-            <Card key={ligne.id} className="overflow-hidden">
-              <CardHeader className="bg-gray-50 dark:bg-gray-800 p-4 cursor-pointer" onClick={() => toggleLigneExpansion(ligne.id)}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <CardTitle className="text-lg">{ligne.title}</CardTitle>
-                      <Badge variant="outline" className="font-mono text-xs">
-                        {ligne.ligneKey}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">Article: {ligne.article}</p>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <span className="font-semibold text-green-600">{ligne.prix.toFixed(2)} €</span>
-                    {canManageDocuments && (
+        <>
+          <div className="p-4 space-y-4">
+            {lignes.map((ligne) => (
+              <motion.div 
+                key={ligne.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <Card className="group hover:shadow-md transition-all duration-300 border-l-4 border-l-blue-500">
+                  <div 
+                    className={`p-4 cursor-pointer flex items-center justify-between ${expandedLigneId === ligne.id ? 'bg-blue-50' : 'hover:bg-gray-50 group-hover:bg-gray-50'}`} 
+                    onClick={() => toggleLigneExpansion(ligne.id)}
+                  >
+                    <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditDialogOpen(ligne);
-                        }}>
-                          <Edit className="h-4 w-4 text-blue-500" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteDialogOpen(ligne);
-                        }}>
-                          <Trash2 className="h-4 w-4 text-red-500" />
+                        <h3 className="text-lg font-medium text-gray-800">{ligne.title}</h3>
+                        <Badge variant="outline" className="font-mono text-xs">
+                          {ligne.ligneKey}
+                        </Badge>
+                      </div>
+                      <p className="text-gray-600 mt-1 line-clamp-1">{ligne.article}</p>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                      <div className="font-medium text-green-600 bg-green-50 py-1 px-3 rounded-full flex items-center">
+                        <DollarSign className="h-3 w-3 mr-1" />
+                        {ligne.prix.toFixed(2)}
+                      </div>
+                      
+                      <div className="flex items-center gap-1">
+                        {canManageDocuments && (
+                          <>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditDialogOpen(ligne);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteDialogOpen(ligne);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                        <Button variant="ghost" size="icon" className="text-gray-400">
+                          {expandedLigneId === ligne.id ? 
+                            <ChevronUp className="h-5 w-5" /> : 
+                            <ChevronDown className="h-5 w-5" />
+                          }
                         </Button>
                       </div>
+                    </div>
+                  </div>
+                  
+                  <AnimatePresence>
+                    {expandedLigneId === ligne.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Separator />
+                        <div className="p-4 bg-blue-50">
+                          <SousLignesList 
+                            document={document}
+                            ligne={ligne}
+                            canManageDocuments={canManageDocuments}
+                          />
+                        </div>
+                      </motion.div>
                     )}
-                  </div>
-                </div>
-              </CardHeader>
-              
-              {expandedLigneId === ligne.id && (
-                <CardContent className="p-4">
-                  <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
-                    <h3 className="font-medium mb-2">Sous-Lignes</h3>
-                    <SousLignesList 
-                      document={document}
-                      ligne={ligne}
-                      canManageDocuments={canManageDocuments}
-                    />
-                  </div>
-                </CardContent>
-              )}
-            </Card>
-          ))}
-        </div>
+                  </AnimatePresence>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+          
+          {lignes.length > 0 && (
+            <div className="bg-gray-50 p-4 border-t flex justify-between items-center">
+              <div className="text-gray-600">
+                Total Lines: <span className="font-medium">{lignes.length}</span>
+              </div>
+              <div className="text-lg font-medium">
+                Total: <span className="text-green-600">{getTotalPrice()} €</span>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Create Ligne Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Add Ligne</DialogTitle>
+            <DialogTitle className="flex items-center text-blue-600">
+              <PlusCircle className="h-5 w-5 mr-2" /> Add New Line
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Title*</Label>
+              <Label htmlFor="title" className="text-gray-700">Title*</Label>
               <Input 
                 id="title" 
                 value={title} 
                 onChange={(e) => setTitle(e.target.value)} 
                 placeholder="Enter line title"
+                className="border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="article">Article*</Label>
+              <Label htmlFor="article" className="text-gray-700">Article Description*</Label>
               <Textarea 
                 id="article" 
                 value={article} 
                 onChange={(e) => setArticle(e.target.value)} 
                 placeholder="Enter article description"
                 rows={3}
+                className="border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="prix">Price*</Label>
+              <Label htmlFor="prix" className="text-gray-700">Price (€)*</Label>
               <Input 
                 id="prix" 
                 type="number" 
@@ -249,13 +329,18 @@ const LignesList = ({ document, lignes, canManageDocuments }: LignesListProps) =
                 placeholder="0.00"
                 min="0"
                 step="0.01"
+                className="border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreateLigne} disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create'}
+            <Button 
+              onClick={handleCreateLigne} 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-blue-500 to-blue-600"
+            >
+              {isSubmitting ? 'Creating...' : 'Create Line'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -263,32 +348,36 @@ const LignesList = ({ document, lignes, canManageDocuments }: LignesListProps) =
 
       {/* Edit Ligne Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Edit Ligne</DialogTitle>
+            <DialogTitle className="flex items-center text-blue-600">
+              <Edit className="h-5 w-5 mr-2" /> Edit Line
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-title">Title*</Label>
+              <Label htmlFor="edit-title" className="text-gray-700">Title*</Label>
               <Input 
                 id="edit-title" 
                 value={title} 
                 onChange={(e) => setTitle(e.target.value)} 
                 placeholder="Enter line title"
+                className="border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-article">Article*</Label>
+              <Label htmlFor="edit-article" className="text-gray-700">Article Description*</Label>
               <Textarea 
                 id="edit-article" 
                 value={article} 
                 onChange={(e) => setArticle(e.target.value)} 
                 placeholder="Enter article description"
                 rows={3}
+                className="border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-prix">Price*</Label>
+              <Label htmlFor="edit-prix" className="text-gray-700">Price (€)*</Label>
               <Input 
                 id="edit-prix" 
                 type="number" 
@@ -297,12 +386,17 @@ const LignesList = ({ document, lignes, canManageDocuments }: LignesListProps) =
                 placeholder="0.00"
                 min="0"
                 step="0.01"
+                className="border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleUpdateLigne} disabled={isSubmitting}>
+            <Button 
+              onClick={handleUpdateLigne} 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-blue-500 to-blue-700"
+            >
               {isSubmitting ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>
@@ -311,15 +405,30 @@ const LignesList = ({ document, lignes, canManageDocuments }: LignesListProps) =
 
       {/* Delete Ligne Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogTitle className="flex items-center text-red-600">
+              <Trash2 className="h-5 w-5 mr-2" /> Confirm Delete
+            </DialogTitle>
           </DialogHeader>
-          <p>Are you sure you want to delete this ligne? This will also delete all related sous-lignes.</p>
+          <div className="py-4">
+            <p className="text-gray-700">Are you sure you want to delete this line? This will also delete all related sous-lignes.</p>
+            {currentLigne && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">
+                <p className="font-medium">{currentLigne.title}</p>
+                <p className="text-sm text-gray-500">{currentLigne.ligneKey}</p>
+              </div>
+            )}
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDeleteLigne} disabled={isSubmitting}>
-              {isSubmitting ? 'Deleting...' : 'Delete'}
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteLigne} 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-red-500 to-red-600"
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete Line'}
             </Button>
           </DialogFooter>
         </DialogContent>
