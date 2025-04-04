@@ -47,6 +47,10 @@ export interface UpdateEmailRequest {
   email: string;
 }
 
+export interface LogoutRequest {
+  userId: string;
+}
+
 export interface AuthResponse {
   token: string;
   user: UserInfo;
@@ -141,9 +145,20 @@ const authService = {
     }
   },
 
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  logout: async (userId: string | undefined): Promise<void> => {
+    try {
+      if (userId) {
+        // Call the logout API endpoint
+        await api.post('/Auth/logout', { userId });
+        console.log('Logout API called successfully');
+      }
+    } catch (error) {
+      console.error('Error calling logout API:', error);
+    } finally {
+      // Always clear local storage even if the API call fails
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
   },
 
   validateUsername: async (username: string): Promise<boolean> => {

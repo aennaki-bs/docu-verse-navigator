@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import authService, { 
@@ -147,16 +146,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = (navigate?: NavigateFunction) => {
-    authService.logout();
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    toast.info('You have been logged out');
-    
-    if (navigate) {
-      navigate('/login');
+  const logout = async (navigate?: NavigateFunction) => {
+    try {
+      // Call the API logout endpoint with the user ID
+      await authService.logout(user?.id);
+      
+      // Clear local state
+      setUser(null);
+      setToken(null);
+      
+      toast.info('You have been logged out');
+      
+      if (navigate) {
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Still clear state even if API call fails
+      setUser(null);
+      setToken(null);
+      
+      if (navigate) {
+        navigate('/login');
+      }
     }
   };
 
