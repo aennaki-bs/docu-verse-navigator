@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import authService, { 
@@ -19,6 +20,12 @@ interface AuthContextType {
   refreshUserInfo: () => Promise<void>;
   updateUserProfile: (data: UpdateProfileRequest) => Promise<void>;
   hasRole: (roles: string | string[]) => boolean;
+}
+
+// Define the RoleType interface to properly type the role property
+interface RoleType {
+  roleName?: string;
+  roleId?: number;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -220,7 +227,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const hasRole = (roles: string | string[]): boolean => {
     if (!user || !user.role) return false;
     
-    const userRole = typeof user.role === 'string' ? user.role : user.role.roleName;
+    // Handle the case where role might be a string or an object with roleName property
+    const userRole = typeof user.role === 'string' 
+      ? user.role 
+      : (user.role as unknown as RoleType)?.roleName || '';
     
     if (Array.isArray(roles)) {
       return roles.includes(userRole);
