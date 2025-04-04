@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
@@ -20,6 +20,7 @@ import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import documentService from '@/services/documentService';
 import { Document, DocumentType, UpdateDocumentRequest } from '@/models/document';
+import { Badge } from '@/components/ui/badge';
 
 const EditDocument = () => {
   const { id } = useParams();
@@ -221,36 +222,51 @@ const EditDocument = () => {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6 flex items-center">
-          <Button variant="outline" size="sm" onClick={() => navigate(`/documents/${id}`)} className="mr-4">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back to Document
+        <div className="mb-8 flex items-center">
+          <Button variant="outline" size="lg" onClick={() => navigate(`/documents/${id}`)} className="mr-4">
+            <ArrowLeft className="h-5 w-5 mr-2" /> Back to Document
           </Button>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Edit Document
-          </h1>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Edit Document
+            </h1>
+            {document && (
+              <div className="flex items-center mt-2">
+                <Badge variant="outline" className="font-mono text-sm mr-3">
+                  {document.documentKey}
+                </Badge>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Last updated: {new Date(document.updatedAt).toLocaleDateString()}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {isLoading ? (
           <Card className="animate-pulse">
-            <CardContent className="p-6 space-y-4">
-              <div className="h-10 bg-gray-200 rounded"></div>
-              <div className="h-10 bg-gray-200 rounded"></div>
-              <div className="h-10 bg-gray-200 rounded"></div>
-              <div className="h-32 bg-gray-200 rounded"></div>
+            <CardContent className="p-6 space-y-6">
+              <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded"></div>
             </CardContent>
           </Card>
         ) : document ? (
-          <Card>
+          <Card className="shadow-lg border-gray-200 dark:border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-2xl">Edit Document Details</CardTitle>
+            </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <Label htmlFor="documentType">Document Type*</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="documentType" className="text-base font-medium">Document Type*</Label>
                     <Select 
                       value={selectedTypeId?.toString() || ''} 
                       onValueChange={handleTypeIdChange}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 text-base">
                         <SelectValue placeholder="Select document type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -261,66 +277,99 @@ const EditDocument = () => {
                         ))}
                       </SelectContent>
                     </Select>
+                    {editedFields.typeId && (
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                        ⚠️ Changing the document type may update the document key
+                      </p>
+                    )}
                   </div>
                   
-                  <div>
-                    <Label htmlFor="documentAlias">Document Alias</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="documentAlias" className="text-base font-medium">Document Alias</Label>
                     <Input 
                       id="documentAlias" 
                       value={documentAlias} 
                       onChange={handleDocumentAliasChange}
                       placeholder="e.g., INV for Invoice"
                       maxLength={10}
+                      className="h-12 text-base"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className={`text-xs ${
+                      editedFields.documentAlias 
+                        ? "text-yellow-600 dark:text-yellow-400" 
+                        : "text-gray-500 dark:text-gray-400"
+                    }`}>
                       {document.documentKey.includes(documentAlias) ? 
                         'Current document key contains this alias' : 
-                        'Changing this will update the document key'}
+                        '⚠️ Changing this will update the document key'}
                     </p>
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="title">Document Title*</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="title" className="text-base font-medium">Document Title*</Label>
                   <Input 
                     id="title" 
                     value={title} 
                     onChange={handleTitleChange}
                     placeholder="Enter document title"
+                    className="h-12 text-base"
                   />
+                  {editedFields.title && (
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      ℹ️ Title has been modified
+                    </p>
+                  )}
                 </div>
 
-                <div>
-                  <Label htmlFor="docDate">Document Date*</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="docDate" className="text-base font-medium">Document Date*</Label>
                   <Input 
                     id="docDate" 
                     type="date" 
                     value={docDate} 
                     onChange={handleDocDateChange}
+                    className="h-12 text-base"
                   />
+                  {editedFields.docDate && (
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      ℹ️ Date has been modified
+                    </p>
+                  )}
                 </div>
 
-                <div>
-                  <Label htmlFor="content">Document Content*</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="content" className="text-base font-medium">Document Content*</Label>
                   <Textarea 
                     id="content" 
                     value={content} 
                     onChange={handleContentChange}
                     placeholder="Enter document content"
                     rows={10}
+                    className="text-base resize-y"
                   />
+                  {editedFields.content && (
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      ℹ️ Content has been modified
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex justify-end space-x-3 pt-4">
-                  <Button variant="outline" onClick={() => navigate(`/documents/${id}`)}>
+                <div className="flex justify-end space-x-4 pt-6">
+                  <Button variant="outline" size="lg" onClick={() => navigate(`/documents/${id}`)} className="px-6">
                     Cancel
                   </Button>
                   <Button 
                     onClick={handleSubmit} 
-                    disabled={isSubmitting}
-                    className="bg-green-600 hover:bg-green-700"
+                    disabled={isSubmitting || !Object.values(editedFields).some(edited => edited)}
+                    size="lg"
+                    className={`px-6 ${
+                      Object.values(editedFields).some(edited => edited) 
+                        ? "bg-green-600 hover:bg-green-700" 
+                        : ""
+                    }`}
                   >
-                    <Save className="mr-2 h-4 w-4" /> 
+                    <Save className="mr-2 h-5 w-5" /> 
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
@@ -329,8 +378,16 @@ const EditDocument = () => {
           </Card>
         ) : (
           <Card>
-            <CardContent className="p-6 text-center">
-              <p>Document not found or you don't have permission to edit it.</p>
+            <CardContent className="p-8 text-center">
+              <p className="text-lg text-gray-600 dark:text-gray-400">Document not found or you don't have permission to edit it.</p>
+              <Button 
+                onClick={() => navigate('/documents')} 
+                className="mt-4"
+                variant="outline"
+                size="lg"
+              >
+                Back to Documents
+              </Button>
             </CardContent>
           </Card>
         )}

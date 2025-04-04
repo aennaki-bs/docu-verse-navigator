@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
@@ -136,14 +136,14 @@ const CreateDocument = () => {
     switch (step) {
       case 1:
         return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="documentType">Document Type*</Label>
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="documentType" className="text-base font-medium">Document Type*</Label>
               <Select 
                 value={selectedTypeId?.toString() || ''} 
                 onValueChange={(value) => setSelectedTypeId(Number(value))}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 text-base">
                   <SelectValue placeholder="Select document type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -155,90 +155,94 @@ const CreateDocument = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="documentAlias">Document Alias (Optional)</Label>
+            <div className="space-y-3">
+              <Label htmlFor="documentAlias" className="text-base font-medium">Document Alias (Optional)</Label>
               <Input 
                 id="documentAlias" 
                 value={documentAlias} 
                 onChange={e => setDocumentAlias(e.target.value)}
                 placeholder="e.g., INV for Invoice"
                 maxLength={10}
+                className="h-12 text-base"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 mt-1">
                 Short code to include in document key (e.g., INV for Invoice)
               </p>
             </div>
-            <div className="flex justify-between pt-4">
-              <Button variant="outline" onClick={() => navigate('/documents')}>Cancel</Button>
-              <Button onClick={handleNextStep}>
-                Next <ArrowRight className="ml-2 h-4 w-4" />
+            <div className="flex justify-between pt-6">
+              <Button variant="outline" size="lg" onClick={() => navigate('/documents')} className="px-6">Cancel</Button>
+              <Button size="lg" onClick={handleNextStep} className="px-6">
+                Next <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
           </div>
         );
       case 2:
         return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Document Title*</Label>
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="title" className="text-base font-medium">Document Title*</Label>
               <Input 
                 id="title" 
                 value={title} 
                 onChange={e => setTitle(e.target.value)}
                 placeholder="Enter document title"
+                className="h-12 text-base"
               />
             </div>
-            <div className="flex justify-between pt-4">
-              <Button variant="outline" onClick={handlePrevStep}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            <div className="flex justify-between pt-6">
+              <Button variant="outline" size="lg" onClick={handlePrevStep} className="px-6">
+                <ArrowLeft className="mr-2 h-5 w-5" /> Back
               </Button>
-              <Button onClick={handleNextStep}>
-                Next <ArrowRight className="ml-2 h-4 w-4" />
+              <Button size="lg" onClick={handleNextStep} className="px-6">
+                Next <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
           </div>
         );
       case 3:
         return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="docDate">Document Date*</Label>
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="docDate" className="text-base font-medium">Document Date*</Label>
               <Input 
                 id="docDate" 
                 type="date" 
                 value={docDate} 
                 onChange={e => setDocDate(e.target.value)}
+                className="h-12 text-base"
               />
             </div>
-            <div className="flex justify-between pt-4">
-              <Button variant="outline" onClick={handlePrevStep}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            <div className="flex justify-between pt-6">
+              <Button variant="outline" size="lg" onClick={handlePrevStep} className="px-6">
+                <ArrowLeft className="mr-2 h-5 w-5" /> Back
               </Button>
-              <Button onClick={handleNextStep}>
-                Next <ArrowRight className="ml-2 h-4 w-4" />
+              <Button size="lg" onClick={handleNextStep} className="px-6">
+                Next <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
           </div>
         );
       case 4:
         return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="content">Document Content*</Label>
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="content" className="text-base font-medium">Document Content*</Label>
               <Textarea 
                 id="content" 
                 value={content} 
                 onChange={e => setContent(e.target.value)}
                 placeholder="Enter document content"
                 rows={8}
+                className="text-base resize-y"
               />
             </div>
-            <div className="flex justify-between pt-4">
-              <Button variant="outline" onClick={handlePrevStep}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            <div className="flex justify-between pt-6">
+              <Button variant="outline" size="lg" onClick={handlePrevStep} className="px-6">
+                <ArrowLeft className="mr-2 h-5 w-5" /> Back
               </Button>
-              <Button onClick={handleNextStep}>
-                Review <Check className="ml-2 h-4 w-4" />
+              <Button size="lg" onClick={handleNextStep} className="px-6">
+                Review <Check className="ml-2 h-5 w-5" />
               </Button>
             </div>
           </div>
@@ -247,45 +251,46 @@ const CreateDocument = () => {
         const selectedType = documentTypes.find(t => t.id === selectedTypeId);
         return (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold">Document Summary</h3>
+            <h3 className="text-xl font-semibold">Document Summary</h3>
             
-            <div className="space-y-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-md">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
+              <div className="grid sm:grid-cols-2 gap-6">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Document Type</p>
-                  <p>{selectedType?.typeName}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Type</p>
+                  <p className="text-base font-medium">{selectedType?.typeName}</p>
                 </div>
                 {documentAlias && (
                   <div>
-                    <p className="text-sm font-medium text-gray-500">Document Alias</p>
-                    <p>{documentAlias}</p>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Alias</p>
+                    <p className="text-base font-medium">{documentAlias}</p>
                   </div>
                 )}
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Title</p>
-                  <p>{title}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Title</p>
+                  <p className="text-base font-medium">{title}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Date</p>
-                  <p>{new Date(docDate).toLocaleDateString()}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Date</p>
+                  <p className="text-base font-medium">{new Date(docDate).toLocaleDateString()}</p>
                 </div>
-                <div className="col-span-2">
-                  <p className="text-sm font-medium text-gray-500">Content</p>
-                  <p className="whitespace-pre-wrap">{content}</p>
-                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Content</p>
+                <p className="text-base whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-4 rounded-md">{content}</p>
               </div>
             </div>
 
-            <div className="flex justify-between pt-4">
-              <Button variant="outline" onClick={handlePrevStep}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Edit
+            <div className="flex justify-between pt-6">
+              <Button variant="outline" size="lg" onClick={handlePrevStep} className="px-6">
+                <ArrowLeft className="mr-2 h-5 w-5" /> Edit
               </Button>
               <Button 
                 onClick={handleSubmit} 
                 disabled={isSubmitting}
-                className="bg-green-600 hover:bg-green-700"
+                size="lg"
+                className="bg-green-600 hover:bg-green-700 px-6"
               >
-                <Save className="mr-2 h-4 w-4" /> 
+                <Save className="mr-2 h-5 w-5" /> 
                 {isSubmitting ? 'Creating...' : 'Create Document'}
               </Button>
             </div>
@@ -353,50 +358,55 @@ const CreateDocument = () => {
 
       {/* Main Content */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create New Document</h1>
-          <p className="text-gray-500 dark:text-gray-400">{getStepTitle()}</p>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Document</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">{getStepTitle()}</p>
         </div>
 
-        <div className="mb-6">
-          <div className="flex items-center">
+        {/* Progress Indicator */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between">
             {[1, 2, 3, 4, 5].map((s) => (
-              <div key={s} className="flex items-center">
+              <div key={s} className="flex flex-col items-center relative">
                 <div 
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    s < step ? "bg-green-500 text-white" : 
-                    s === step ? "bg-blue-600 text-white" : 
-                    "bg-gray-200 text-gray-600"
-                  }`}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    s < step ? "bg-green-500 text-white shadow-md" : 
+                    s === step ? "bg-blue-600 text-white shadow-md" : 
+                    "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                  } transition-all duration-200`}
                 >
-                  {s < step ? <Check className="h-4 w-4" /> : s}
+                  {s < step ? <Check className="h-5 w-5" /> : s}
                 </div>
+                <p className={`mt-2 text-sm ${
+                  s === step ? "font-medium text-blue-600 dark:text-blue-400" :
+                  s < step ? "font-medium text-green-600 dark:text-green-400" :
+                  "text-gray-500 dark:text-gray-400"
+                }`}>
+                  {s === 1 ? "Type" : 
+                   s === 2 ? "Title" : 
+                   s === 3 ? "Date" : 
+                   s === 4 ? "Content" : "Review"}
+                </p>
                 {s < 5 && (
-                  <div 
-                    className={`h-1 w-12 ${
-                      s < step ? "bg-green-500" : "bg-gray-200"
-                    }`}
-                  ></div>
+                  <div className={`absolute top-6 left-12 h-1 w-[calc(100%-3rem)] ${
+                    s < step ? "bg-green-500" : "bg-gray-200 dark:bg-gray-700"
+                  }`}></div>
                 )}
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-1 px-1 text-xs">
-            <span>Type</span>
-            <span>Title</span>
-            <span>Date</span>
-            <span>Content</span>
-            <span>Review</span>
-          </div>
         </div>
 
-        <Card>
-          <CardContent className="p-6">
+        <Card className="border-gray-200 dark:border-gray-700 shadow-lg">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl text-center">{getStepTitle()}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 pt-4">
             {isLoading ? (
               <div className="space-y-4 animate-pulse">
-                <div className="h-8 bg-gray-200 rounded"></div>
-                <div className="h-8 bg-gray-200 rounded"></div>
-                <div className="h-8 bg-gray-200 rounded"></div>
+                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
             ) : (
               renderStepContent()
