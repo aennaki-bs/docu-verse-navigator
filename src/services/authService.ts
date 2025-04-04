@@ -186,7 +186,7 @@ const authService = {
     try {
       console.log('Requesting password reset for email:', email);
       const request: ForgotPasswordRequest = { email };
-      const response = await api.post('/Auth/forgot-password', request);
+      const response = await api.post('/Account/forgot-password', request);
       
       console.log('Password reset response:', response.data);
       return response.data;
@@ -205,7 +205,7 @@ const authService = {
     try {
       console.log('Resending verification code for email:', email);
       const request: ForgotPasswordRequest = { email };
-      const response = await api.post('/Auth/resend-code', request);
+      const response = await api.post('/Account/resend-code', request);
       
       console.log('Resend verification response:', response.data);
       return response.data;
@@ -222,7 +222,7 @@ const authService = {
         email, 
         newPassword 
       };
-      const response = await api.put('/Auth/update-password', request);
+      const response = await api.put('/Account/update-password', request);
       
       console.log('Update password response:', response.data);
       return response.data;
