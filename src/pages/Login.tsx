@@ -26,7 +26,7 @@ const Login = () => {
     const newErrors: { emailOrUsername?: string; password?: string } = {};
     
     if (!emailOrUsername) {
-      newErrors.emailOrUsername = 'Email or username is required';
+      newErrors.emailOrUsername = 'Login is required';
     }
     
     if (!password) {
@@ -79,7 +79,7 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="emailOrUsername">Email or Username</Label>
+                <Label htmlFor="emailOrUsername">Login</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
