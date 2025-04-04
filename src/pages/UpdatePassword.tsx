@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -24,7 +23,8 @@ const UpdatePassword = () => {
   useEffect(() => {
     if (!email) {
       toast.error('Email address is missing. Please start the password reset process again.');
-      window.location.href = '/forgot-password';
+      // Don't automatically redirect, just show an error
+      setErrors({ general: 'Email address is missing. Please start the password reset process again.' });
     }
   }, [email]);
 

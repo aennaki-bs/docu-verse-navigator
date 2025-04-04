@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -36,10 +35,10 @@ const ForgotPassword = () => {
     } catch (err: any) {
       console.error('Password reset error:', err);
       
+      // Handle email not verified case - but don't redirect
       if (err.message?.includes('Email not verified')) {
         toast.info('Your email is not verified. A new verification code has been sent to your inbox.');
-        // Don't set isSuccess here as we're handling a different flow
-        window.location.href = `/verify-email?email=${encodeURIComponent(email)}`;
+        setError('Your email is not verified. A verification code has been sent to your inbox.');
         return;
       }
       

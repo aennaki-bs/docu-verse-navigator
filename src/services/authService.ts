@@ -193,9 +193,14 @@ const authService = {
     } catch (error: any) {
       console.error('Password reset request error:', error);
       if (error.response?.status === 401 && error.response?.data === "Email Not Verified!") {
-        // If email is not verified, resend the verification code
-        await authService.resendVerificationCode(email);
-        throw new Error("Email not verified. A new verification code has been sent.");
+        // If email is not verified, resend the verification code without redirecting
+        try {
+          await authService.resendVerificationCode(email);
+          throw new Error("Email not verified. A new verification code has been sent.");
+        } catch (resendError) {
+          console.error('Error resending verification code:', resendError);
+          throw new Error("Email not verified. Failed to send verification code.");
+        }
       }
       throw error;
     }

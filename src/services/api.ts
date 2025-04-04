@@ -49,12 +49,29 @@ api.interceptors.response.use(
     
     const originalRequest = error.config;
     
-    // If the error is 401 (Unauthorized) and hasn't already been retried
+    // Only redirect to login for auth-required endpoints when token is invalid
+    // Specifically exclude non-authenticated endpoints from auto-redirecting
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       
-      // If the request is not a login attempt, redirect to login
-      if (!originalRequest.url.includes('/Auth/login')) {
+      // Don't redirect for these specific endpoints
+      const noRedirectEndpoints = [
+        '/Auth/login', 
+        '/Auth/register',
+        '/Account/forgot-password',
+        '/Account/update-password',
+        '/Account/resend-code',
+        '/Auth/verify-email',
+        '/Auth/valide-email', 
+        '/Auth/valide-username'
+      ];
+      
+      // If it's not one of the exceptions and is a 401, only then redirect
+      const shouldRedirect = !noRedirectEndpoints.some(endpoint => 
+        originalRequest.url.includes(endpoint)
+      );
+      
+      if (shouldRedirect) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login';
