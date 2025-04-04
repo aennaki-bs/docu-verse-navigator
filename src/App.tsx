@@ -24,7 +24,14 @@ import CreateDocument from "./pages/CreateDocument";
 import ViewDocument from "./pages/ViewDocument";
 import EditDocument from "./pages/EditDocument";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

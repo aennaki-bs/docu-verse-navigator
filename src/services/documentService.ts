@@ -9,7 +9,6 @@ const documentService = {
   getAllDocuments: async (): Promise<Document[]> => {
     try {
       const response = await api.get('/Documents');
-      console.log('Documents fetched:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching documents:', error);

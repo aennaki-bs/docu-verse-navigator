@@ -18,7 +18,7 @@ import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import documentService from '@/services/documentService';
-import { Document } from '@/models/document';
+import { Document, Ligne } from '@/models/document';
 import {
   Tooltip,
   TooltipContent,
@@ -26,41 +26,49 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from '@tanstack/react-query';
+import LignesList from '@/components/document/LignesList';
 
 const ViewDocument = () => {
   const { id } = useParams();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [document, setDocument] = useState<Document | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("details");
 
   // Check if user has permissions to edit/delete documents
   const canManageDocuments = user?.role === 'Admin' || user?.role === 'FullUser';
 
-  useEffect(() => {
-    if (!id) {
-      toast.error('Invalid document ID');
+  // Fetch document details
+  const { 
+    data: document, 
+    isLoading: isLoadingDocument, 
+    error: documentError 
+  } = useQuery({
+    queryKey: ['document', Number(id)],
+    queryFn: () => documentService.getDocumentById(Number(id)),
+    enabled: !!id,
+    onError: (error) => {
+      console.error(`Failed to fetch document with ID ${id}:`, error);
+      toast.error('Failed to load document');
       navigate('/documents');
-      return;
     }
+  });
 
-    const fetchDocument = async () => {
-      try {
-        setIsLoading(true);
-        const data = await documentService.getDocumentById(Number(id));
-        setDocument(data);
-      } catch (error) {
-        console.error(`Failed to fetch document with ID ${id}:`, error);
-        toast.error('Failed to load document');
-        navigate('/documents');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDocument();
-  }, [id, navigate]);
+  // Fetch lignes for this document
+  const {
+    data: lignes = [],
+    isLoading: isLoadingLignes
+  } = useQuery({
+    queryKey: ['documentLignes', Number(id)],
+    queryFn: () => documentService.getLignesByDocumentId(Number(id)),
+    enabled: !!id,
+    onError: (error) => {
+      console.error(`Failed to fetch lignes for document ${id}:`, error);
+      toast.error('Failed to load document lignes');
+    }
+  });
 
   const handleLogout = () => {
     logout(navigate);
@@ -102,6 +110,11 @@ const ViewDocument = () => {
         return <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Unknown</span>;
     }
   };
+
+  if (!id) {
+    navigate('/documents');
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -162,7 +175,7 @@ const ViewDocument = () => {
               <ArrowLeft className="h-4 w-4 mr-1" /> Back to Documents
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {isLoading ? 'Loading...' : document?.title}
+              {isLoadingDocument ? 'Loading...' : document?.title}
             </h1>
           </div>
           
@@ -203,9 +216,7 @@ const ViewDocument = () => {
           )}
         </div>
 
-        {/* Removed the warning message for SimpleUsers */}
-
-        {isLoading ? (
+        {isLoadingDocument ? (
           <div className="space-y-4">
             <Card className="animate-pulse">
               <CardHeader className="h-10 bg-gray-200"></CardHeader>
@@ -219,43 +230,77 @@ const ViewDocument = () => {
             </Card>
           </div>
         ) : document ? (
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gray-100 dark:bg-gray-800">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-xl">{document.documentKey}</CardTitle>
-                {getStatusBadge(document.status)}
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Type</h3>
-                  <p>{document.documentType.typeName}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Date</h3>
-                  <p>{new Date(document.docDate).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created By</h3>
-                  <p>{document.createdBy.firstName} {document.createdBy.lastName} ({document.createdBy.username})</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created At</h3>
-                  <p>{new Date(document.createdAt).toLocaleString()}</p>
-                </div>
-              </div>
-              
-              <Separator className="my-6" />
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Content</h3>
-                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md min-h-[200px] whitespace-pre-wrap">
-                  {document.content}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="details">Document Details</TabsTrigger>
+                <TabsTrigger value="lignes">
+                  Lignes
+                  {document.lignesCount !== undefined && (
+                    <Badge variant="secondary" className="ml-2">{document.lignesCount}</Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="details">
+                <Card className="overflow-hidden">
+                  <CardHeader className="bg-gray-100 dark:bg-gray-800">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-xl">{document.documentKey}</CardTitle>
+                      {getStatusBadge(document.status)}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="grid md:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Type</h3>
+                        <p>{document.documentType.typeName}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Date</h3>
+                        <p>{new Date(document.docDate).toLocaleDateString()}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created By</h3>
+                        <p>{document.createdBy.firstName} {document.createdBy.lastName} ({document.createdBy.username})</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created At</h3>
+                        <p>{new Date(document.createdAt).toLocaleString()}</p>
+                      </div>
+                    </div>
+                    
+                    <Separator className="my-6" />
+                    
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Content</h3>
+                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md min-h-[200px] whitespace-pre-wrap">
+                        {document.content}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="lignes">
+                <Card>
+                  <CardContent className="p-6">
+                    {isLoadingLignes ? (
+                      <div className="animate-pulse space-y-4">
+                        <div className="h-12 bg-gray-200 rounded"></div>
+                        <div className="h-12 bg-gray-200 rounded"></div>
+                        <div className="h-12 bg-gray-200 rounded"></div>
+                      </div>
+                    ) : (
+                      <LignesList
+                        document={document}
+                        lignes={lignes}
+                        canManageDocuments={canManageDocuments}
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </>
         ) : (
           <Card>
             <CardContent className="p-6 text-center">
