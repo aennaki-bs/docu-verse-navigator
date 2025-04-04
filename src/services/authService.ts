@@ -46,6 +46,17 @@ interface EmailVerificationRequest {
   verificationCode: string;
 }
 
+// Interface for forgot password request
+interface ForgotPasswordRequest {
+  email: string;
+}
+
+// Interface for update password request
+interface UpdatePasswordRequest {
+  email: string;
+  newPassword: string;
+}
+
 const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
@@ -167,6 +178,56 @@ const authService = {
       return true;
     } catch (error) {
       console.error('Email verification error:', error);
+      throw error;
+    }
+  },
+
+  forgotPassword: async (email: string): Promise<string> => {
+    try {
+      console.log('Requesting password reset for email:', email);
+      const request: ForgotPasswordRequest = { email };
+      const response = await api.post('/Auth/forgot-password', request);
+      
+      console.log('Password reset response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Password reset request error:', error);
+      if (error.response?.status === 401 && error.response?.data === "Email Not Verified!") {
+        // If email is not verified, resend the verification code
+        await authService.resendVerificationCode(email);
+        throw new Error("Email not verified. A new verification code has been sent.");
+      }
+      throw error;
+    }
+  },
+
+  resendVerificationCode: async (email: string): Promise<string> => {
+    try {
+      console.log('Resending verification code for email:', email);
+      const request: ForgotPasswordRequest = { email };
+      const response = await api.post('/Auth/resend-code', request);
+      
+      console.log('Resend verification response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      throw error;
+    }
+  },
+
+  updatePassword: async (email: string, newPassword: string): Promise<string> => {
+    try {
+      console.log('Updating password for email:', email);
+      const request: UpdatePasswordRequest = { 
+        email, 
+        newPassword 
+      };
+      const response = await api.put('/Auth/update-password', request);
+      
+      console.log('Update password response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Update password error:', error);
       throw error;
     }
   }
