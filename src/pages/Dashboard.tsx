@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { File, FolderPlus, LogOut, Plus, Upload, UserCog, User } from 'lucide-react';
@@ -10,12 +11,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [documents, setDocuments] = useState([
     { id: 1, name: 'Business Plan.docx', type: 'document', date: '2023-06-12' },
     { id: 2, name: 'Financial Report.xlsx', type: 'spreadsheet', date: '2023-07-05' },
     { id: 3, name: 'Project Proposal.pdf', type: 'pdf', date: '2023-07-15' },
     { id: 4, name: 'Meeting Notes.docx', type: 'document', date: '2023-07-21' },
   ]);
+
+  const handleLogout = () => {
+    logout(navigate);
+  };
 
   const getFileIcon = (type: string) => {
     switch (type) {
@@ -69,7 +75,7 @@ const Dashboard = () => {
                 </div>
               </div>
             </Link>
-            <Button variant="ghost" size="icon" onClick={logout}>
+            <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="h-5 w-5" />
             </Button>
           </div>

@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavigateFunction } from 'react-router-dom';
 import authService, { 
   LoginCredentials, 
   RegisterCredentials, 
@@ -16,7 +16,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<boolean>;
   register: (credentials: RegisterCredentials) => Promise<void>;
-  logout: () => void;
+  logout: (navigate?: NavigateFunction) => void;
   refreshUserInfo: () => Promise<void>;
   updateUserProfile: (data: UpdateProfileRequest) => Promise<void>;
 }
@@ -39,7 +39,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserInfo | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if user is logged in on initial load
@@ -139,7 +138,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('user', JSON.stringify(response.user));
       
       toast.success('Registration successful!');
-      navigate('/dashboard');
     } catch (error: any) {
       console.error('Registration failed', error);
       // Forward the error to be handled by the registration component
@@ -149,14 +147,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
+  const logout = (navigate?: NavigateFunction) => {
     authService.logout();
     setUser(null);
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     toast.info('You have been logged out');
-    navigate('/login');
+    
+    if (navigate) {
+      navigate('/login');
+    }
   };
 
   const authValue = {
