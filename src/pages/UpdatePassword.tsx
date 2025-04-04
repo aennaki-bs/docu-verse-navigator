@@ -9,6 +9,7 @@ import { Eye, EyeOff, Lock } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { toast } from 'sonner';
 import authService from '@/services/authService';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const UpdatePassword = () => {
   const { email } = useParams<{ email: string }>();
@@ -17,12 +18,12 @@ const UpdatePassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string }>({});
+  const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string; general?: string }>({});
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!email) {
-      toast.error('Email parameter is missing');
+      toast.error('Email address is missing. Please start the password reset process again.');
       navigate('/forgot-password');
     }
   }, [email, navigate]);
@@ -39,17 +40,17 @@ const UpdatePassword = () => {
     const newErrors: { password?: string; confirmPassword?: string } = {};
     
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'Please enter your new password';
     } else if (password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters long';
+      newErrors.password = 'Your password must be at least 8 characters long';
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)) {
-      newErrors.password = 'Password must include an uppercase letter, a lowercase letter, a digit, and a special character';
+      newErrors.password = 'Password must include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., @$!%*?&)';
     }
     
     if (!confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = 'Please confirm your new password';
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = 'The passwords do not match. Please enter the same password in both fields.';
     }
     
     setErrors(newErrors);
@@ -63,15 +64,42 @@ const UpdatePassword = () => {
     
     try {
       setIsLoading(true);
+      setErrors({});
       
       await authService.updatePassword(email, password);
-      toast.success('Password successfully updated');
+      toast.success('Your password has been successfully updated. You can now log in with your new password.');
       navigate('/login');
       
     } catch (err: any) {
       console.error('Update password error:', err);
-      const errorMessage = err.response?.data || err.message || 'Failed to update password';
-      toast.error(errorMessage);
+      
+      // Handle specific error cases with user-friendly messages
+      if (err.response) {
+        const status = err.response.status;
+        const errorMessage = err.response.data;
+        
+        if (status === 404) {
+          setErrors({ general: 'No account exists with this email address. Please check your email or contact support.' });
+        } else if (status === 401) {
+          if (errorMessage.includes('Not Verified')) {
+            setErrors({ general: 'This email address has not been verified. Please verify your email before resetting your password.' });
+          } else if (errorMessage.includes('Desactivated')) {
+            setErrors({ general: 'Your account has been deactivated. Please contact support for assistance.' });
+          } else {
+            setErrors({ general: errorMessage || 'Authorization failed. Please try the password reset process again.' });
+          }
+        } else if (status === 400) {
+          setErrors({ general: 'The password you provided does not meet security requirements. Please try a stronger password.' });
+        } else {
+          setErrors({ general: errorMessage || 'An unexpected error occurred. Please try again later.' });
+        }
+      } else if (err.request) {
+        setErrors({ general: 'Unable to reach the server. Please check your internet connection and try again.' });
+      } else {
+        setErrors({ general: 'An unexpected error occurred. Please try again later.' });
+      }
+      
+      toast.error(errors.general || 'Failed to update your password.');
     } finally {
       setIsLoading(false);
     }
@@ -96,6 +124,12 @@ const UpdatePassword = () => {
           </CardHeader>
           
           <CardContent>
+            {errors.general && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{errors.general}</AlertDescription>
+              </Alert>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="password">New Password</Label>

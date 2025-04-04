@@ -9,6 +9,7 @@ import { Mail } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { toast } from 'sonner';
 import authService from '@/services/authService';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     
     if (!email) {
-      setError('Email is required');
+      setError('Please enter your email address to continue');
       return;
     }
     
@@ -35,14 +36,30 @@ const ForgotPassword = () => {
       console.error('Password reset error:', err);
       
       if (err.message?.includes('Email not verified')) {
-        toast.info('Your email is not verified. A new verification code has been sent.');
+        toast.info('Your email is not verified. A new verification code has been sent to your inbox.');
         navigate(`/verify-email?email=${encodeURIComponent(email)}`);
         return;
       }
       
-      const errorMessage = err.response?.data || err.message || 'Failed to process your request.';
-      setError(errorMessage);
-      toast.error(errorMessage);
+      // Handle specific error cases with user-friendly messages
+      if (err.response) {
+        const status = err.response.status;
+        const errorMessage = err.response.data;
+        
+        if (status === 404) {
+          setError('No account exists with this email address. Please check your email or create a new account.');
+        } else if (status === 401 && errorMessage.includes('Desactivated')) {
+          setError('Your account has been deactivated. Please contact support for assistance.');
+        } else {
+          setError(errorMessage || 'An unexpected error occurred. Please try again later.');
+        }
+      } else if (err.request) {
+        setError('Unable to reach the server. Please check your internet connection and try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again later.');
+      }
+      
+      toast.error(error || 'Failed to process your request.');
     } finally {
       setIsLoading(false);
     }
@@ -67,6 +84,12 @@ const ForgotPassword = () => {
           </CardHeader>
           
           <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -81,9 +104,6 @@ const ForgotPassword = () => {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                {error && (
-                  <p className="text-sm text-red-500">{error}</p>
-                )}
               </div>
               
               <Button
