@@ -36,6 +36,15 @@ const EditDocument = () => {
   const [documentAlias, setDocumentAlias] = useState('');
   const [docDate, setDocDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [content, setContent] = useState('');
+  
+  // Track which fields have been edited
+  const [editedFields, setEditedFields] = useState<Record<string, boolean>>({
+    typeId: false,
+    title: false,
+    documentAlias: false,
+    docDate: false,
+    content: false
+  });
 
   useEffect(() => {
     if (!id) {
@@ -81,20 +90,57 @@ const EditDocument = () => {
     return `${user?.firstName?.[0] || ''}${user?.lastName?.[0] || ''}`;
   };
 
+  const handleTypeIdChange = (value: string) => {
+    const numValue = Number(value);
+    setSelectedTypeId(numValue);
+    setEditedFields({...editedFields, typeId: numValue !== document?.typeId});
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setTitle(newValue);
+    setEditedFields({...editedFields, title: newValue !== document?.title});
+  };
+
+  const handleDocumentAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setDocumentAlias(newValue);
+    setEditedFields({...editedFields, documentAlias: newValue !== document?.documentAlias});
+  };
+
+  const handleDocDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setDocDate(newValue);
+    const originalDate = document?.docDate ? new Date(document.docDate).toISOString().split('T')[0] : '';
+    setEditedFields({...editedFields, docDate: newValue !== originalDate});
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setContent(newValue);
+    setEditedFields({...editedFields, content: newValue !== document?.content});
+  };
+
   const validateForm = () => {
-    if (!selectedTypeId) {
+    // Check if at least one field has been edited
+    if (!Object.values(editedFields).some(edited => edited)) {
+      toast.info('No changes detected');
+      return false;
+    }
+    
+    if (editedFields.typeId && !selectedTypeId) {
       toast.error('Please select a document type');
       return false;
     }
-    if (!title.trim()) {
+    if (editedFields.title && !title.trim()) {
       toast.error('Please enter a document title');
       return false;
     }
-    if (!docDate) {
+    if (editedFields.docDate && !docDate) {
       toast.error('Please select a document date');
       return false;
     }
-    if (!content.trim()) {
+    if (editedFields.content && !content.trim()) {
       toast.error('Please enter document content');
       return false;
     }
@@ -106,14 +152,18 @@ const EditDocument = () => {
 
     try {
       setIsSubmitting(true);
-      const documentData: UpdateDocumentRequest = {
-        title,
-        content,
-        typeId: selectedTypeId,
-        documentAlias,
-        docDate,
-      };
+      
+      // Only include fields that have been edited
+      const documentData: UpdateDocumentRequest = {};
+      
+      if (editedFields.typeId) documentData.typeId = selectedTypeId || undefined;
+      if (editedFields.title) documentData.title = title;
+      if (editedFields.documentAlias) documentData.documentAlias = documentAlias;
+      if (editedFields.docDate) documentData.docDate = docDate;
+      if (editedFields.content) documentData.content = content;
 
+      console.log('Updating document with data:', documentData);
+      
       await documentService.updateDocument(Number(id), documentData);
       toast.success('Document updated successfully');
       navigate(`/documents/${id}`);
@@ -198,7 +248,7 @@ const EditDocument = () => {
                     <Label htmlFor="documentType">Document Type*</Label>
                     <Select 
                       value={selectedTypeId?.toString() || ''} 
-                      onValueChange={(value) => setSelectedTypeId(Number(value))}
+                      onValueChange={handleTypeIdChange}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select document type" />
@@ -218,7 +268,7 @@ const EditDocument = () => {
                     <Input 
                       id="documentAlias" 
                       value={documentAlias} 
-                      onChange={e => setDocumentAlias(e.target.value)}
+                      onChange={handleDocumentAliasChange}
                       placeholder="e.g., INV for Invoice"
                       maxLength={10}
                     />
@@ -235,7 +285,7 @@ const EditDocument = () => {
                   <Input 
                     id="title" 
                     value={title} 
-                    onChange={e => setTitle(e.target.value)}
+                    onChange={handleTitleChange}
                     placeholder="Enter document title"
                   />
                 </div>
@@ -246,7 +296,7 @@ const EditDocument = () => {
                     id="docDate" 
                     type="date" 
                     value={docDate} 
-                    onChange={e => setDocDate(e.target.value)}
+                    onChange={handleDocDateChange}
                   />
                 </div>
 
@@ -255,7 +305,7 @@ const EditDocument = () => {
                   <Textarea 
                     id="content" 
                     value={content} 
-                    onChange={e => setContent(e.target.value)}
+                    onChange={handleContentChange}
                     placeholder="Enter document content"
                     rows={10}
                   />
