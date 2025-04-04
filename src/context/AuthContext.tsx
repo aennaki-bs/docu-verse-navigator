@@ -115,16 +115,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await authService.login(credentials);
       
       if (response && response.token && response.user) {
-        // Store the user ID explicitly in localStorage to ensure it's always available
+        // Store the user with userId explicitly in localStorage to ensure it's always available
         const userWithId = {
           ...response.user,
-          id: response.user.id // Ensure ID is explicitly set
+          userId: response.user.userId // Ensure userId is explicitly set
         };
         
         setToken(response.token);
         setUser(userWithId);
         
-        // Make sure we store the complete user object with ID
+        // Make sure we store the complete user object with userId
         console.log('Storing user data on login:', userWithId);
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(userWithId));
@@ -164,7 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async (navigate?: NavigateFunction) => {
     try {
-      let userId = user?.id;
+      let userId = user?.userId; // Changed from id to userId
       
       // Check if we have user ID in the current state
       if (!userId) {
@@ -173,7 +173,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (storedUser) {
           try {
             const parsedUser = JSON.parse(storedUser);
-            userId = parsedUser.id;
+            userId = parsedUser.userId; // Changed from id to userId
             console.log('Retrieved userId from localStorage:', userId);
           } catch (e) {
             console.error('Failed to parse stored user data:', e);

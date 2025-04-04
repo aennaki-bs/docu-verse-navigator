@@ -1,3 +1,4 @@
+
 import api from './api';
 
 export interface LoginCredentials {
@@ -16,7 +17,7 @@ export interface RegisterCredentials {
 }
 
 export interface UserInfo {
-  id: string;
+  userId: string; // Changed from 'id' to 'userId' to match the API response
   email: string;
   firstName: string;
   lastName: string;
@@ -100,8 +101,8 @@ const authService = {
           console.log('User info fetched:', userInfoResponse.data);
           
           // Make sure we have a user ID
-          if (!userInfoResponse.data.id) {
-            console.error('User info is missing ID:', userInfoResponse.data);
+          if (!userInfoResponse.data.userId) {
+            console.error('User info is missing userId:', userInfoResponse.data);
           }
           
           return {
@@ -116,8 +117,8 @@ const authService = {
       // If API already returns both token and user
       else if (response.data.token && response.data.user) {
         // Ensure we have a user ID
-        if (!response.data.user.id) {
-          console.error('User data is missing ID:', response.data.user);
+        if (!response.data.user.userId) {
+          console.error('User data is missing userId:', response.data.user);
         }
         
         return response.data;

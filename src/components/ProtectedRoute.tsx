@@ -1,5 +1,5 @@
 
-import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 
@@ -8,15 +8,14 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading, user, logout } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     console.log('ProtectedRoute - Auth state:', { 
       isAuthenticated, 
       isLoading, 
-      user,
+      userId: user?.userId, // Updated to use userId instead of id
       currentPath: location.pathname
     });
   }, [isAuthenticated, isLoading, user, location]);
