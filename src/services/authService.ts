@@ -164,9 +164,11 @@ const authService = {
       
       console.log('Calling logout API with userId:', userId);
       
-      // Send userId as a query parameter instead of in the body
-      // This matches what the backend expects based on your screenshot
-      const response = await api.post(`/Auth/logout?userId=${userId}`);
+      // Create a LogoutRequest object to match what the backend expects
+      const request: LogoutRequest = { userId };
+      
+      // Send the request as JSON in the body
+      const response = await api.post('/Auth/logout', request);
       console.log('Logout API response:', response.data);
     } catch (error) {
       console.error('Error calling logout API:', error);
