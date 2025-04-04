@@ -9,12 +9,14 @@ import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Lock, User } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Login = () => {
   const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ emailOrUsername?: string; password?: string }>({});
+  const [apiError, setApiError] = useState<string | null>(null);
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -40,6 +42,9 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Clear any previous API errors
+    setApiError(null);
+    
     if (!validateForm()) return;
     
     try {
@@ -52,9 +57,15 @@ const Login = () => {
         toast.success('Login successful!');
         navigate('/dashboard');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error handled in component:', error);
-      // Error is also handled in the AuthContext
+      // Extract the specific error message from the API response
+      const errorMessage = error.response?.data?.message || 
+                           error.response?.data || 
+                           error.message || 
+                           'Invalid password or username';
+      
+      setApiError(errorMessage);
     }
   };
 
@@ -77,6 +88,12 @@ const Login = () => {
           </CardHeader>
           
           <CardContent>
+            {apiError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{apiError}</AlertDescription>
+              </Alert>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="emailOrUsername">Login</Label>
@@ -88,7 +105,10 @@ const Login = () => {
                     placeholder="email@example.com or username"
                     className={`pl-10 ${errors.emailOrUsername ? 'border-red-500' : ''}`}
                     value={emailOrUsername}
-                    onChange={(e) => setEmailOrUsername(e.target.value)}
+                    onChange={(e) => {
+                      setEmailOrUsername(e.target.value);
+                      setApiError(null); // Clear API error when user types
+                    }}
                   />
                 </div>
                 {errors.emailOrUsername && (
@@ -111,7 +131,10 @@ const Login = () => {
                     placeholder="••••••••"
                     className={`pl-10 ${errors.password ? 'border-red-500' : ''}`}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setApiError(null); // Clear API error when user types
+                    }}
                   />
                   <button
                     type="button"

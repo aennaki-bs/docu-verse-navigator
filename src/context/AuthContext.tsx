@@ -82,9 +82,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     } catch (error: any) {
       console.error('Login failed', error);
-      const errorMessage = error.response?.data?.message || 'Login failed. Please check your credentials.';
-      toast.error(errorMessage);
-      return false;
+      // We no longer show a toast here, as we'll display the error in the login component
+      // This allows us to pass the error up to be handled by the component
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -105,8 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Registration failed', error);
-      const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
-      toast.error(errorMessage);
+      // Forward the error to be handled by the registration component
       throw error;
     } finally {
       setIsLoading(false);
