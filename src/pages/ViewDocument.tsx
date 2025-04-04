@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -12,7 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Edit, LogOut, UserCog, Trash, ArrowLeft, Info } from 'lucide-react';
+import { Edit, LogOut, UserCog, Trash, ArrowLeft } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
@@ -202,15 +203,7 @@ const ViewDocument = () => {
           )}
         </div>
 
-        {!canManageDocuments && document && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md flex items-center gap-3">
-            <Info className="h-5 w-5 text-yellow-500" />
-            <p className="text-sm text-yellow-700">
-              Your current role is <strong>{user?.role}</strong>. You can only view this document. 
-              Editing or deleting documents requires <strong>FullUser</strong> or <strong>Admin</strong> role.
-            </p>
-          </div>
-        )}
+        {/* Removed the warning message for SimpleUsers */}
 
         {isLoading ? (
           <div className="space-y-4">

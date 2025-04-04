@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { File, FolderPlus, LogOut, Plus, Upload, UserCog } from 'lucide-react';
+import { File, FolderPlus, LogOut, Plus, UserCog } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import documentService from '@/services/documentService';
@@ -150,7 +150,6 @@ const Dashboard = () => {
             <>
               <Button variant="outline" disabled className="cursor-not-allowed opacity-60">
                 <Plus className="mr-2 h-4 w-4" /> Create Document
-                <span className="ml-2 text-xs text-red-500">(Requires FullUser or Admin role)</span>
               </Button>
               <Button variant="outline" asChild>
                 <Link to="/documents">
@@ -159,7 +158,6 @@ const Dashboard = () => {
               </Button>
               <Button variant="outline" disabled className="cursor-not-allowed opacity-60">
                 <FolderPlus className="mr-2 h-4 w-4" /> Manage Document Types
-                <span className="ml-2 text-xs text-red-500">(Requires FullUser or Admin role)</span>
               </Button>
             </>
           )}
@@ -211,12 +209,19 @@ const Dashboard = () => {
               Get started by creating a new document
             </p>
             <div className="mt-6">
-              <Button asChild>
-                <Link to="/documents/create">
+              {canManageDocuments ? (
+                <Button asChild>
+                  <Link to="/documents/create">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Document
+                  </Link>
+                </Button>
+              ) : (
+                <Button disabled className="cursor-not-allowed opacity-60">
                   <Plus className="mr-2 h-4 w-4" />
                   Create Document
-                </Link>
-              </Button>
+                </Button>
+              )}
             </div>
           </div>
         )}

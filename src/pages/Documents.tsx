@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -230,15 +229,7 @@ const Documents = () => {
           </div>
         </div>
 
-        {!canManageDocuments && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md flex items-center gap-3">
-            <Info className="h-5 w-5 text-yellow-500" />
-            <p className="text-sm text-yellow-700">
-              Your current role is <strong>{user?.role}</strong>. You can only view documents. 
-              Creating, editing, or deleting documents requires <strong>FullUser</strong> or <strong>Admin</strong> role.
-            </p>
-          </div>
-        )}
+        {/* Removed the warning message for SimpleUsers */}
 
         {isLoading ? (
           <div className="space-y-4">
