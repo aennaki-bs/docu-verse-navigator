@@ -13,10 +13,11 @@ import authService from '@/services/authService';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUserInfo } = useAuth();
+  const navigate = useNavigate();
   
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -104,6 +105,10 @@ const Profile = () => {
       
       const result = await authService.uploadProfileImage(file);
       setProfileImage(result.filePath);
+      
+      // Refresh user info to get the updated profile picture
+      await refreshUserInfo();
+      
       toast.success(result.message);
     } catch (error: any) {
       const errorMessage = error.response?.data || error.message || 'Failed to upload image';
@@ -138,6 +143,9 @@ const Profile = () => {
         await authService.updateProfile(profileData);
       }
       
+      // Refresh user info to get the updated data
+      await refreshUserInfo();
+      
       toast.success('Profile updated successfully');
       setIsEditing(false);
       setIsChangingPassword(false);
@@ -160,7 +168,7 @@ const Profile = () => {
       
       await authService.updateEmail(emailData.email);
       toast.success('Email update request sent. Please check your email to verify.');
-      logout(); // Log out user as they need to verify new email
+      logout(navigate); // Log out user as they need to verify new email
     } catch (error: any) {
       const errorMessage = error.response?.data || error.message || 'Failed to update email';
       setApiError(errorMessage);

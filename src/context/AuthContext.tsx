@@ -88,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       await authService.updateProfile(data);
-      await refreshUserInfo();
+      await refreshUserInfo(); // Automatically refresh user info after updating profile
       toast.success('Profile updated successfully');
     } catch (error: any) {
       console.error('Failed to update profile', error);
