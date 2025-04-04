@@ -32,7 +32,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { FolderPlus, Plus, Trash, LogOut, UserCog, ChevronRight } from 'lucide-react';
+import { FolderPlus, Plus, Trash, LogOut, UserCog, ChevronRight, Check } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import documentService from '@/services/documentService';
