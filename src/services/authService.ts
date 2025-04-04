@@ -1,4 +1,3 @@
-
 import api from './api';
 
 export interface LoginCredentials {
@@ -165,13 +164,9 @@ const authService = {
       
       console.log('Calling logout API with userId:', userId);
       
-      // Create a proper request object matching the expected backend format
-      const request: LogoutRequest = { userId };
-      
-      // Make sure we're calling the correct endpoint with the proper payload
-      console.log('Logout API request payload:', request);
-      
-      const response = await api.post('/Auth/logout', request);
+      // Send userId as a query parameter instead of in the body
+      // This matches what the backend expects based on your screenshot
+      const response = await api.post(`/Auth/logout?userId=${userId}`);
       console.log('Logout API response:', response.data);
     } catch (error) {
       console.error('Error calling logout API:', error);

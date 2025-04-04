@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import authService, { 
@@ -33,10 +32,8 @@ const AuthContext = createContext<AuthContextType>({
   updateUserProfile: async () => {},
 });
 
-// Export the hook as a named function instead of a const
-function useAuth() {
-  return useContext(AuthContext);
-}
+// Export the hook through a direct import
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
@@ -164,7 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async (navigate?: NavigateFunction) => {
     try {
-      let userId = user?.userId; // Changed from id to userId
+      let userId = user?.userId;
       
       // Check if we have user ID in the current state
       if (!userId) {
@@ -173,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (storedUser) {
           try {
             const parsedUser = JSON.parse(storedUser);
-            userId = parsedUser.userId; // Changed from id to userId
+            userId = parsedUser.userId;
             console.log('Retrieved userId from localStorage:', userId);
           } catch (e) {
             console.error('Failed to parse stored user data:', e);
@@ -235,6 +232,3 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     </AuthContext.Provider>
   );
 };
-
-// Export the hook at the end of the file
-export { useAuth };
