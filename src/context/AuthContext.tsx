@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import authService, { 
@@ -49,7 +48,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (storedToken && storedUser) {
         try {
           setToken(storedToken);
-          setUser(JSON.parse(storedUser));
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+          
+          console.log('Stored user data:', parsedUser);
           
           // Verify token is still valid by fetching user info
           const userInfo = await authService.getUserInfo();
@@ -105,10 +107,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       const response = await authService.login(credentials);
       
-      if (response && response.token) {
+      if (response && response.token && response.user) {
         setToken(response.token);
         setUser(response.user);
         
+        // Make sure we store the complete user object with ID
+        console.log('Storing user data on login:', response.user);
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
         
@@ -118,8 +122,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     } catch (error: any) {
       console.error('Login failed', error);
-      // We no longer show a toast here, as we'll display the error in the login component
-      // This allows us to pass the error up to be handled by the component
       throw error;
     } finally {
       setIsLoading(false);
@@ -149,8 +151,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async (navigate?: NavigateFunction) => {
     try {
-      // Store userId before clearing state to ensure it's available for the API call
-      const userId = user?.id;
+      let userId = user?.id;
+      
+      // Check if we have user ID in the current state
+      if (!userId) {
+        // Try to get user ID from localStorage as a backup
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            userId = parsedUser.id;
+            console.log('Retrieved userId from localStorage:', userId);
+          } catch (e) {
+            console.error('Failed to parse stored user data:', e);
+          }
+        }
+      }
+      
       console.log('Attempting to logout user with ID:', userId);
       
       if (userId) {

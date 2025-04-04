@@ -99,6 +99,11 @@ const authService = {
           const userInfoResponse = await api.get('/Account/user-info');
           console.log('User info fetched:', userInfoResponse.data);
           
+          // Make sure we have a user ID
+          if (!userInfoResponse.data.id) {
+            console.error('User info is missing ID:', userInfoResponse.data);
+          }
+          
           return {
             token: response.data.accessToken,
             user: userInfoResponse.data
@@ -110,6 +115,11 @@ const authService = {
       } 
       // If API already returns both token and user
       else if (response.data.token && response.data.user) {
+        // Ensure we have a user ID
+        if (!response.data.user.id) {
+          console.error('User data is missing ID:', response.data.user);
+        }
+        
         return response.data;
       }
       
@@ -158,14 +168,12 @@ const authService = {
       const request: LogoutRequest = { userId };
       
       // Make sure we're calling the correct endpoint with the proper payload
+      console.log('Logout API request payload:', request);
+      
       const response = await api.post('/Auth/logout', request);
       console.log('Logout API response:', response.data);
     } catch (error) {
       console.error('Error calling logout API:', error);
-    } finally {
-      // Always clear local storage even if the API call fails
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
     }
   },
 
