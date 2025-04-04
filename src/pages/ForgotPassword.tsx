@@ -1,11 +1,11 @@
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail } from 'lucide-react';
+import { Mail, Check } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { toast } from 'sonner';
 import authService from '@/services/authService';
@@ -15,7 +15,7 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,19 +30,16 @@ const ForgotPassword = () => {
       setError(null);
       
       await authService.forgotPassword(email);
+      setIsSuccess(true);
       toast.success('A password reset link has been sent to your email.');
-      
-      // Only navigate to login on success
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
       
     } catch (err: any) {
       console.error('Password reset error:', err);
       
       if (err.message?.includes('Email not verified')) {
         toast.info('Your email is not verified. A new verification code has been sent to your inbox.');
-        navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+        // Don't set isSuccess here as we're handling a different flow
+        window.location.href = `/verify-email?email=${encodeURIComponent(email)}`;
         return;
       }
       
@@ -69,6 +66,54 @@ const ForgotPassword = () => {
       setIsLoading(false);
     }
   };
+
+  if (isSuccess) {
+    return (
+      <div className="auth-container animate-fade-in">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <DocuVerseLogo className="mx-auto h-14 w-auto" />
+            <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
+              Reset Link Sent
+            </h2>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Check your email inbox for instructions
+            </p>
+          </div>
+          
+          <Card className="border-none shadow-xl animate-slide-up">
+            <CardHeader className="space-y-1">
+              <div className="mx-auto bg-green-100 rounded-full p-3 w-16 h-16 flex items-center justify-center">
+                <Check className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-center mt-4">Success!</h3>
+            </CardHeader>
+            
+            <CardContent>
+              <div className="space-y-4 text-center">
+                <p>
+                  We've sent a password reset link to:
+                </p>
+                <p className="font-semibold">{email}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Please check your email and follow the instructions to reset your password.
+                  If you don't see the email in your inbox, please check your spam folder.
+                </p>
+              </div>
+            </CardContent>
+            
+            <CardFooter className="flex flex-col space-y-4 pt-4">
+              <Link to="/login" className="w-full">
+                <Button className="w-full bg-docuBlue hover:bg-docuBlue-700">
+                  Return to Login
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-container animate-fade-in">

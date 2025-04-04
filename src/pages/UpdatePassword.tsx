@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Lock } from 'lucide-react';
+import { Eye, EyeOff, Lock, Check } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { toast } from 'sonner';
 import authService from '@/services/authService';
@@ -19,14 +19,14 @@ const UpdatePassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string; general?: string }>({});
-  const navigate = useNavigate();
+  const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
     if (!email) {
       toast.error('Email address is missing. Please start the password reset process again.');
-      navigate('/forgot-password');
+      window.location.href = '/forgot-password';
     }
-  }, [email, navigate]);
+  }, [email]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -67,8 +67,8 @@ const UpdatePassword = () => {
       setErrors({});
       
       await authService.updatePassword(email, password);
-      toast.success('Your password has been successfully updated. You can now log in with your new password.');
-      navigate('/login');
+      setIsSuccess(true);
+      toast.success('Your password has been successfully updated.');
       
     } catch (err: any) {
       console.error('Update password error:', err);
@@ -104,6 +104,50 @@ const UpdatePassword = () => {
       setIsLoading(false);
     }
   };
+
+  if (isSuccess) {
+    return (
+      <div className="auth-container animate-fade-in">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <DocuVerseLogo className="mx-auto h-14 w-auto" />
+            <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
+              Password Updated
+            </h2>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Your password has been successfully changed
+            </p>
+          </div>
+          
+          <Card className="border-none shadow-xl animate-slide-up">
+            <CardHeader className="space-y-1">
+              <div className="mx-auto bg-green-100 rounded-full p-3 w-16 h-16 flex items-center justify-center">
+                <Check className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-center mt-4">Success!</h3>
+            </CardHeader>
+            
+            <CardContent>
+              <div className="space-y-4 text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Your password has been successfully updated. 
+                  You can now log in to your account with your new password.
+                </p>
+              </div>
+            </CardContent>
+            
+            <CardFooter className="flex flex-col space-y-4 pt-4">
+              <Link to="/login" className="w-full">
+                <Button className="w-full bg-docuBlue hover:bg-docuBlue-700">
+                  Go to Login
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-container animate-fade-in">
