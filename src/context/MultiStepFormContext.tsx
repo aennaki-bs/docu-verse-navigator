@@ -179,7 +179,7 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
       return true;
     } catch (error: any) {
       console.error('Registration error:', error);
-      const errorMessage = error.response?.data?.message || 'Registration failed.';
+      const errorMessage = error.response?.data || 'Registration failed.';
       setStepValidation((prev) => ({
         ...prev,
         isLoading: false,
