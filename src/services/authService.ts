@@ -148,9 +148,12 @@ const authService = {
   logout: async (userId: string | undefined): Promise<void> => {
     try {
       if (userId) {
-        // Call the logout API endpoint
-        await api.post('/Auth/logout', { userId });
-        console.log('Logout API called successfully');
+        // Explicitly match the API endpoint and request structure
+        const request: LogoutRequest = { userId };
+        await api.post('/Auth/logout', request);
+        console.log('Logout API called successfully with userId:', userId);
+      } else {
+        console.error('Cannot call logout API: userId is undefined');
       }
     } catch (error) {
       console.error('Error calling logout API:', error);
