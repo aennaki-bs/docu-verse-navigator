@@ -18,6 +18,11 @@ import UpdatePassword from "./pages/UpdatePassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EmailVerification from "./components/register/EmailVerification";
 import AdminPage from "./pages/Admin";
+import Documents from "./pages/Documents";
+import DocumentTypes from "./pages/DocumentTypes";
+import CreateDocument from "./pages/CreateDocument";
+import ViewDocument from "./pages/ViewDocument";
+import EditDocument from "./pages/EditDocument";
 
 const queryClient = new QueryClient();
 
@@ -43,7 +48,11 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<AdminPage />} />
-              {/* Add more protected routes here */}
+              <Route path="/documents" element={<Documents />} />
+              <Route path="/document-types" element={<DocumentTypes />} />
+              <Route path="/documents/create" element={<CreateDocument />} />
+              <Route path="/documents/:id" element={<ViewDocument />} />
+              <Route path="/documents/:id/edit" element={<EditDocument />} />
             </Route>
             
             {/* Catch-all route */}
