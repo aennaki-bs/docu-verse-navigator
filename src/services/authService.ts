@@ -174,6 +174,7 @@ const authService = {
       console.log('Logout API response:', response.data);
     } catch (error) {
       console.error('Error calling logout API:', error);
+      // Do not clear localStorage here as it's already handled in AuthContext
     }
   },
 

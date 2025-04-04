@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import authService, { 
@@ -32,7 +33,10 @@ const AuthContext = createContext<AuthContextType>({
   updateUserProfile: async () => {},
 });
 
-export const useAuth = () => useContext(AuthContext);
+// Export the hook as a named function instead of a const
+function useAuth() {
+  return useContext(AuthContext);
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
@@ -60,7 +64,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem('user', JSON.stringify(userInfo));
         } catch (error) {
           console.error('Session expired or invalid', error);
-          logout();
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setUser(null);
+          setToken(null);
         }
       }
       
@@ -108,15 +115,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await authService.login(credentials);
       
       if (response && response.token && response.user) {
+        // Store the user ID explicitly in localStorage to ensure it's always available
+        const userWithId = {
+          ...response.user,
+          id: response.user.id // Ensure ID is explicitly set
+        };
+        
         setToken(response.token);
-        setUser(response.user);
+        setUser(userWithId);
         
         // Make sure we store the complete user object with ID
-        console.log('Storing user data on login:', response.user);
+        console.log('Storing user data on login:', userWithId);
         localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
+        localStorage.setItem('user', JSON.stringify(userWithId));
         
-        console.log('Login successful, user set:', response.user);
+        console.log('Login successful, user set:', userWithId);
         return true;
       }
       return false;
@@ -170,20 +183,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       console.log('Attempting to logout user with ID:', userId);
       
+      // IMPORTANT: First clear state and localStorage regardless of API success
+      // This ensures the user is logged out locally even if the API call fails
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
       if (userId) {
         // Call the API logout endpoint with the user ID
         await authService.logout(userId);
       } else {
         console.warn('Cannot logout: No user ID available');
       }
-      
-      // Clear local state
-      setUser(null);
-      setToken(null);
-      
-      // Clear all auth-related localStorage items
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
       
       toast.info('You have been logged out');
       
@@ -192,14 +204,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error during logout:', error);
-      // Still clear state even if API call fails
-      setUser(null);
-      setToken(null);
-      
-      // Clear all auth-related localStorage items
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      
+      // State and localStorage already cleared above
       if (navigate) {
         navigate('/login');
       }
@@ -230,3 +235,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     </AuthContext.Provider>
   );
 };
+
+// Export the hook at the end of the file
+export { useAuth };
