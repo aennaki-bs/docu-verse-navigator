@@ -167,12 +167,20 @@ const authService = {
       // Create a LogoutRequest object to match what the backend expects
       const request: LogoutRequest = { userId };
       
+      // Add more debug information
+      console.log('Sending logout request:', JSON.stringify(request));
+      
       // Send the request as JSON in the body
       const response = await api.post('/Auth/logout', request);
       console.log('Logout API response:', response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error calling logout API:', error);
-      // Do not clear localStorage here as it's already handled in AuthContext
+      // Show more details about the error
+      if (error.response) {
+        console.error('Error response status:', error.response.status);
+        console.error('Error response data:', error.response.data);
+      }
+      // Do not throw the error as we want to continue with the local logout
     }
   },
 

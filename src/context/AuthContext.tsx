@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import authService, { 
@@ -180,19 +181,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       console.log('Attempting to logout user with ID:', userId);
       
-      // IMPORTANT: First clear state and localStorage regardless of API success
-      // This ensures the user is logged out locally even if the API call fails
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      
+      // Call the API logout endpoint with the user ID FIRST
       if (userId) {
-        // Call the API logout endpoint with the user ID
+        // Important: Call the API BEFORE clearing local state
+        console.log('Calling authService.logout with userId:', userId);
         await authService.logout(userId);
       } else {
         console.warn('Cannot logout: No user ID available');
       }
+      
+      // AFTER API call, clear state and localStorage
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       
       toast.info('You have been logged out');
       
@@ -201,7 +203,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error during logout:', error);
-      // State and localStorage already cleared above
+      // Even if there's an error, clear state and localStorage
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
       if (navigate) {
         navigate('/login');
       }
