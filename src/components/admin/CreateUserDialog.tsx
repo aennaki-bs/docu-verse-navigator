@@ -20,6 +20,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
@@ -30,6 +31,24 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import adminService, { CreateUserRequest } from '@/services/adminService';
+import { Eye, EyeOff } from 'lucide-react';
+
+// Password validation schema
+const passwordSchema = z
+  .string()
+  .min(8, { message: 'Password must be at least 8 characters.' })
+  .refine(value => /[A-Z]/.test(value), {
+    message: 'Password must contain at least one uppercase letter.',
+  })
+  .refine(value => /[a-z]/.test(value), {
+    message: 'Password must contain at least one lowercase letter.',
+  })
+  .refine(value => /[0-9]/.test(value), {
+    message: 'Password must contain at least one number.',
+  })
+  .refine(value => /[^A-Za-z0-9]/.test(value), {
+    message: 'Password must contain at least one special character.',
+  });
 
 const formSchema = z.object({
   email: z.string().email({
@@ -44,9 +63,7 @@ const formSchema = z.object({
   lastName: z.string().min(2, {
     message: 'Last name must be at least 2 characters.',
   }),
-  passwordHash: z.string().min(8, {
-    message: 'Password must be at least 8 characters.',
-  }),
+  passwordHash: passwordSchema,
   roleName: z.enum(['Admin', 'FullUser', 'SimpleUser'], {
     required_error: 'Please select a user role.',
   }),
@@ -61,6 +78,7 @@ interface CreateUserDialogProps {
 
 export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -73,6 +91,10 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
       roleName: 'SimpleUser',
     },
   });
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -175,9 +197,29 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="********" {...field} />
-                  </FormControl>
+                  <div className="relative">
+                    <FormControl>
+                      <Input 
+                        type={showPassword ? "text" : "password"} 
+                        placeholder="********" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  <FormDescription>
+                    Must include uppercase, lowercase, number, and special character.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

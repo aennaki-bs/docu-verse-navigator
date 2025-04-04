@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { toast } from 'sonner';
 
 const StepTwoEmailPassword = () => {
   const { formData, setFormData, validateEmail, nextStep, prevStep, stepValidation } = useMultiStepForm();
@@ -64,6 +65,8 @@ const StepTwoEmailPassword = () => {
       errors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       errors.password = 'Password must be at least 8 characters';
+    } else if (passwordStrength < 5) {
+      errors.password = 'Password is not strong enough. Please include uppercase, lowercase, numbers, and special characters.';
     }
     
     if (formData.password !== formData.confirmPassword) {
@@ -75,7 +78,12 @@ const StepTwoEmailPassword = () => {
   };
 
   const handleNext = async () => {
-    if (!validateStep()) return;
+    if (!validateStep()) {
+      if (localErrors.password && passwordStrength < 5) {
+        toast.error("Please create a stronger password before proceeding");
+      }
+      return;
+    }
     
     // Validate email with API
     const isValid = await validateEmail();
@@ -150,7 +158,21 @@ const StepTwoEmailPassword = () => {
             </div>
             <p className="text-xs mt-1">
               Strength: <span className="font-medium">{getStrengthLabel()}</span>
+              {passwordStrength < 5 && (
+                <span className="text-red-500 ml-1">
+                  (Must be Strong to continue)
+                </span>
+              )}
             </p>
+            {passwordStrength < 5 && (
+              <ul className="text-xs mt-1 text-gray-600 list-disc pl-4">
+                <li className={formData.password.length >= 8 ? "text-green-500" : ""}>At least 8 characters</li>
+                <li className={/[A-Z]/.test(formData.password) ? "text-green-500" : ""}>At least one uppercase letter</li>
+                <li className={/[a-z]/.test(formData.password) ? "text-green-500" : ""}>At least one lowercase letter</li>
+                <li className={/[0-9]/.test(formData.password) ? "text-green-500" : ""}>At least one number</li>
+                <li className={/[^A-Za-z0-9]/.test(formData.password) ? "text-green-500" : ""}>At least one special character</li>
+              </ul>
+            )}
           </div>
         )}
       </div>

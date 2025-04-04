@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { User } from 'lucide-react';
+import { toast } from 'sonner';
 
 const StepOneUserInfo = () => {
   const { formData, setFormData, validateUsername, nextStep, stepValidation } = useMultiStepForm();
@@ -20,16 +21,22 @@ const StepOneUserInfo = () => {
     
     if (!formData.firstName.trim()) {
       errors.firstName = 'First name is required';
+    } else if (formData.firstName.trim().length < 2) {
+      errors.firstName = 'First name must be at least 2 characters';
     }
     
     if (!formData.lastName.trim()) {
       errors.lastName = 'Last name is required';
+    } else if (formData.lastName.trim().length < 2) {
+      errors.lastName = 'Last name must be at least 2 characters';
     }
     
     if (!formData.username.trim()) {
       errors.username = 'Username is required';
     } else if (formData.username.length < 3) {
       errors.username = 'Username must be at least 3 characters';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      errors.username = 'Username can only contain letters, numbers, and underscores';
     }
     
     setLocalErrors(errors);
@@ -37,7 +44,10 @@ const StepOneUserInfo = () => {
   };
 
   const handleNext = async () => {
-    if (!validateStep()) return;
+    if (!validateStep()) {
+      toast.error("Please correct all errors before proceeding");
+      return;
+    }
     
     // Validate username with API
     const isValid = await validateUsername();

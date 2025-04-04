@@ -7,10 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { KeyRound } from 'lucide-react';
+import { toast } from 'sonner';
 
 const StepThreeAdminKey = () => {
   const { formData, setFormData, registerUser, prevStep, stepValidation } = useMultiStepForm();
   const [isAdmin, setIsAdmin] = React.useState(false);
+  const [localErrors, setLocalErrors] = React.useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +27,23 @@ const StepThreeAdminKey = () => {
     }
   };
 
+  const validateStep = () => {
+    const errors: Record<string, string> = {};
+    
+    if (isAdmin && (!formData.adminSecretKey || formData.adminSecretKey.trim() === '')) {
+      errors.adminSecretKey = 'Admin secret key is required';
+    }
+    
+    setLocalErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async () => {
+    if (!validateStep()) {
+      toast.error("Please provide all required information");
+      return;
+    }
+    
     // Register user with or without admin key
     console.log("Submitting registration with email:", formData.email);
     const success = await registerUser();
@@ -69,11 +87,14 @@ const StepThreeAdminKey = () => {
               name="adminSecretKey"
               type="password"
               placeholder="Enter admin secret key"
-              className="pl-10"
+              className={`pl-10 ${localErrors.adminSecretKey ? 'border-red-500' : ''}`}
               value={formData.adminSecretKey || ''}
               onChange={handleChange}
             />
           </div>
+          {localErrors.adminSecretKey && (
+            <p className="text-sm text-red-500">{localErrors.adminSecretKey}</p>
+          )}
           <p className="text-xs text-gray-500">
             Enter the secret key provided by your organization administrator.
           </p>
