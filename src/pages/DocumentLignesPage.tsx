@@ -75,6 +75,19 @@ const DocumentLignesPage = () => {
     }
   };
 
+  const getStatusClass = (status: number) => {
+    switch(status) {
+      case 0:
+        return 'gradient-amber';
+      case 1:
+        return 'gradient-green';
+      case 2:
+        return 'gradient-purple';
+      default:
+        return 'gradient-blue';
+    }
+  };
+
   if (isLoadingDocument) {
     return (
       <div className="max-w-5xl mx-auto p-6 space-y-8">
@@ -117,9 +130,9 @@ const DocumentLignesPage = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-8">
+      <div>
+        <div className="flex items-center gap-3 mb-6">
           <Button variant="outline" size="sm" asChild className="group transition-all duration-200 hover:bg-primary hover:text-white">
             <Link to="/documents">
               <ChevronLeft className="h-4 w-4 mr-1 group-hover:transform group-hover:-translate-x-1 transition-transform" /> Back to Documents
@@ -132,30 +145,30 @@ const DocumentLignesPage = () => {
           </Button>
         </div>
         
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-xl shadow-sm border border-blue-100">
-          <div className="flex justify-between items-start">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <div className={`document-card bg-gradient-to-br ${getStatusClass(document.status)}`}>
+          <div className="document-card-header">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">
                   {document.title}
                 </h1>
                 {getStatusBadge(document.status)}
               </div>
               
-              <div className="text-gray-600 flex items-center gap-1">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                 <Tag className="h-4 w-4 text-blue-500" />
                 <span className="font-mono text-sm">{document.documentKey}</span>
-                <span className="mx-2">•</span>
-                <span className="text-sm">{document.documentType.typeName}</span>
+                <span className="text-gray-400">•</span>
+                <span className="text-sm font-medium">{document.documentType.typeName}</span>
               </div>
             </div>
             
-            <div className="flex flex-col items-end">
-              <div className="flex items-center text-gray-600 text-sm mb-1">
+            <div className="flex flex-col items-end text-sm text-gray-600 dark:text-gray-300">
+              <div className="flex items-center mb-1">
                 <Calendar className="h-4 w-4 mr-1" />
                 {new Date(document.docDate).toLocaleDateString()}
               </div>
-              <div className="flex items-center text-gray-600 text-sm">
+              <div className="flex items-center">
                 <User className="h-4 w-4 mr-1" />
                 {document.createdBy.firstName} {document.createdBy.lastName}
               </div>
@@ -165,7 +178,7 @@ const DocumentLignesPage = () => {
       </div>
 
       <Card className="overflow-hidden border-none shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center">
               <Layers className="h-5 w-5 mr-2" />

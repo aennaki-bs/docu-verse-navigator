@@ -117,6 +117,19 @@ const ViewDocument = () => {
     }
   };
 
+  const getStatusClass = (status: number) => {
+    switch(status) {
+      case 0:
+        return 'border-l-amber-400 bg-gradient-amber';
+      case 1:
+        return 'border-l-green-500 bg-gradient-green';
+      case 2:
+        return 'border-l-red-400 bg-gradient-purple';
+      default:
+        return 'border-l-blue-500 bg-gradient-blue';
+    }
+  };
+
   if (!id) {
     navigate('/documents');
     return null;
@@ -175,7 +188,7 @@ const ViewDocument = () => {
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center">
             <Button variant="outline" size="sm" onClick={() => navigate('/documents')} className="mr-4">
               <ArrowLeft className="h-4 w-4 mr-1" /> Back to Documents
@@ -225,12 +238,12 @@ const ViewDocument = () => {
         {isLoadingDocument ? (
           <div className="space-y-4">
             <Card className="animate-pulse">
-              <CardHeader className="h-10 bg-gray-200"></CardHeader>
+              <CardHeader className="h-10 bg-gray-200 dark:bg-gray-700"></CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="h-6 bg-gray-200 rounded"></div>
-                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-40 bg-gray-200 rounded"></div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                  <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded"></div>
                 </div>
               </CardContent>
             </Card>
@@ -238,40 +251,46 @@ const ViewDocument = () => {
         ) : document ? (
           <>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="details">Document Details</TabsTrigger>
-                <TabsTrigger value="lignes">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="details" className="text-base">Document Details</TabsTrigger>
+                <TabsTrigger value="lignes" className="text-base">
                   Lignes
                   {document.lignesCount !== undefined && (
                     <Badge variant="secondary" className="ml-2">{document.lignesCount}</Badge>
                   )}
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="details">
-                <Card className="overflow-hidden">
-                  <CardHeader className="bg-gray-100 dark:bg-gray-800">
+              
+              <TabsContent value="details" className="mt-0">
+                <Card className={`overflow-hidden border-l-4 ${getStatusClass(document.status)}`}>
+                  <CardHeader className="bg-gray-100 dark:bg-gray-800/50">
                     <div className="flex justify-between items-center">
-                      <CardTitle className="text-xl">{document.documentKey}</CardTitle>
-                      {getStatusBadge(document.status)}
+                      <CardTitle className="text-xl flex items-center gap-2">
+                        {document.documentKey}
+                        {getStatusBadge(document.status)}
+                      </CardTitle>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Last updated: {new Date(document.updatedAt).toLocaleDateString()}
+                      </p>
                     </div>
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="grid md:grid-cols-2 gap-6 mb-6">
                       <div>
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Type</h3>
-                        <p>{document.documentType.typeName}</p>
+                        <p className="font-medium">{document.documentType.typeName}</p>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Date</h3>
-                        <p>{new Date(document.docDate).toLocaleDateString()}</p>
+                        <p className="font-medium">{new Date(document.docDate).toLocaleDateString()}</p>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created By</h3>
-                        <p>{document.createdBy.firstName} {document.createdBy.lastName} ({document.createdBy.username})</p>
+                        <p className="font-medium">{document.createdBy.firstName} {document.createdBy.lastName} ({document.createdBy.username})</p>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created At</h3>
-                        <p>{new Date(document.createdAt).toLocaleString()}</p>
+                        <p className="font-medium">{new Date(document.createdAt).toLocaleString()}</p>
                       </div>
                     </div>
                     
@@ -279,21 +298,24 @@ const ViewDocument = () => {
                     
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Content</h3>
-                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md min-h-[200px] whitespace-pre-wrap">
+                      <div className="p-4 bg-gray-50 dark:bg-gray-800/30 rounded-md min-h-[200px] whitespace-pre-wrap border border-gray-200 dark:border-gray-700">
                         {document.content}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
-              <TabsContent value="lignes">
-                <Card>
-                  <CardContent className="p-6">
+              
+              <TabsContent value="lignes" className="mt-0">
+                <Card className="border-none shadow-lg">
+                  <CardContent className="p-0">
                     {isLoadingLignes ? (
-                      <div className="animate-pulse space-y-4">
-                        <div className="h-12 bg-gray-200 rounded"></div>
-                        <div className="h-12 bg-gray-200 rounded"></div>
-                        <div className="h-12 bg-gray-200 rounded"></div>
+                      <div className="p-8">
+                        <div className="animate-pulse space-y-4">
+                          <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                          <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                          <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        </div>
                       </div>
                     ) : (
                       <LignesList

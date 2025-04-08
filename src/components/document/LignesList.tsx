@@ -146,18 +146,25 @@ const LignesList = ({ document, lignes, canManageDocuments }: LignesListProps) =
   const getTotalPrice = () => {
     return lignes.reduce((total, ligne) => total + ligne.prix, 0).toFixed(2);
   };
+  
+  // Function to get a deterministic gradient based on ligne ID
+  const getLigneGradient = (ligneId: number) => {
+    const gradients = ['from-blue-50 to-indigo-50', 'from-green-50 to-emerald-50', 
+                       'from-purple-50 to-pink-50', 'from-amber-50 to-yellow-50'];
+    return gradients[ligneId % gradients.length];
+  };
 
   return (
     <div>
       {canManageDocuments && (
-        <div className="p-4 sticky top-0 bg-white z-10 border-b flex items-center justify-between">
-          <div className="text-lg font-medium text-gray-700 flex items-center">
-            <Package className="h-5 w-5 mr-2 text-blue-500" />
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 p-4 border-b border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+          <div className="text-lg font-medium text-gray-700 dark:text-gray-300 flex items-center">
+            <Package className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
             Manage Document Lines
           </div>
           <Button 
-            onClick={handleCreateDialogOpen} 
-            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-md hover:shadow-lg"
+            onClick={() => setIsCreateDialogOpen(true)} 
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg"
           >
             <PlusCircle className="h-4 w-4 mr-2" /> Add New Line
           </Button>
@@ -165,17 +172,17 @@ const LignesList = ({ document, lignes, canManageDocuments }: LignesListProps) =
       )}
 
       {lignes.length === 0 ? (
-        <div className="p-12 text-center bg-gray-50">
-          <div className="mx-auto w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mb-4">
+        <div className="p-12 text-center bg-gray-50 dark:bg-gray-800/50">
+          <div className="mx-auto w-16 h-16 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 rounded-full flex items-center justify-center mb-4">
             <FileText className="h-8 w-8" />
           </div>
-          <h3 className="text-lg font-medium text-gray-700 mb-2">No Lines Found</h3>
-          <p className="text-gray-500 max-w-md mx-auto mb-6">
+          <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">No Lines Found</h3>
+          <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
             This document doesn't have any lines yet. Add your first line to get started.
           </p>
           {canManageDocuments && (
             <Button 
-              onClick={handleCreateDialogOpen} 
+              onClick={() => setIsCreateDialogOpen(true)} 
               variant="outline" 
               className="border-dashed border-2"
             >
@@ -185,104 +192,102 @@ const LignesList = ({ document, lignes, canManageDocuments }: LignesListProps) =
         </div>
       ) : (
         <>
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-3">
             {lignes.map((ligne) => (
               <motion.div 
                 key={ligne.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="overflow-hidden"
+                className="ligne-card"
               >
-                <Card className="group hover:shadow-md transition-all duration-300 border-l-4 border-l-blue-500">
-                  <div 
-                    className={`p-4 cursor-pointer flex items-center justify-between ${expandedLigneId === ligne.id ? 'bg-blue-50' : 'hover:bg-gray-50 group-hover:bg-gray-50'}`} 
-                    onClick={() => toggleLigneExpansion(ligne.id)}
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-medium text-gray-800">{ligne.title}</h3>
-                        <Badge variant="outline" className="font-mono text-xs">
-                          {ligne.ligneKey}
-                        </Badge>
-                      </div>
-                      <p className="text-gray-600 mt-1 line-clamp-1">{ligne.article}</p>
+                <div 
+                  className={`ligne-header ${getLigneGradient(ligne.id)}`}
+                  onClick={() => toggleLigneExpansion(ligne.id)}
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="ligne-title">{ligne.title}</h3>
+                      <Badge variant="outline" className="font-mono text-xs">
+                        {ligne.ligneKey}
+                      </Badge>
                     </div>
-                    
-                    <div className="flex items-center gap-4">
-                      <div className="font-medium text-green-600 bg-green-50 py-1 px-3 rounded-full flex items-center">
-                        <DollarSign className="h-3 w-3 mr-1" />
-                        {ligne.prix.toFixed(2)}
-                      </div>
-                      
-                      <div className="flex items-center gap-1">
-                        {canManageDocuments && (
-                          <>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditDialogOpen(ligne);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteDialogOpen(ligne);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                        <Button variant="ghost" size="icon" className="text-gray-400">
-                          {expandedLigneId === ligne.id ? 
-                            <ChevronUp className="h-5 w-5" /> : 
-                            <ChevronDown className="h-5 w-5" />
-                          }
-                        </Button>
-                      </div>
-                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-1">{ligne.article}</p>
                   </div>
                   
-                  <AnimatePresence>
-                    {expandedLigneId === ligne.id && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Separator />
-                        <div className="p-4 bg-blue-50">
-                          <SousLignesList 
-                            document={document}
-                            ligne={ligne}
-                            canManageDocuments={canManageDocuments}
-                          />
+                  <div className="flex items-center gap-3">
+                    <div className="ligne-price">
+                      <DollarSign className="h-3 w-3 mr-1" />
+                      {ligne.prix.toFixed(2)}
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
+                      {canManageDocuments && (
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditDialogOpen(ligne);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteDialogOpen(ligne);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </Card>
+                      )}
+                      <Button variant="ghost" size="icon" className="text-gray-400">
+                        {expandedLigneId === ligne.id ? 
+                          <ChevronUp className="h-5 w-5" /> : 
+                          <ChevronDown className="h-5 w-5" />
+                        }
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <AnimatePresence>
+                  {expandedLigneId === ligne.id && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Separator />
+                      <div className="ligne-body">
+                        <SousLignesList 
+                          document={document}
+                          ligne={ligne}
+                          canManageDocuments={canManageDocuments}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             ))}
           </div>
           
           {lignes.length > 0 && (
-            <div className="bg-gray-50 p-4 border-t flex justify-between items-center">
-              <div className="text-gray-600">
+            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 border-t flex justify-between items-center">
+              <div className="text-gray-600 dark:text-gray-400">
                 Total Lines: <span className="font-medium">{lignes.length}</span>
               </div>
               <div className="text-lg font-medium">
-                Total: <span className="text-green-600">{getTotalPrice()} €</span>
+                Total: <span className="text-green-600 dark:text-green-400">{getTotalPrice()} €</span>
               </div>
             </div>
           )}
@@ -293,7 +298,7 @@ const LignesList = ({ document, lignes, canManageDocuments }: LignesListProps) =
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="flex items-center text-blue-600">
+            <DialogTitle className="flex items-center text-blue-600 dark:text-blue-400">
               <PlusCircle className="h-5 w-5 mr-2" /> Add New Line
             </DialogTitle>
           </DialogHeader>

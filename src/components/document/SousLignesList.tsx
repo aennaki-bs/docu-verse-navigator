@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, CheckCircle2, XCircle, FileStack, Settings } from 'lucide-react';
@@ -155,10 +154,9 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
 
   if (isLoading) {
     return (
-      <div className="py-8">
-        <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
+      <div className="py-6 text-center">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <p className="mt-2 text-sm text-gray-500">Loading sub-lines...</p>
       </div>
     );
   }
@@ -167,17 +165,17 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
     <div>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
-          <FileStack className="h-4 w-4 mr-2 text-blue-600" />
-          <h4 className="font-medium text-blue-900">
+          <FileStack className="h-4 w-4 mr-2 text-blue-600 dark:text-blue-400" />
+          <h4 className="font-medium text-blue-900 dark:text-blue-300">
             Sub-Lines <span className="text-gray-400 text-sm font-normal">({sousLignes.length})</span>
           </h4>
         </div>
         {canManageDocuments && (
           <Button 
-            onClick={handleCreateDialogOpen} 
+            onClick={() => setIsCreateDialogOpen(true)} 
             size="sm" 
             variant="outline" 
-            className="border-blue-300 text-blue-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-400 transition-colors"
+            className="border-blue-300 text-blue-600 hover:bg-blue-50 dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-900/20 transition-colors"
           >
             <Plus className="h-3 w-3 mr-1" /> Add Sub-Line
           </Button>
@@ -190,12 +188,12 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-sm text-gray-500 italic p-4 text-center bg-gray-100 bg-opacity-50 rounded-md"
+            className="text-sm text-gray-500 italic p-4 text-center bg-gray-100 dark:bg-gray-800/50 bg-opacity-50 rounded-md"
           >
             No sub-lines available for this line yet.
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="sous-ligne-grid">
             {sousLignes.map((sousLigne, index) => (
               <motion.div
                 key={sousLigne.id}
@@ -204,18 +202,18 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2, delay: index * 0.05 }}
               >
-                <Card className="p-3 bg-white hover:shadow-md transition-shadow border-l-2 border-l-blue-400 group">
+                <Card className="sous-ligne-card group">
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h5 className="font-medium text-sm">{sousLigne.title}</h5>
+                      <div className="sous-ligne-title">
+                        <span>{sousLigne.title}</span>
                         {sousLigne.sousLigneKey && (
                           <Badge variant="outline" className="font-mono text-xs">
                             {sousLigne.sousLigneKey}
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 line-clamp-2">{sousLigne.attribute}</p>
+                      <p className="sous-ligne-content line-clamp-2">{sousLigne.attribute}</p>
                     </div>
                     {canManageDocuments && (
                       <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -249,7 +247,7 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="flex items-center text-blue-600">
+            <DialogTitle className="flex items-center text-blue-600 dark:text-blue-400">
               <Plus className="h-5 w-5 mr-2" /> Add Sub-Line
             </DialogTitle>
           </DialogHeader>
@@ -281,7 +279,7 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
             <Button 
               onClick={handleCreateSousLigne} 
               disabled={isSubmitting}
-              className="bg-gradient-to-r from-blue-500 to-blue-600"
+              className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700"
             >
               {isSubmitting ? (
                 <div className="flex items-center">
@@ -302,7 +300,7 @@ const SousLignesList = ({ document, ligne, canManageDocuments }: SousLignesListP
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="flex items-center text-blue-600">
+            <DialogTitle className="flex items-center text-blue-600 dark:text-blue-400">
               <Settings className="h-5 w-5 mr-2" /> Edit Sub-Line
             </DialogTitle>
           </DialogHeader>
