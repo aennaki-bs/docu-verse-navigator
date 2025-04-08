@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Lock, User, WifiOff } from 'lucide-react';
+import { Eye, EyeOff, Lock, User, WifiOff, ShieldAlert } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -106,6 +106,9 @@ const Login = () => {
       if (error.code === 'ERR_NETWORK') {
         setIsApiAvailable(false);
         setApiError('Connection error. Please check your internet connection and try again.');
+      } else if (error.message?.includes('SSL') || error.code === 'ERR_SSL_PROTOCOL_ERROR') {
+        // SSL-specific error message
+        setApiError('SSL connection error. Contact your administrator to configure correct API settings.');
       } else {
         // Extract the specific error message from the API response
         const errorMessage = error.response?.data?.message || 
@@ -146,6 +149,7 @@ const Login = () => {
                 <Alert variant="destructive" className="mb-4 animate-pulse">
                   <AlertDescription className="flex items-center gap-2">
                     {!isApiAvailable && <WifiOff size={16} />}
+                    {apiError.includes('SSL') && <ShieldAlert size={16} />}
                     {apiError}
                   </AlertDescription>
                 </Alert>
