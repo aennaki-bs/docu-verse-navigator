@@ -1,4 +1,3 @@
-
 import api from './api';
 import { Document, DocumentType, CreateDocumentRequest, UpdateDocumentRequest, 
          Ligne, CreateLigneRequest, UpdateLigneRequest,
@@ -23,6 +22,20 @@ const documentService = {
     } catch (error) {
       console.error(`Error fetching document with ID ${id}:`, error);
       throw error;
+    }
+  },
+
+  getRecentDocuments: async (limit: number = 5): Promise<Document[]> => {
+    try {
+      const response = await api.get(`/Documents/recent?limit=${limit}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching recent documents:', error);
+      // If the API doesn't have this endpoint yet, fall back to getting all documents and sorting them
+      const allDocs = await documentService.getAllDocuments();
+      return allDocs
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+        .slice(0, limit);
     }
   },
 
