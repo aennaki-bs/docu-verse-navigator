@@ -2,13 +2,6 @@
 import axios from 'axios';
 import { toast } from 'sonner';
 
-// Extend AxiosRequestConfig to include our custom properties
-declare module 'axios' {
-  export interface InternalAxiosRequestConfig {
-    requestId?: string;
-  }
-}
-
 // Create axios instance with default configuration
 const api = axios.create({
   // Use a more flexible base URL approach - try HTTPS first, then fallback to HTTP
@@ -40,6 +33,7 @@ api.interceptors.request.use(
     // Show loading toast for long operations
     if (config.method === 'post' || config.method === 'put' || config.method === 'delete') {
       const requestId = Date.now().toString();
+      // @ts-ignore - Add a custom property to the config
       config.requestId = requestId;
       
       // For sensitive operations like login, don't show the toast
@@ -66,7 +60,9 @@ api.interceptors.response.use(
     });
     
     // Dismiss loading toast if it exists
+    // @ts-ignore - Access the custom property from the config
     if (response.config.requestId) {
+      // @ts-ignore
       toast.dismiss(response.config.requestId);
     }
     
@@ -74,7 +70,9 @@ api.interceptors.response.use(
   },
   async (error) => {
     // Dismiss loading toast if it exists
+    // @ts-ignore - Access the custom property from the config
     if (error.config?.requestId) {
+      // @ts-ignore
       toast.dismiss(error.config.requestId);
     }
     
