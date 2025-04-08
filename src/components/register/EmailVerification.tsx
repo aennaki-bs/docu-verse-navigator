@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/input-otp';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Check, RefreshCw } from 'lucide-react';
+import { Mail, Check, RefreshCw, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import authService from '@/services/authService';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
@@ -22,19 +22,23 @@ const EmailVerification = () => {
   const [countdown, setCountdown] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
   
   // Extract email from state, URL params, or path
   const path = window.location.pathname;
   const emailFromPath = path.startsWith('/verify/') ? path.substring(8) : '';
+  const emailFromParams = params.email || '';
   
   // Get email from various possible sources with priority
   const email = location.state?.email || 
+                emailFromParams ||
                 emailFromPath || 
                 '';
   
   // Debug logs to track state
   console.log("EmailVerification component rendering");
   console.log("Email from location state:", location.state?.email);
+  console.log("Email from params:", emailFromParams);
   console.log("Email from path:", emailFromPath);
   console.log("Final email being used:", email);
 
@@ -84,7 +88,12 @@ const EmailVerification = () => {
         });
       }, 2000);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Verification failed. Please try again.';
+      // Get detailed error message from error response
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          error.response?.data || 
+                          'Verification failed. Please try again.';
+      
       setError(errorMessage);
       toast.error(errorMessage);
       console.error("Email verification error:", error);
@@ -109,7 +118,13 @@ const EmailVerification = () => {
       await authService.resendVerificationCode(email);
       toast.success('Verification code resent to your email');
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Failed to resend verification code';
+      // Get detailed error message from error response
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          error.response?.data || 
+                          'Failed to resend verification code';
+      
+      setError(errorMessage);
       toast.error(errorMessage);
       console.error("Resend code error:", error);
     } finally {
@@ -160,20 +175,23 @@ const EmailVerification = () => {
                 maxLength={6}
                 value={verificationCode}
                 onChange={setVerificationCode}
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
-                </InputOTPGroup>
-              </InputOTP>
+                render={({ slots }) => (
+                  <InputOTPGroup className="gap-2">
+                    {slots.map((slot, index) => (
+                      <InputOTPSlot 
+                        key={index} 
+                        index={index}
+                        className="w-10 h-12 text-lg font-bold border-gray-300 focus:border-docuBlue" 
+                      />
+                    ))}
+                  </InputOTPGroup>
+                )}
+              />
             </div>
             
             {error && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-md text-sm">
+              <div className="p-3 bg-red-50 text-red-600 rounded-md text-sm flex items-center">
+                <AlertCircle className="h-4 w-4 mr-2" />
                 {error}
               </div>
             )}
@@ -198,7 +216,7 @@ const EmailVerification = () => {
               {resendDisabled 
                 ? `Resend Code (${countdown}s)` 
                 : 'Resend Code'}
-              <RefreshCw className="ml-2 h-4 w-4" />
+              <RefreshCw className={`ml-2 h-4 w-4 ${resendDisabled ? 'animate-spin' : ''}`} />
             </Button>
             
             <p className="text-center text-sm text-gray-600 dark:text-gray-400">

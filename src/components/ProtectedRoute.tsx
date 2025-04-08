@@ -45,7 +45,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // Check if SimpleUser is trying to access management features
   if (requiresManagement && userRole === 'SimpleUser') {
-    toast.error('Simple users cannot make management changes');
+    toast.error('Simple users cannot make management changes', {
+      description: 'You can view information but cannot modify content'
+    });
+    
+    // If it's a circuit page, allow viewing but return to dashboard for other management pages
+    if (location.pathname === '/circuits') {
+      // Allow viewing but restrictions will be applied in the component
+      return children ? <>{children}</> : <Outlet />;
+    }
+    
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -56,7 +65,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       : userRole === requiredRole;
 
     if (!hasRequiredRole) {
-      toast.error('You do not have permission to access this page');
+      toast.error('You do not have permission to access this page', {
+        description: `Required role: ${Array.isArray(requiredRole) ? requiredRole.join(' or ') : requiredRole}`
+      });
       return <Navigate to="/dashboard" replace />;
     }
   }

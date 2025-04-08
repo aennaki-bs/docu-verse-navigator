@@ -79,8 +79,8 @@ const App = () => (
                 <Route path="/documents/:id/lignes/:ligneId/souslignes" element={<ProtectedRoute requiresManagement><ViewDocument /></ProtectedRoute>} />
                 <Route path="/documents/:id/lignes/:ligneId/souslignes/:sousLigneId" element={<ViewDocument />} />
                 
-                {/* Circuit Management routes */}
-                <Route path="/circuits" element={<ProtectedRoute requiresManagement><CircuitsPage /></ProtectedRoute>} />
+                {/* Circuit Management routes - SimpleUsers can view circuits but not manage them */}
+                <Route path="/circuits" element={<CircuitsPage />} />
                 <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
               </Route>
             </Route>

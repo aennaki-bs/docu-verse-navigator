@@ -82,7 +82,9 @@ api.interceptors.response.use(
       
       // Don't show error toast for login/register as they handle errors themselves
       if (!error.config.url.includes('/Auth/login') && !error.config.url.includes('/Auth/register')) {
-        toast.error('Network error. Please check your connection and try again.');
+        toast.error('Network error. Please check your connection and try again.', {
+          description: 'Unable to connect to the server'
+        });
       }
       
       return Promise.reject(error);
@@ -108,10 +110,14 @@ api.interceptors.response.use(
     const skipToast = error.config.url.includes('/Auth/login') || 
                       error.config.url.includes('/Auth/register') ||
                       error.config.url.includes('/Auth/valide-email') ||
-                      error.config.url.includes('/Auth/valide-username');
+                      error.config.url.includes('/Auth/valide-username') ||
+                      error.config.url.includes('/Auth/verify-email') ||
+                      error.config.url.includes('/Account/resend-code');
                       
     if (!skipToast && errorMessage) {
-      toast.error(errorMessage);
+      toast.error('API Error', {
+        description: errorMessage
+      });
     }
     
     const originalRequest = error.config;
@@ -147,7 +153,9 @@ api.interceptors.response.use(
     
     // Handle 403 Forbidden errors (e.g., accessing admin endpoints without permission)
     if (error.response?.status === 403) {
-      toast.error('You do not have permission to perform this action.');
+      toast.error('Permission Denied', {
+        description: 'You do not have permission to perform this action.'
+      });
       
       // If accessing admin endpoint, redirect to dashboard
       if (originalRequest.url.includes('/Admin/')) {
