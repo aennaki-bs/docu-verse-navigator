@@ -2,6 +2,13 @@
 import axios from 'axios';
 import { toast } from 'sonner';
 
+// Extend AxiosRequestConfig to include our custom properties
+declare module 'axios' {
+  export interface InternalAxiosRequestConfig {
+    requestId?: string;
+  }
+}
+
 // Create axios instance with default configuration
 const api = axios.create({
   // Use a more flexible base URL approach - try HTTPS first, then fallback to HTTP
