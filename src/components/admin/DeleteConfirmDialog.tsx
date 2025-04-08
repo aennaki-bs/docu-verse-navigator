@@ -32,6 +32,10 @@ export function DeleteConfirmDialog({
     setIsConfirming(true);
     try {
       await onConfirm();
+      // Automatically close the dialog after successful deletion
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Delete operation failed:', error);
     } finally {
       setIsConfirming(false);
     }
