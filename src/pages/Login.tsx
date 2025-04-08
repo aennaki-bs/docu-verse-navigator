@@ -68,6 +68,8 @@ const Login = () => {
     
     if (!isAvailable) {
       setApiError('Cannot connect to server. Please check your network connection or try again later.');
+    } else {
+      toast.success('Connection established!');
     }
     
     setIsCheckingApi(false);
@@ -80,6 +82,12 @@ const Login = () => {
     setApiError(null);
     
     if (!validateForm()) return;
+
+    // Check connection before attempting login
+    if (!isApiAvailable) {
+      setApiError('Cannot connect to server. Please check your connection and try again.');
+      return;
+    }
     
     try {
       const success = await login({ 
@@ -96,6 +104,7 @@ const Login = () => {
       
       // Handle different error types
       if (error.code === 'ERR_NETWORK') {
+        setIsApiAvailable(false);
         setApiError('Connection error. Please check your internet connection and try again.');
       } else {
         // Extract the specific error message from the API response
