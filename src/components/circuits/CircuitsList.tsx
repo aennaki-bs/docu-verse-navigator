@@ -1,7 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Plus, Edit, Trash2, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Info, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,8 @@ import CreateCircuitDialog from './CreateCircuitDialog';
 import EditCircuitDialog from './EditCircuitDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import CircuitDetailsDialog from './CircuitDetailsDialog';
+import { useAuth } from '@/context/AuthContext';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface CircuitsListProps {
   onApiError?: (errorMessage: string) => void;
@@ -30,6 +32,8 @@ export default function CircuitsList({ onApiError }: CircuitsListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedCircuit, setSelectedCircuit] = useState<Circuit | null>(null);
+  const { user } = useAuth();
+  const isSimpleUser = user?.role === 'SimpleUser';
 
   const { data: circuits, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['circuits'],
@@ -45,11 +49,19 @@ export default function CircuitsList({ onApiError }: CircuitsListProps) {
   }
 
   const handleEdit = (circuit: Circuit) => {
+    if (isSimpleUser) {
+      toast.error('You do not have permission to edit circuits');
+      return;
+    }
     setSelectedCircuit(circuit);
     setEditDialogOpen(true);
   };
 
   const handleDelete = (circuit: Circuit) => {
+    if (isSimpleUser) {
+      toast.error('You do not have permission to delete circuits');
+      return;
+    }
     setSelectedCircuit(circuit);
     setDeleteDialogOpen(true);
   };
@@ -88,9 +100,22 @@ export default function CircuitsList({ onApiError }: CircuitsListProps) {
     <Card className="w-full shadow-md">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Circuits</CardTitle>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> New Circuit
-        </Button>
+        {!isSimpleUser ? (
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> New Circuit
+          </Button>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center text-gray-500">
+                <Lock className="h-4 w-4 mr-1" /> <span className="text-xs">View-only access</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Simple users cannot create or modify circuits</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
       </CardHeader>
       <CardContent>
         {circuits && circuits.length > 0 ? (
@@ -130,23 +155,28 @@ export default function CircuitsList({ onApiError }: CircuitsListProps) {
                         size="sm"
                         onClick={() => handleViewDetails(circuit)}
                       >
-                        <FileText className="h-4 w-4" />
+                        {isSimpleUser ? <Info className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(circuit)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => handleDelete(circuit)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      
+                      {!isSimpleUser && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(circuit)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => handleDelete(circuit)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -155,34 +185,40 @@ export default function CircuitsList({ onApiError }: CircuitsListProps) {
           </div>
         ) : (
           <div className="text-center py-12 text-gray-500">
-            No circuits found. Create a new circuit to get started.
+            No circuits found. {!isSimpleUser && 'Create a new circuit to get started.'}
           </div>
         )}
       </CardContent>
 
-      {/* Dialogs */}
-      <CreateCircuitDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onSuccess={refetch}
-      />
+      {/* Dialogs - Only render if user has permissions */}
+      {!isSimpleUser && (
+        <CreateCircuitDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onSuccess={refetch}
+        />
+      )}
       
       {selectedCircuit && (
         <>
-          <EditCircuitDialog
-            circuit={selectedCircuit}
-            open={editDialogOpen}
-            onOpenChange={setEditDialogOpen}
-            onSuccess={refetch}
-          />
-          
-          <DeleteConfirmDialog
-            title="Delete Circuit"
-            description={`Are you sure you want to delete the circuit "${selectedCircuit.title}"? This action cannot be undone.`}
-            open={deleteDialogOpen}
-            onOpenChange={setDeleteDialogOpen}
-            onConfirm={confirmDelete}
-          />
+          {!isSimpleUser && (
+            <>
+              <EditCircuitDialog
+                circuit={selectedCircuit}
+                open={editDialogOpen}
+                onOpenChange={setEditDialogOpen}
+                onSuccess={refetch}
+              />
+              
+              <DeleteConfirmDialog
+                title="Delete Circuit"
+                description={`Are you sure you want to delete the circuit "${selectedCircuit.title}"? This action cannot be undone.`}
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+                onConfirm={confirmDelete}
+              />
+            </>
+          )}
           
           <CircuitDetailsDialog
             circuit={selectedCircuit}
