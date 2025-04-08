@@ -20,17 +20,29 @@ import EditCircuitDialog from './EditCircuitDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import CircuitDetailsDialog from './CircuitDetailsDialog';
 
-export default function CircuitsList() {
+interface CircuitsListProps {
+  onApiError?: (errorMessage: string) => void;
+}
+
+export default function CircuitsList({ onApiError }: CircuitsListProps) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedCircuit, setSelectedCircuit] = useState<Circuit | null>(null);
 
-  const { data: circuits, isLoading, isError, refetch } = useQuery({
+  const { data: circuits, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['circuits'],
     queryFn: circuitService.getAllCircuits,
   });
+
+  // Report any API errors to the parent component
+  if (isError && onApiError) {
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : 'Failed to load circuits. Please try again later.';
+    onApiError(errorMessage);
+  }
 
   const handleEdit = (circuit: Circuit) => {
     setSelectedCircuit(circuit);
@@ -55,7 +67,11 @@ export default function CircuitsList() {
       toast.success("Circuit deleted successfully");
       refetch();
     } catch (error) {
-      toast.error("Failed to delete circuit");
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Failed to delete circuit';
+      toast.error(errorMessage);
+      if (onApiError) onApiError(errorMessage);
       console.error(error);
     }
   };
@@ -64,7 +80,7 @@ export default function CircuitsList() {
     return <div className="flex justify-center p-8">Loading circuits...</div>;
   }
 
-  if (isError) {
+  if (isError && !onApiError) {
     return <div className="text-red-500 p-8">Error loading circuits</div>;
   }
 
