@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { 
   InputOTP, 
   InputOTPGroup,
@@ -18,24 +18,45 @@ const EmailVerification = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resendDisabled, setResendDisabled] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.email || '';
+  
+  // Extract email from state, URL params, or path
+  const path = window.location.pathname;
+  const emailFromPath = path.startsWith('/verify/') ? path.substring(8) : '';
+  
+  // Get email from various possible sources with priority
+  const email = location.state?.email || 
+                emailFromPath || 
+                '';
   
   // Debug logs to track state
   console.log("EmailVerification component rendering");
-  console.log("Email from location state:", email);
-  console.log("Location state:", location.state);
+  console.log("Email from location state:", location.state?.email);
+  console.log("Email from path:", emailFromPath);
+  console.log("Final email being used:", email);
 
   useEffect(() => {
     // If no email is provided, redirect to registration
     if (!email) {
-      console.warn("No email found in state, redirecting to registration");
+      console.warn("No email found in state or URL, redirecting to registration");
       navigate('/register');
     } else {
       console.log("Email verification page loaded with email:", email);
     }
   }, [email, navigate]);
+
+  // Countdown timer for resend button
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0 && resendDisabled) {
+      setResendDisabled(false);
+    }
+  }, [countdown, resendDisabled]);
 
   const handleVerify = async () => {
     if (verificationCode.length !== 6) {
@@ -62,7 +83,7 @@ const EmailVerification = () => {
           replace: true
         });
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Verification failed. Please try again.';
       setError(errorMessage);
       toast.error(errorMessage);
@@ -79,12 +100,15 @@ const EmailVerification = () => {
     }
 
     setIsLoading(true);
+    setResendDisabled(true);
+    setCountdown(60); // 60 seconds cooldown before next resend
+    
     try {
       // Call API to resend verification code
       console.log("Resending verification code to:", email);
-      await authService.validateEmail(email);
+      await authService.resendVerificationCode(email);
       toast.success('Verification code resent to your email');
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to resend verification code';
       toast.error(errorMessage);
       console.error("Resend code error:", error);
@@ -169,9 +193,11 @@ const EmailVerification = () => {
               variant="outline"
               className="w-full"
               onClick={handleResendCode}
-              disabled={isLoading}
+              disabled={isLoading || resendDisabled}
             >
-              Resend Code
+              {resendDisabled 
+                ? `Resend Code (${countdown}s)` 
+                : 'Resend Code'}
               <RefreshCw className="ml-2 h-4 w-4" />
             </Button>
             

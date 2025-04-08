@@ -279,7 +279,7 @@ const authService = {
       throw error;
     }
   },
-
+  
   updatePassword: async (email: string, newPassword: string): Promise<string> => {
     try {
       console.log('Updating password for email:', email);

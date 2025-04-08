@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { KeyRound } from 'lucide-react';
+import { KeyRound, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 const StepThreeAdminKey = () => {
   const { formData, setFormData, registerUser, prevStep, stepValidation } = useMultiStepForm();
   const [isAdmin, setIsAdmin] = React.useState(false);
+  const [showAdminKey, setShowAdminKey] = React.useState(false);
   const [localErrors, setLocalErrors] = React.useState<Record<string, string>>({});
   const navigate = useNavigate();
 
@@ -25,6 +26,10 @@ const StepThreeAdminKey = () => {
     if (!isAdmin) {
       setFormData({ adminSecretKey: '' });
     }
+  };
+
+  const toggleShowAdminKey = () => {
+    setShowAdminKey(!showAdminKey);
   };
 
   const validateStep = () => {
@@ -85,12 +90,20 @@ const StepThreeAdminKey = () => {
             <Input
               id="adminSecretKey"
               name="adminSecretKey"
-              type="password"
+              type={showAdminKey ? "text" : "password"}
               placeholder="Enter admin secret key"
               className={`pl-10 ${localErrors.adminSecretKey ? 'border-red-500' : ''}`}
               value={formData.adminSecretKey || ''}
               onChange={handleChange}
             />
+            <button 
+              type="button"
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+              onClick={toggleShowAdminKey}
+              tabIndex={-1}
+            >
+              {showAdminKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
           </div>
           {localErrors.adminSecretKey && (
             <p className="text-sm text-red-500">{localErrors.adminSecretKey}</p>
