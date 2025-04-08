@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { GitBranch, HistoryIcon, Share2 } from 'lucide-react';
+import { ArrowRightCircle, GitBranch, HistoryIcon, Share2 } from 'lucide-react';
 import circuitService from '@/services/circuitService';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import CircuitHistoryTimeline from './CircuitHistoryTimeline';
 import AssignCircuitDialog from './AssignCircuitDialog';
 import ProcessCircuitStepDialog from './ProcessCircuitStepDialog';
+import MoveDocumentStepDialog from './MoveDocumentStepDialog';
 
 interface CircuitPanelProps {
   document: any; // Use your document type here
@@ -20,6 +22,7 @@ interface CircuitPanelProps {
 export default function DocumentCircuitPanel({ document, onUpdate }: CircuitPanelProps) {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [processDialogOpen, setProcessDialogOpen] = useState(false);
+  const [moveStepDialogOpen, setMoveStepDialogOpen] = useState(false);
   
   const { data: history, isLoading } = useQuery({
     queryKey: ['document-circuit-history', document.id],
@@ -35,6 +38,11 @@ export default function DocumentCircuitPanel({ document, onUpdate }: CircuitPane
   const handleProcessSuccess = () => {
     if (onUpdate) onUpdate();
     toast.success('Document step processed successfully');
+  };
+
+  const handleMoveSuccess = () => {
+    if (onUpdate) onUpdate();
+    toast.success('Document moved to new step successfully');
   };
 
   // Calculate progress if document has a circuit
@@ -58,6 +66,7 @@ export default function DocumentCircuitPanel({ document, onUpdate }: CircuitPane
   };
 
   const canProcess = document.currentCircuitDetailId && !document.isCircuitCompleted;
+  const canMove = document.circuitId && !document.isCircuitCompleted;
 
   return (
     <Card className="w-full">
@@ -70,6 +79,11 @@ export default function DocumentCircuitPanel({ document, onUpdate }: CircuitPane
             {!document.circuitId && (
               <Button size="sm" onClick={() => setAssignDialogOpen(true)}>
                 <Share2 className="mr-2 h-4 w-4" /> Assign to Circuit
+              </Button>
+            )}
+            {canMove && (
+              <Button size="sm" variant="outline" onClick={() => setMoveStepDialogOpen(true)}>
+                <ArrowRightCircle className="mr-2 h-4 w-4" /> Move to Step
               </Button>
             )}
             {canProcess && (
@@ -161,6 +175,18 @@ export default function DocumentCircuitPanel({ document, onUpdate }: CircuitPane
           open={processDialogOpen}
           onOpenChange={setProcessDialogOpen}
           onSuccess={handleProcessSuccess}
+        />
+      )}
+
+      {document.circuitId && (
+        <MoveDocumentStepDialog
+          documentId={document.id}
+          documentTitle={document.title}
+          circuitId={document.circuitId}
+          currentStepId={document.currentCircuitDetailId}
+          open={moveStepDialogOpen}
+          onOpenChange={setMoveStepDialogOpen}
+          onSuccess={handleMoveSuccess}
         />
       )}
     </Card>

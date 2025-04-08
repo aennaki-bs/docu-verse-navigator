@@ -3,10 +3,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
-import adminService from '@/services/adminService';
 import {
   Dialog,
   DialogContent,
@@ -26,19 +24,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 const formSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
   descriptif: z.string().optional(),
   orderIndex: z.coerce.number().int().nonnegative(),
-  responsibleRoleId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -58,20 +48,12 @@ export default function EditCircuitDetailDialog({
 }: EditCircuitDetailDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch roles for dropdown
-  const { data: roles } = useQuery({
-    queryKey: ['roles'],
-    queryFn: () => adminService.getAllRoles(),
-    enabled: open,
-  });
-
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: circuitDetail.title,
       descriptif: circuitDetail.descriptif || '',
       orderIndex: circuitDetail.orderIndex,
-      responsibleRoleId: circuitDetail.responsibleRoleId?.toString(),
     },
   });
 
@@ -83,9 +65,7 @@ export default function EditCircuitDetailDialog({
         title: values.title,
         descriptif: values.descriptif || '',
         orderIndex: values.orderIndex,
-        responsibleRoleId: values.responsibleRoleId 
-          ? parseInt(values.responsibleRoleId) 
-          : undefined,
+        // Removed responsibleRoleId as it's no longer needed
       });
       
       toast.success('Circuit step updated successfully');
@@ -147,50 +127,19 @@ export default function EditCircuitDetailDialog({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="orderIndex"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Order</FormLabel>
-                    <FormControl>
-                      <Input type="number" min="0" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="responsibleRoleId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Responsible Role</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a role" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value={undefined}>None</SelectItem>
-                        {roles?.map((role) => (
-                          <SelectItem key={role.id} value={role.id.toString()}>
-                            {role.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="orderIndex"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Order</FormLabel>
+                  <FormControl>
+                    <Input type="number" min="0" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <DialogFooter>
               <Button

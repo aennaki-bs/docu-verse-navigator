@@ -1,6 +1,7 @@
 
-import { useState } from 'react';
 import CircuitsList from '@/components/circuits/CircuitsList';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { InfoCircle } from 'lucide-react';
 
 export default function CircuitsPage() {
   return (
@@ -11,6 +12,15 @@ export default function CircuitsPage() {
           Create and manage document workflow circuits
         </p>
       </div>
+      
+      <Alert>
+        <InfoCircle className="h-4 w-4" />
+        <AlertTitle>Access Control Information</AlertTitle>
+        <AlertDescription>
+          Only users with Admin and FullUser roles can make changes to circuits.
+          SimpleUser role can only view circuits and documents.
+        </AlertDescription>
+      </Alert>
       
       <CircuitsList />
     </div>

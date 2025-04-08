@@ -67,6 +67,10 @@ const circuitService = {
     await api.post('/CircuitProcessing/process', request);
   },
 
+  moveDocumentToStep: async (request: MoveDocumentStepRequest): Promise<void> => {
+    await api.post('/CircuitProcessing/move-to-step', request);
+  },
+
   getDocumentCircuitHistory: async (documentId: number): Promise<DocumentCircuitHistoryDto[]> => {
     const response = await api.get(`/CircuitProcessing/history/${documentId}`);
     return response.data;

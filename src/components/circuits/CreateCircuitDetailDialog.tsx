@@ -6,7 +6,6 @@ import * as z from 'zod';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
-import adminService from '@/services/adminService';
 import {
   Dialog,
   DialogContent,
@@ -26,19 +25,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 const formSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
   descriptif: z.string().optional(),
   orderIndex: z.coerce.number().int().nonnegative(),
-  responsibleRoleId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -65,13 +56,6 @@ export default function CreateCircuitDetailDialog({
     enabled: open,
   });
 
-  // Fetch roles for dropdown
-  const { data: roles } = useQuery({
-    queryKey: ['roles'],
-    queryFn: () => adminService.getAllRoles(),
-    enabled: open,
-  });
-
   // Calculate the next order index
   const nextOrderIndex = circuitDetails && circuitDetails.length > 0 
     ? Math.max(...circuitDetails.map(d => d.orderIndex)) + 1 
@@ -83,13 +67,11 @@ export default function CreateCircuitDetailDialog({
       title: '',
       descriptif: '',
       orderIndex: nextOrderIndex || 0,
-      responsibleRoleId: undefined,
     },
     values: {
       title: '',
       descriptif: '',
       orderIndex: nextOrderIndex || 0,
-      responsibleRoleId: undefined,
     },
   });
 
@@ -101,9 +83,7 @@ export default function CreateCircuitDetailDialog({
         title: values.title,
         descriptif: values.descriptif || '',
         orderIndex: values.orderIndex,
-        responsibleRoleId: values.responsibleRoleId 
-          ? parseInt(values.responsibleRoleId) 
-          : undefined,
+        // Removed responsibleRoleId as it's no longer needed
       });
       
       form.reset();
@@ -161,49 +141,19 @@ export default function CreateCircuitDetailDialog({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="orderIndex"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Order</FormLabel>
-                    <FormControl>
-                      <Input type="number" min="0" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="responsibleRoleId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Responsible Role</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a role" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {roles?.map((role) => (
-                          <SelectItem key={role.id} value={role.id.toString()}>
-                            {role.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="orderIndex"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Order</FormLabel>
+                  <FormControl>
+                    <Input type="number" min="0" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <DialogFooter>
               <Button
