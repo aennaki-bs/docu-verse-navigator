@@ -88,6 +88,17 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
     
+    // Handle SSL errors
+    if (error.message?.includes('SSL') || error.code === 'ERR_SSL_PROTOCOL_ERROR') {
+      console.error('SSL error detected:', error);
+      
+      if (!error.config.url.includes('/Auth/login') && !error.config.url.includes('/Auth/register')) {
+        toast.error('SSL connection error. Contact your administrator to configure correct API settings.');
+      }
+      
+      return Promise.reject(error);
+    }
+    
     console.error('API Response Error:', error.response || error);
     
     const originalRequest = error.config;
