@@ -7,9 +7,14 @@ import { toast } from 'sonner';
 interface ProtectedRouteProps {
   children?: React.ReactNode;
   requiredRole?: 'Admin' | 'FullUser' | 'SimpleUser' | string[];
+  requiresManagement?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requiredRole,
+  requiresManagement = false 
+}) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 
@@ -36,9 +41,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  const userRole = user?.role || 'SimpleUser';
+  
+  // Check if SimpleUser is trying to access management features
+  if (requiresManagement && userRole === 'SimpleUser') {
+    toast.error('Simple users cannot make management changes');
+    return <Navigate to="/dashboard" replace />;
+  }
+
   // Role-based access control
   if (requiredRole) {
-    const userRole = user?.role || 'SimpleUser';
     const hasRequiredRole = Array.isArray(requiredRole) 
       ? requiredRole.includes(userRole) 
       : userRole === requiredRole;

@@ -101,6 +101,19 @@ api.interceptors.response.use(
     
     console.error('API Response Error:', error.response || error);
     
+    // Extract detailed error message from response if available
+    const errorMessage = getErrorMessage(error);
+    
+    // Only show toast for non-auth endpoints or endpoints that don't handle their own errors
+    const skipToast = error.config.url.includes('/Auth/login') || 
+                      error.config.url.includes('/Auth/register') ||
+                      error.config.url.includes('/Auth/valide-email') ||
+                      error.config.url.includes('/Auth/valide-username');
+                      
+    if (!skipToast && errorMessage) {
+      toast.error(errorMessage);
+    }
+    
     const originalRequest = error.config;
     
     // Only redirect to login for auth-required endpoints when token is invalid
@@ -145,6 +158,58 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Helper function to extract error message from various API response formats
+const getErrorMessage = (error: any): string => {
+  // If there's no response, it's likely a network error
+  if (!error.response) {
+    return error.message || 'Network error. Please try again later.';
+  }
+
+  // Get the response data
+  const { data, status } = error.response;
+  
+  // Handle different error formats from the API
+  if (typeof data === 'string') {
+    return data;
+  }
+  
+  if (data?.message) {
+    return data.message;
+  }
+  
+  if (data?.error) {
+    return data.error;
+  }
+  
+  if (data?.errors) {
+    // If it's an array of errors, join them
+    if (Array.isArray(data.errors)) {
+      return data.errors.join('. ');
+    }
+    // If it's an object with error properties
+    if (typeof data.errors === 'object') {
+      return Object.values(data.errors).flat().join('. ');
+    }
+    return data.errors.toString();
+  }
+  
+  // Return status-specific messages
+  switch (status) {
+    case 400:
+      return 'Bad request. Please check your input.';
+    case 401:
+      return 'Unauthorized. Please log in again.';
+    case 403:
+      return 'Forbidden. You do not have permission to access this resource.';
+    case 404:
+      return 'Resource not found.';
+    case 500:
+      return 'Server error. Please try again later.';
+    default:
+      return `Error ${status}: ${data || 'Unknown error'}`;
+  }
+};
 
 // Simple method to test if API is available
 // Try to make a basic request to the server without assuming a specific endpoint

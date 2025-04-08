@@ -61,22 +61,26 @@ const App = () => (
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminPage /></ProtectedRoute>} />
+                
+                {/* Document routes */}
                 <Route path="/documents" element={<Documents />} />
-                <Route path="/document-types" element={<DocumentTypes />} />
-                <Route path="/documents/create" element={<ProtectedRoute requiredRole={["Admin", "FullUser"]}><CreateDocument /></ProtectedRoute>} />
+                
+                {/* Management routes (Admin & FullUser only) */}
+                <Route path="/document-types" element={<ProtectedRoute requiresManagement><DocumentTypes /></ProtectedRoute>} />
+                <Route path="/documents/create" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><CreateDocument /></ProtectedRoute>} />
                 <Route path="/documents/:id" element={<ViewDocument />} />
-                <Route path="/documents/:id/edit" element={<ProtectedRoute requiredRole={["Admin", "FullUser"]}><EditDocument /></ProtectedRoute>} />
+                <Route path="/documents/:id/edit" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><EditDocument /></ProtectedRoute>} />
                 
                 {/* Document Lignes routes */}
-                <Route path="/documents/:id/lignes" element={<DocumentLignesPage />} />
+                <Route path="/documents/:id/lignes" element={<ProtectedRoute requiresManagement><DocumentLignesPage /></ProtectedRoute>} />
                 <Route path="/documents/:id/lignes/:ligneId" element={<ViewDocument />} />
                 
                 {/* Document SousLignes routes */}
-                <Route path="/documents/:id/lignes/:ligneId/souslignes" element={<ViewDocument />} />
+                <Route path="/documents/:id/lignes/:ligneId/souslignes" element={<ProtectedRoute requiresManagement><ViewDocument /></ProtectedRoute>} />
                 <Route path="/documents/:id/lignes/:ligneId/souslignes/:sousLigneId" element={<ViewDocument />} />
                 
                 {/* Circuit Management routes */}
-                <Route path="/circuits" element={<CircuitsPage />} />
+                <Route path="/circuits" element={<ProtectedRoute requiresManagement><CircuitsPage /></ProtectedRoute>} />
                 <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
               </Route>
             </Route>

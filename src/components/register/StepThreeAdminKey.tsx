@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { KeyRound, Eye, EyeOff } from 'lucide-react';
+import { KeyRound, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const StepThreeAdminKey = () => {
   const { formData, setFormData, registerUser, prevStep, stepValidation } = useMultiStepForm();
@@ -115,9 +116,10 @@ const StepThreeAdminKey = () => {
       )}
       
       {stepValidation.errors.registration && (
-        <div className="p-3 bg-red-50 text-red-600 rounded-md">
-          {stepValidation.errors.registration}
-        </div>
+        <Alert variant="destructive" className="mt-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{stepValidation.errors.registration}</AlertDescription>
+        </Alert>
       )}
       
       <div className="flex space-x-2">

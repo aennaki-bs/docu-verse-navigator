@@ -1,9 +1,13 @@
 
 import CircuitsList from '@/components/circuits/CircuitsList';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, ShieldAlert } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function CircuitsPage() {
+  const { user } = useAuth();
+  const isSimpleUser = user?.role === 'SimpleUser';
+
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -13,12 +17,14 @@ export default function CircuitsPage() {
         </p>
       </div>
       
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertTitle>Access Control Information</AlertTitle>
+      <Alert variant={isSimpleUser ? "destructive" : "default"}>
+        {isSimpleUser ? <ShieldAlert className="h-4 w-4" /> : <InfoIcon className="h-4 w-4" />}
+        <AlertTitle>{isSimpleUser ? "Access Restricted" : "Access Control Information"}</AlertTitle>
         <AlertDescription>
-          Only users with Admin and FullUser roles can make changes to circuits.
-          SimpleUser role can only view circuits and documents.
+          {isSimpleUser 
+            ? "As a Simple User, you can only view circuits and documents. You cannot make any changes."
+            : "Only users with Admin and FullUser roles can make changes to circuits. SimpleUser role can only view circuits and documents."
+          }
         </AlertDescription>
       </Alert>
       
