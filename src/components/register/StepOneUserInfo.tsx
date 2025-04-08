@@ -65,7 +65,7 @@ const StepOneUserInfo = () => {
           <Input
             id="firstName"
             name="firstName"
-            placeholder="John"
+            placeholder="First Name"
             className={`pl-10 ${localErrors.firstName ? 'border-red-500' : ''}`}
             value={formData.firstName}
             onChange={handleChange}
@@ -83,7 +83,7 @@ const StepOneUserInfo = () => {
           <Input
             id="lastName"
             name="lastName"
-            placeholder="Doe"
+            placeholder="Last Name"
             className={`pl-10 ${localErrors.lastName ? 'border-red-500' : ''}`}
             value={formData.lastName}
             onChange={handleChange}
@@ -101,7 +101,7 @@ const StepOneUserInfo = () => {
           <Input
             id="username"
             name="username"
-            placeholder="johndoe"
+            placeholder="Username"
             className={`pl-10 ${
               localErrors.username || stepValidation.errors.username ? 'border-red-500' : ''
             }`}
