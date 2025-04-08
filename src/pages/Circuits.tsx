@@ -29,6 +29,16 @@ export default function CircuitsPage() {
         </p>
       </div>
       
+      {isSimpleUser && (
+        <Alert variant="warning" className="border-amber-500">
+          <Lock className="h-4 w-4" />
+          <AlertTitle>View-Only Access</AlertTitle>
+          <AlertDescription>
+            As a Simple User, you can only view circuits and their details. You cannot create, edit, or delete circuits or their steps.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {apiError && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
@@ -39,16 +49,15 @@ export default function CircuitsPage() {
         </Alert>
       )}
       
-      <Alert variant={isSimpleUser ? "warning" : "default"} className={isSimpleUser ? "border-amber-500" : ""}>
-        {isSimpleUser ? <Lock className="h-4 w-4" /> : <InfoIcon className="h-4 w-4" />}
-        <AlertTitle>{isSimpleUser ? "View-Only Access" : "Access Control Information"}</AlertTitle>
-        <AlertDescription>
-          {isSimpleUser 
-            ? "As a Simple User, you can only view circuits and their details. You cannot create, edit, or delete circuits or their steps."
-            : "Only users with Admin and FullUser roles can make changes to circuits. SimpleUser role can only view circuits and documents."
-          }
-        </AlertDescription>
-      </Alert>
+      {!isSimpleUser && (
+        <Alert variant="default">
+          <InfoIcon className="h-4 w-4" />
+          <AlertTitle>Access Control Information</AlertTitle>
+          <AlertDescription>
+            Only users with Admin and FullUser roles can make changes to circuits. SimpleUser role can only view circuits and documents.
+          </AlertDescription>
+        </Alert>
+      )}
       
       <CircuitsList onApiError={handleApiError} />
     </div>

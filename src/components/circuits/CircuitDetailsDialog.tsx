@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Loader2, Plus } from 'lucide-react';
+import { Loader2, Plus, Lock } from 'lucide-react';
 import circuitService from '@/services/circuitService';
 import {
   Dialog,
@@ -13,6 +13,8 @@ import {
 import { Button } from '@/components/ui/button';
 import CircuitDetailsList from './CircuitDetailsList';
 import CreateCircuitDetailDialog from './CreateCircuitDetailDialog';
+import { useAuth } from '@/context/AuthContext';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface CircuitDetailsDialogProps {
   circuit: Circuit;
@@ -26,6 +28,8 @@ export default function CircuitDetailsDialog({
   onOpenChange,
 }: CircuitDetailsDialogProps) {
   const [createDetailDialogOpen, setCreateDetailDialogOpen] = useState(false);
+  const { user } = useAuth();
+  const isSimpleUser = user?.role === 'SimpleUser';
   
   const { 
     data: circuitDetails,
@@ -44,17 +48,42 @@ export default function CircuitDetailsDialog({
     }
   }, [open, refetch]);
 
+  // Prevent SimpleUsers from accessing the create dialog
+  const handleAddStep = () => {
+    if (isSimpleUser) {
+      toast.error('You do not have permission to add circuit steps');
+      return;
+    }
+    setCreateDetailDialogOpen(true);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex justify-between items-center">
             <span>Circuit Details: {circuit.title}</span>
-            <Button onClick={() => setCreateDetailDialogOpen(true)} size="sm">
-              <Plus className="mr-2 h-4 w-4" /> Add Step
-            </Button>
+            {!isSimpleUser ? (
+              <Button onClick={handleAddStep} size="sm">
+                <Plus className="mr-2 h-4 w-4" /> Add Step
+              </Button>
+            ) : (
+              <div className="flex items-center text-sm text-gray-500">
+                <Lock className="h-4 w-4 mr-2" /> View-only access
+              </div>
+            )}
           </DialogTitle>
         </DialogHeader>
+        
+        {isSimpleUser && (
+          <Alert variant="warning" className="mb-4 border-amber-500">
+            <Lock className="h-4 w-4" />
+            <AlertTitle>View-Only Access</AlertTitle>
+            <AlertDescription>
+              As a Simple User, you can only view circuits and their details. You cannot create, edit, or delete circuits or their steps.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {isLoading ? (
           <div className="flex justify-center py-8">
@@ -71,16 +100,18 @@ export default function CircuitDetailsDialog({
           />
         )}
         
-        {/* Create Circuit Detail Dialog */}
-        <CreateCircuitDetailDialog
-          circuitId={circuit.id}
-          open={createDetailDialogOpen}
-          onOpenChange={setCreateDetailDialogOpen}
-          onSuccess={() => {
-            refetch();
-            toast.success("Circuit step added successfully");
-          }}
-        />
+        {/* Create Circuit Detail Dialog - Only render if not SimpleUser */}
+        {!isSimpleUser && (
+          <CreateCircuitDetailDialog
+            circuitId={circuit.id}
+            open={createDetailDialogOpen}
+            onOpenChange={setCreateDetailDialogOpen}
+            onSuccess={() => {
+              refetch();
+              toast.success("Circuit step added successfully");
+            }}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
