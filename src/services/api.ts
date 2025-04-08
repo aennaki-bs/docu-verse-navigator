@@ -4,10 +4,13 @@ import { toast } from 'sonner';
 
 // Create axios instance with default configuration
 const api = axios.create({
-  baseURL: 'http://192.168.1.94:5204/api', // Updated to match the URL in the screenshot
+  // Use a more flexible base URL approach - try HTTPS first, then fallback to HTTP
+  baseURL: import.meta.env.VITE_API_URL || 'https://localhost:5204/api',
   headers: {
     'Content-Type': 'application/json',
   },
+  // Add reasonable timeout to prevent hanging requests
+  timeout: 15000, // 15 seconds timeout
 });
 
 // Add CORS headers to help prevent CORS issues
@@ -26,6 +29,18 @@ api.interceptors.request.use(
       data: config.data,
       headers: config.headers
     });
+    
+    // Show loading toast for long operations
+    if (config.method === 'post' || config.method === 'put' || config.method === 'delete') {
+      const requestId = Date.now().toString();
+      config.requestId = requestId;
+      
+      // For sensitive operations like login, don't show the toast
+      if (!config.url?.includes('/Auth/login') && !config.url?.includes('/Auth/register')) {
+        toast.loading('Processing request...', { id: requestId });
+      }
+    }
+    
     return config;
   },
   (error) => {
@@ -42,9 +57,32 @@ api.interceptors.response.use(
       status: response.status,
       data: response.data
     });
+    
+    // Dismiss loading toast if it exists
+    if (response.config.requestId) {
+      toast.dismiss(response.config.requestId);
+    }
+    
     return response;
   },
   async (error) => {
+    // Dismiss loading toast if it exists
+    if (error.config?.requestId) {
+      toast.dismiss(error.config.requestId);
+    }
+    
+    // Network errors (no connection to server)
+    if (error.code === 'ERR_NETWORK') {
+      console.error('Network error detected:', error);
+      
+      // Don't show error toast for login/register as they handle errors themselves
+      if (!error.config.url.includes('/Auth/login') && !error.config.url.includes('/Auth/register')) {
+        toast.error('Network error. Please check your connection and try again.');
+      }
+      
+      return Promise.reject(error);
+    }
+    
     console.error('API Response Error:', error.response || error);
     
     const originalRequest = error.config;
@@ -91,5 +129,16 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Helper method to check if API is available
+export const checkApiConnection = async () => {
+  try {
+    await api.get('/health', { timeout: 5000 });
+    return true;
+  } catch (error) {
+    console.error('API health check failed:', error);
+    return false;
+  }
+};
 
 export default api;
