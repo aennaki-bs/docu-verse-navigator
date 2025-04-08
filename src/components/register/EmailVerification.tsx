@@ -175,18 +175,16 @@ const EmailVerification = () => {
                 maxLength={6}
                 value={verificationCode}
                 onChange={setVerificationCode}
-                render={() => (
-                  <InputOTPGroup className="gap-2">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <InputOTPSlot 
-                        key={i} 
-                        index={i}
-                        className="w-10 h-12 text-lg font-bold border-gray-300 focus:border-docuBlue" 
-                      />
-                    ))}
-                  </InputOTPGroup>
-                )}
-              />
+              >
+                <InputOTPGroup className="gap-2">
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
             </div>
             
             {error && (
@@ -216,7 +214,7 @@ const EmailVerification = () => {
               {resendDisabled 
                 ? `Resend Code (${countdown}s)` 
                 : 'Resend Code'}
-              <RefreshCw className={`ml-2 h-4 w-4 ${resendDisabled ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`ml-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             </Button>
             
             <p className="text-center text-sm text-gray-600 dark:text-gray-400">
