@@ -1,7 +1,6 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Plus, Edit, Trash2, FileText, Info, Lock } from 'lucide-react';
+import { Edit, Trash2, FileText, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,6 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import CreateCircuitDialog from './CreateCircuitDialog';
 import EditCircuitDialog from './EditCircuitDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import CircuitDetailsDialog from './CircuitDetailsDialog';
@@ -27,7 +25,6 @@ interface CircuitsListProps {
 }
 
 export default function CircuitsList({ onApiError }: CircuitsListProps) {
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
@@ -100,22 +97,6 @@ export default function CircuitsList({ onApiError }: CircuitsListProps) {
     <Card className="w-full shadow-md">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Circuits</CardTitle>
-        {!isSimpleUser ? (
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> New Circuit
-          </Button>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center text-gray-500">
-                <Lock className="h-4 w-4 mr-1" /> <span className="text-xs"></span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p></p>
-            </TooltipContent>
-          </Tooltip>
-        )}
       </CardHeader>
       <CardContent>
         {circuits && circuits.length > 0 ? (
@@ -191,14 +172,6 @@ export default function CircuitsList({ onApiError }: CircuitsListProps) {
       </CardContent>
 
       {/* Dialogs - Only render if user has permissions */}
-      {!isSimpleUser && (
-        <CreateCircuitDialog
-          open={createDialogOpen}
-          onOpenChange={setCreateDialogOpen}
-          onSuccess={refetch}
-        />
-      )}
-      
       {selectedCircuit && (
         <>
           {!isSimpleUser && (

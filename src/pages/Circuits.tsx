@@ -1,9 +1,11 @@
 
 import CircuitsList from '@/components/circuits/CircuitsList';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { InfoIcon, Lock, AlertCircle } from 'lucide-react';
+import { InfoIcon, Lock, AlertCircle, Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 export default function CircuitsPage() {
   const { user } = useAuth();
@@ -22,22 +24,32 @@ export default function CircuitsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold mb-2">Circuit Management</h1>
-        <p className="text-gray-500">
-          {isSimpleUser ? 'View document workflow circuits' : 'Create and manage document workflow circuits'}
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-semibold mb-2">Circuit Management</h1>
+          <p className="text-gray-500">
+            {isSimpleUser ? 'View document workflow circuits' : 'Create and manage document workflow circuits'}
+          </p>
+        </div>
+        
+        {!isSimpleUser && (
+          <Link to="/create-circuit">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" /> New Circuit
+            </Button>
+          </Link>
+        )}
       </div>
       
-      {/* {isSimpleUser && (
+      {isSimpleUser && (
         <Alert variant="warning" className="border-amber-500">
           <Lock className="h-4 w-4" />
-          <AlertTitle></AlertTitle>
+          <AlertTitle>View-Only Access</AlertTitle>
           <AlertDescription>
             As a Simple User, you can only view circuits and their details. You cannot create, edit, or delete circuits or their steps.
           </AlertDescription>
         </Alert>
-      )} */}
+      )}
       
       {apiError && (
         <Alert variant="destructive" className="mb-4">
