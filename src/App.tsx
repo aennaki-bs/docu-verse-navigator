@@ -25,6 +25,7 @@ import ViewDocument from "./pages/ViewDocument";
 import EditDocument from "./pages/EditDocument";
 import DocumentLignesPage from "./pages/DocumentLignesPage";
 import CircuitsPage from "./pages/Circuits";
+import CreateCircuit from "./pages/CreateCircuit";
 import PendingApprovalsPage from "./pages/PendingApprovals";
 import { Layout } from './components/layout/Layout';
 
@@ -81,6 +82,7 @@ const App = () => (
                 
                 {/* Circuit Management routes - SimpleUsers can view circuits but not manage them */}
                 <Route path="/circuits" element={<CircuitsPage />} />
+                <Route path="/create-circuit" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><CreateCircuit /></ProtectedRoute>} />
                 <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
               </Route>
             </Route>
