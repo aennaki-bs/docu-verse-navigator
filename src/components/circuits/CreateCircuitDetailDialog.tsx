@@ -83,7 +83,8 @@ export default function CreateCircuitDetailDialog({
         title: values.title,
         descriptif: values.descriptif || '',
         orderIndex: values.orderIndex,
-        // Removed responsibleRoleId as it's no longer needed
+        createdAt: new Date().toISOString(),  // Add required properties
+        updatedAt: new Date().toISOString(),  // Add required properties
       });
       
       form.reset();

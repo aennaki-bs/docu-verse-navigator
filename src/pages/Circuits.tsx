@@ -1,7 +1,7 @@
 
 import CircuitsList from '@/components/circuits/CircuitsList';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { InfoCircle } from 'lucide-react';
+import { InfoIcon } from 'lucide-react';
 
 export default function CircuitsPage() {
   return (
@@ -14,7 +14,7 @@ export default function CircuitsPage() {
       </div>
       
       <Alert>
-        <InfoCircle className="h-4 w-4" />
+        <InfoIcon className="h-4 w-4" />
         <AlertTitle>Access Control Information</AlertTitle>
         <AlertDescription>
           Only users with Admin and FullUser roles can make changes to circuits.

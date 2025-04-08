@@ -66,6 +66,8 @@ export default function CreateCircuitDialog({
         descriptif: values.descriptif || '',
         isActive: values.isActive,
         hasOrderedFlow: values.hasOrderedFlow,
+        createdAt: new Date().toISOString(), // Add required properties
+        updatedAt: new Date().toISOString(), // Add required properties
       });
       
       toast.success('Circuit created successfully');
