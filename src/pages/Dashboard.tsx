@@ -46,7 +46,7 @@ export default function Dashboard() {
                       <div>
                         <p className="font-medium">{doc.title}</p>
                         <p className="text-sm text-muted-foreground">
-                          {doc.documentType?.name || 'No document type'} • 
+                          {doc.documentType?.typeName || 'No document type'} • 
                           Last updated: {new Date(doc.updatedAt).toLocaleDateString()}
                         </p>
                       </div>
