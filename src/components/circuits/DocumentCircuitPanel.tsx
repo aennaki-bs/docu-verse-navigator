@@ -1,8 +1,7 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Flow, HistoryIcon, Share2 } from 'lucide-react';
+import { GitBranch, HistoryIcon, Share2 } from 'lucide-react';
 import circuitService from '@/services/circuitService';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -65,7 +64,7 @@ export default function DocumentCircuitPanel({ document, onUpdate }: CircuitPane
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="flex items-center">
-            <Flow className="mr-2 h-5 w-5" /> Circuit Management
+            <GitBranch className="mr-2 h-5 w-5" /> Circuit Management
           </CardTitle>
           <div className="space-x-2">
             {!document.circuitId && (

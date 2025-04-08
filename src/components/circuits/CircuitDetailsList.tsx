@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import DeleteConfirmDialog from '@/components/admin/DeleteConfirmDialog';
+import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import EditCircuitDetailDialog from './EditCircuitDetailDialog';
 
 interface CircuitDetailsListProps {

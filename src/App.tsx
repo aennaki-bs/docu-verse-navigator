@@ -24,6 +24,8 @@ import CreateDocument from "./pages/CreateDocument";
 import ViewDocument from "./pages/ViewDocument";
 import EditDocument from "./pages/EditDocument";
 import DocumentLignesPage from "./pages/DocumentLignesPage";
+import CircuitsPage from "./pages/Circuits";
+import PendingApprovalsPage from "./pages/PendingApprovals";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,6 +71,10 @@ const App = () => (
               {/* Document SousLignes routes */}
               <Route path="/documents/:id/lignes/:ligneId/souslignes" element={<ProtectedRoute><ViewDocument /></ProtectedRoute>} />
               <Route path="/documents/:id/lignes/:ligneId/souslignes/:sousLigneId" element={<ProtectedRoute><ViewDocument /></ProtectedRoute>} />
+              
+              {/* Circuit Management routes */}
+              <Route path="/circuits" element={<ProtectedRoute><CircuitsPage /></ProtectedRoute>} />
+              <Route path="/pending-approvals" element={<ProtectedRoute><PendingApprovalsPage /></ProtectedRoute>} />
             </Route>
             
             {/* Catch-all route */}

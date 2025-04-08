@@ -47,6 +47,11 @@ export interface UpdateUserEmailRequest {
   email: string;
 }
 
+export interface Role {
+  id: number;
+  name: string;
+}
+
 const adminService = {
   // Get all users
   getAllUsers: async (): Promise<UserDto[]> => {
@@ -134,6 +139,17 @@ const adminService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching logs for user ${userId}:`, error);
+      throw error;
+    }
+  },
+
+  // Get all roles
+  getAllRoles: async (): Promise<Role[]> => {
+    try {
+      const response = await api.get('/Admin/roles');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching roles:', error);
       throw error;
     }
   }

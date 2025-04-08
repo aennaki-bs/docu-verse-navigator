@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import CreateCircuitDialog from './CreateCircuitDialog';
 import EditCircuitDialog from './EditCircuitDialog';
-import DeleteConfirmDialog from '@/components/admin/DeleteConfirmDialog';
+import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import CircuitDetailsDialog from './CircuitDetailsDialog';
 
 export default function CircuitsList() {
