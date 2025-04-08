@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import CircuitDetailsList from './CircuitDetailsList';
 import CreateCircuitDetailDialog from './CreateCircuitDetailDialog';
 import { useAuth } from '@/context/AuthContext';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface CircuitDetailsDialogProps {
   circuit: Circuit;
@@ -74,16 +73,6 @@ export default function CircuitDetailsDialog({
             )}
           </DialogTitle>
         </DialogHeader>
-        
-        {isSimpleUser && (
-          <Alert variant="warning" className="mb-4 border-amber-500">
-            <Lock className="h-4 w-4" />
-            <AlertTitle>View-Only Access</AlertTitle>
-            <AlertDescription>
-              As a Simple User, you can only view circuits and their details. You cannot create, edit, or delete circuits or their steps.
-            </AlertDescription>
-          </Alert>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center py-8">
