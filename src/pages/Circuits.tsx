@@ -61,7 +61,7 @@ export default function CircuitsPage() {
         </Alert>
       )}
       
-      {!isSimpleUser && (
+      {/* {!isSimpleUser && (
         <Alert variant="default">
           <InfoIcon className="h-4 w-4" />
           <AlertTitle>Access Control Information</AlertTitle>
@@ -69,7 +69,7 @@ export default function CircuitsPage() {
             Only users with Admin and FullUser roles can make changes to circuits. SimpleUser role can only view circuits and documents.
           </AlertDescription>
         </Alert>
-      )}
+      )} */}
       
       <CircuitsList onApiError={handleApiError} />
     </div>
