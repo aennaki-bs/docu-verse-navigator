@@ -175,7 +175,7 @@ const EmailVerification = () => {
                 maxLength={6}
                 value={verificationCode}
                 onChange={setVerificationCode}
-                render={({ slots }) => (
+                render={() => (
                   <InputOTPGroup className="gap-2">
                     {Array.from({ length: 6 }).map((_, i) => (
                       <InputOTPSlot 
