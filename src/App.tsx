@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,6 +25,7 @@ import EditDocument from "./pages/EditDocument";
 import DocumentLignesPage from "./pages/DocumentLignesPage";
 import CircuitsPage from "./pages/Circuits";
 import PendingApprovalsPage from "./pages/PendingApprovals";
+import { Layout } from './components/layout/Layout';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,28 +53,30 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/update-password/:email" element={<UpdatePassword />} />
             
-            {/* Protected routes */}
+            {/* Protected routes with layout */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminPage /></ProtectedRoute>} />
-              <Route path="/documents" element={<Documents />} />
-              <Route path="/document-types" element={<DocumentTypes />} />
-              <Route path="/documents/create" element={<ProtectedRoute requiredRole={["Admin", "FullUser"]}><CreateDocument /></ProtectedRoute>} />
-              <Route path="/documents/:id" element={<ViewDocument />} />
-              <Route path="/documents/:id/edit" element={<ProtectedRoute requiredRole={["Admin", "FullUser"]}><EditDocument /></ProtectedRoute>} />
-              
-              {/* Document Lignes routes */}
-              <Route path="/documents/:id/lignes" element={<ProtectedRoute><DocumentLignesPage /></ProtectedRoute>} />
-              <Route path="/documents/:id/lignes/:ligneId" element={<ProtectedRoute><ViewDocument /></ProtectedRoute>} />
-              
-              {/* Document SousLignes routes */}
-              <Route path="/documents/:id/lignes/:ligneId/souslignes" element={<ProtectedRoute><ViewDocument /></ProtectedRoute>} />
-              <Route path="/documents/:id/lignes/:ligneId/souslignes/:sousLigneId" element={<ProtectedRoute><ViewDocument /></ProtectedRoute>} />
-              
-              {/* Circuit Management routes */}
-              <Route path="/circuits" element={<ProtectedRoute><CircuitsPage /></ProtectedRoute>} />
-              <Route path="/pending-approvals" element={<ProtectedRoute><PendingApprovalsPage /></ProtectedRoute>} />
+              <Route element={<Layout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminPage /></ProtectedRoute>} />
+                <Route path="/documents" element={<Documents />} />
+                <Route path="/document-types" element={<DocumentTypes />} />
+                <Route path="/documents/create" element={<ProtectedRoute requiredRole={["Admin", "FullUser"]}><CreateDocument /></ProtectedRoute>} />
+                <Route path="/documents/:id" element={<ViewDocument />} />
+                <Route path="/documents/:id/edit" element={<ProtectedRoute requiredRole={["Admin", "FullUser"]}><EditDocument /></ProtectedRoute>} />
+                
+                {/* Document Lignes routes */}
+                <Route path="/documents/:id/lignes" element={<DocumentLignesPage />} />
+                <Route path="/documents/:id/lignes/:ligneId" element={<ViewDocument />} />
+                
+                {/* Document SousLignes routes */}
+                <Route path="/documents/:id/lignes/:ligneId/souslignes" element={<ViewDocument />} />
+                <Route path="/documents/:id/lignes/:ligneId/souslignes/:sousLigneId" element={<ViewDocument />} />
+                
+                {/* Circuit Management routes */}
+                <Route path="/circuits" element={<CircuitsPage />} />
+                <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
+              </Route>
             </Route>
             
             {/* Catch-all route */}
