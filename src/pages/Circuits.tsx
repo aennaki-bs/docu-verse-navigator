@@ -1,7 +1,7 @@
 
 import CircuitsList from '@/components/circuits/CircuitsList';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { InfoIcon, ShieldAlert, AlertCircle, Lock } from 'lucide-react';
+import { InfoIcon, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 
