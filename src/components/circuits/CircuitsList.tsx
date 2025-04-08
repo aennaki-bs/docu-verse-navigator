@@ -108,11 +108,11 @@ export default function CircuitsList({ onApiError }: CircuitsListProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex items-center text-gray-500">
-                <Lock className="h-4 w-4 mr-1" /> <span className="text-xs">View-only access</span>
+                <Lock className="h-4 w-4 mr-1" /> <span className="text-xs"></span>
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Simple users cannot create or modify circuits</p>
+              <p></p>
             </TooltipContent>
           </Tooltip>
         )}

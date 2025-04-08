@@ -29,15 +29,15 @@ export default function CircuitsPage() {
         </p>
       </div>
       
-      {isSimpleUser && (
+      {/* {isSimpleUser && (
         <Alert variant="warning" className="border-amber-500">
           <Lock className="h-4 w-4" />
-          <AlertTitle>View-Only Access</AlertTitle>
+          <AlertTitle></AlertTitle>
           <AlertDescription>
             As a Simple User, you can only view circuits and their details. You cannot create, edit, or delete circuits or their steps.
           </AlertDescription>
         </Alert>
-      )}
+      )} */}
       
       {apiError && (
         <Alert variant="destructive" className="mb-4">
