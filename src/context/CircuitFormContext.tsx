@@ -114,21 +114,25 @@ export const CircuitFormProvider: React.FC<{ children: React.ReactNode }> = ({ c
         updatedAt: new Date().toISOString(),
       });
       
-      // Now create each step
-      const stepPromises = formData.steps.map(step => 
-        circuitService.createCircuitDetail({
-          circuitId: createdCircuit.id,
-          title: step.title,
-          descriptif: step.descriptif,
-          orderIndex: step.orderIndex,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        })
-      );
+      // Add steps if there are any
+      if (formData.steps.length > 0) {
+        const stepPromises = formData.steps.map(step => 
+          circuitService.createCircuitDetail({
+            circuitId: createdCircuit.id,
+            title: step.title,
+            descriptif: step.descriptif,
+            orderIndex: step.orderIndex,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          })
+        );
+        
+        await Promise.all(stepPromises);
+        toast.success('Circuit and steps created successfully');
+      } else {
+        toast.success('Circuit created successfully');
+      }
       
-      await Promise.all(stepPromises);
-      
-      toast.success('Circuit and steps created successfully');
       resetForm();
       return true;
     } catch (error) {

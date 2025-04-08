@@ -1,15 +1,17 @@
 
 import { useCircuitForm } from '@/context/CircuitFormContext';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import StepOneBasicInfo from './steps/StepOneBasicInfo';
-import StepTwoCircuitSteps from './steps/StepTwoCircuitSteps';
-import StepThreeReview from './steps/StepThreeReview';
+import StepOneTitle from './steps/StepOneTitle';
+import StepTwoDescription from './steps/StepTwoDescription';
+import StepThreeSettings from './steps/StepThreeSettings';
+import StepFourCircuitSteps from './steps/StepFourCircuitSteps';
+import StepFiveReview from './steps/StepFiveReview';
 
 // Step indicator component
 const StepIndicator = ({ currentStep }: { currentStep: number }) => {
   return (
     <div className="flex justify-center mb-6">
-      {[1, 2, 3].map((step) => (
+      {[1, 2, 3, 4, 5].map((step) => (
         <div key={step} className="flex items-center">
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -22,7 +24,7 @@ const StepIndicator = ({ currentStep }: { currentStep: number }) => {
           >
             {step < currentStep ? '✓' : step}
           </div>
-          {step < 3 && (
+          {step < 5 && (
             <div
               className={`h-1 w-10 ${
                 step < currentStep ? 'bg-primary' : 'bg-muted'
@@ -38,8 +40,10 @@ const StepIndicator = ({ currentStep }: { currentStep: number }) => {
 // Step title component
 const StepTitle = ({ currentStep }: { currentStep: number }) => {
   const titles = [
-    'Circuit Information',
-    'Circuit Steps',
+    'Circuit Title',
+    'Circuit Description',
+    'Circuit Settings',
+    'Circuit Steps (Optional)',
     'Review and Create'
   ];
 
@@ -54,13 +58,17 @@ export default function MultiStepCircuitForm() {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <StepOneBasicInfo />;
+        return <StepOneTitle />;
       case 2:
-        return <StepTwoCircuitSteps />;
+        return <StepTwoDescription />;
       case 3:
-        return <StepThreeReview />;
+        return <StepThreeSettings />;
+      case 4:
+        return <StepFourCircuitSteps />;
+      case 5:
+        return <StepFiveReview />;
       default:
-        return <StepOneBasicInfo />;
+        return <StepOneTitle />;
     }
   };
 

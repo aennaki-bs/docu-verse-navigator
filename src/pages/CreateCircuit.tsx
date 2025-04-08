@@ -16,7 +16,7 @@ export default function CreateCircuitPage() {
         <InfoIcon className="h-4 w-4" />
         <AlertTitle>Multi-step Creation</AlertTitle>
         <AlertDescription>
-          Create your circuit in simple steps. You'll be able to define basic information, add workflow steps, and review before finalizing.
+          Create your circuit in simple steps. You'll be able to define the title, description, settings, and optionally add workflow steps before finalizing.
         </AlertDescription>
       </Alert>
       
