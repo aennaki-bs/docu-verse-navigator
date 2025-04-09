@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { GitBranch, MoveRight, AlertCircle } from 'lucide-react';
+import { GitBranch, MoveRight, AlertCircle, Check, ArrowRightCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CircuitStepCard } from './CircuitStepCard';
@@ -12,6 +12,7 @@ interface CircuitStepsSectionProps {
   currentStepId: number | undefined | null;
   isSimpleUser: boolean;
   onMoveClick: () => void;
+  onProcessClick: () => void;
 }
 
 export const CircuitStepsSection = ({
@@ -19,7 +20,8 @@ export const CircuitStepsSection = ({
   circuitHistory,
   currentStepId,
   isSimpleUser,
-  onMoveClick
+  onMoveClick,
+  onProcessClick
 }: CircuitStepsSectionProps) => {
   const [showHelp, setShowHelp] = useState(false);
   
@@ -46,7 +48,7 @@ export const CircuitStepsSection = ({
             <div className="text-sm text-gray-400 bg-blue-900/20 p-2 rounded border border-blue-900/30">
               {isSimpleUser ? 
                 "You can view the document flow, but only admins can move documents between steps." : 
-                "Select 'Move Document' to change which step this document is on."
+                "You can process the current step or move the document to a different step."
               }
             </div>
           )}
@@ -61,13 +63,23 @@ export const CircuitStepsSection = ({
           </Button>
           
           {!isSimpleUser && (
-            <Button 
-              onClick={onMoveClick}
-              variant="outline"
-              className="border-blue-900/30 text-white hover:bg-blue-900/20"
-            >
-              <MoveRight className="mr-2 h-4 w-4" /> Move Document
-            </Button>
+            <>
+              <Button 
+                onClick={onProcessClick}
+                variant="outline"
+                className="border-green-900/30 text-white hover:bg-green-900/20"
+              >
+                <Check className="mr-2 h-4 w-4" /> Process Current Step
+              </Button>
+              
+              <Button 
+                onClick={onMoveClick}
+                variant="outline"
+                className="border-blue-900/30 text-white hover:bg-blue-900/20"
+              >
+                <MoveRight className="mr-2 h-4 w-4" /> Move Document
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -88,6 +100,7 @@ export const CircuitStepsSection = ({
                   historyForStep={historyForStep}
                   isSimpleUser={isSimpleUser}
                   onMoveClick={onMoveClick}
+                  onProcessClick={onProcessClick}
                 />
               </div>
             );

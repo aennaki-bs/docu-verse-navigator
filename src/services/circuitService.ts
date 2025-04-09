@@ -1,6 +1,6 @@
 
 import api from './api';
-import { DocumentCircuitHistory } from '@/models/documentCircuit';
+import { DocumentCircuitHistory, ProcessCircuitRequest, MoveDocumentStepRequest, AssignCircuitRequest } from '@/models/documentCircuit';
 
 /**
  * Service for managing circuits
@@ -66,6 +66,7 @@ const circuitService = {
   },
 
   processCircuitStep: async (request: ProcessCircuitRequest): Promise<void> => {
+    console.log('Processing circuit step:', request);
     await api.post('/CircuitProcessing/process', request);
   },
 
@@ -85,7 +86,6 @@ const circuitService = {
     return response.data;
   },
   
-  // Adding the missing method for pending approvals
   getPendingApprovals: async (): Promise<any[]> => {
     const response = await api.get('/CircuitProcessing/pending-approvals');
     return response.data;

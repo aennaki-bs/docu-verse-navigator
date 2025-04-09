@@ -8,11 +8,13 @@ import documentService from '@/services/documentService';
 import circuitService from '@/services/circuitService';
 import { Document } from '@/models/document';
 import MoveDocumentStepDialog from '@/components/circuits/MoveDocumentStepDialog';
+import ProcessCircuitStepDialog from '@/components/circuits/ProcessCircuitStepDialog';
 import { DocumentFlowHeader } from '@/components/circuits/document-flow/DocumentFlowHeader';
 import { DocumentCard } from '@/components/circuits/document-flow/DocumentCard';
 import { CircuitStepsSection } from '@/components/circuits/document-flow/CircuitStepsSection';
 import { NoCircuitAssignedCard } from '@/components/circuits/document-flow/NoCircuitAssignedCard';
 import { LoadingState } from '@/components/circuits/document-flow/LoadingState';
+import { Button } from '@/components/ui/button';
 
 const DocumentFlowPage = () => {
   const { id } = useParams();
@@ -20,6 +22,7 @@ const DocumentFlowPage = () => {
   const navigate = useNavigate();
   const [document, setDocument] = useState<Document | null>(null);
   const [moveDialogOpen, setMoveDialogOpen] = useState(false);
+  const [processDialogOpen, setProcessDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch document data
@@ -69,6 +72,12 @@ const DocumentFlowPage = () => {
     toast.success("Document moved successfully");
   };
 
+  const handleProcessSuccess = () => {
+    refetchDocument();
+    refetchHistory();
+    toast.success("Document step processed successfully");
+  };
+
   console.log('Circuit ID from document:', documentData?.circuitId);
   
   // Check if the document has been loaded and doesn't have a circuit assigned
@@ -95,6 +104,9 @@ const DocumentFlowPage = () => {
   const isLoading = isLoadingDocument || isLoadingCircuitDetails || isLoadingHistory;
   const currentStepId = document?.currentCircuitDetailId;
   const isSimpleUser = user?.role === 'SimpleUser';
+
+  // Find current step details for processing
+  const currentStepDetail = circuitDetails?.find(d => d.id === currentStepId);
 
   return (
     <div className="p-6 space-y-6">
@@ -136,6 +148,7 @@ const DocumentFlowPage = () => {
                 currentStepId={currentStepId}
                 isSimpleUser={isSimpleUser}
                 onMoveClick={() => setMoveDialogOpen(true)}
+                onProcessClick={() => setProcessDialogOpen(true)}
               />
             )}
           </div>
@@ -143,15 +156,28 @@ const DocumentFlowPage = () => {
       )}
       
       {document && (
-        <MoveDocumentStepDialog
-          documentId={Number(id)}
-          documentTitle={document.title}
-          circuitId={document.circuitId!}
-          currentStepId={document.currentCircuitDetailId}
-          open={moveDialogOpen}
-          onOpenChange={setMoveDialogOpen}
-          onSuccess={handleMoveSuccess}
-        />
+        <>
+          <MoveDocumentStepDialog
+            documentId={Number(id)}
+            documentTitle={document.title}
+            circuitId={document.circuitId!}
+            currentStepId={document.currentCircuitDetailId}
+            open={moveDialogOpen}
+            onOpenChange={setMoveDialogOpen}
+            onSuccess={handleMoveSuccess}
+          />
+          
+          {currentStepDetail && (
+            <ProcessCircuitStepDialog
+              documentId={Number(id)}
+              documentTitle={document.title}
+              currentStep={currentStepDetail.title}
+              open={processDialogOpen}
+              onOpenChange={setProcessDialogOpen}
+              onSuccess={handleProcessSuccess}
+            />
+          )}
+        </>
       )}
     </div>
   );

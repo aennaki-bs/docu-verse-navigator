@@ -1,5 +1,5 @@
 
-import { Check, X, MoveRight } from 'lucide-react';
+import { Check, X, MoveRight, CheckCircle } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ interface CircuitStepCardProps {
   historyForStep: DocumentCircuitHistory[];
   isSimpleUser: boolean;
   onMoveClick: () => void;
+  onProcessClick: () => void;
 }
 
 export const CircuitStepCard = ({ 
@@ -18,7 +19,8 @@ export const CircuitStepCard = ({
   currentStepId, 
   historyForStep, 
   isSimpleUser, 
-  onMoveClick 
+  onMoveClick,
+  onProcessClick
 }: CircuitStepCardProps) => {
   const isCurrentStep = detail.id === currentStepId;
   
@@ -97,14 +99,24 @@ export const CircuitStepCard = ({
         )}
         
         {isCurrentStep && !isSimpleUser && (
-          <Button 
-            size="sm" 
-            variant="outline"
-            className="text-xs"
-            onClick={onMoveClick}
-          >
-            <MoveRight className="h-3 w-3 mr-1" /> Move
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="text-xs bg-green-900/10 border-green-900/30 hover:bg-green-900/20"
+              onClick={onProcessClick}
+            >
+              <CheckCircle className="h-3 w-3 mr-1" /> Process
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="text-xs"
+              onClick={onMoveClick}
+            >
+              <MoveRight className="h-3 w-3 mr-1" /> Move
+            </Button>
+          </div>
         )}
       </CardFooter>
     </Card>
