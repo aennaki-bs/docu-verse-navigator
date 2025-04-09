@@ -1,4 +1,5 @@
 
+import React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,15 +9,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useState } from 'react';
+} from "@/components/ui/alert-dialog";
 
 interface DeleteConfirmDialogProps {
   title: string;
   description: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => Promise<void>;
+  onConfirm: () => void;
+  confirmText?: string;
+  cancelText?: string;
+  destructive?: boolean;
+  children?: React.ReactNode;
 }
 
 export function DeleteConfirmDialog({
@@ -25,40 +29,38 @@ export function DeleteConfirmDialog({
   open,
   onOpenChange,
   onConfirm,
+  confirmText = "Delete",
+  cancelText = "Cancel",
+  destructive = true,
+  children,
 }: DeleteConfirmDialogProps) {
-  const [isConfirming, setIsConfirming] = useState(false);
-
-  const handleConfirm = async () => {
-    setIsConfirming(true);
-    try {
-      await onConfirm();
-      // Automatically close the dialog after successful deletion
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Delete operation failed:', error);
-    } finally {
-      setIsConfirming(false);
-    }
-  };
-
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-[#0a1033] border-blue-900/30 text-white">
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogTitle className="text-white">{title}</AlertDialogTitle>
+          <AlertDialogDescription className="text-blue-300">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
+        
+        {children}
+        
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isConfirming}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="bg-transparent border-blue-800/40 text-blue-300 hover:bg-blue-800/20 hover:text-blue-200">
+            {cancelText}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
-              handleConfirm();
+              onConfirm();
             }}
-            disabled={isConfirming}
-            className="bg-red-600 hover:bg-red-700"
+            className={destructive 
+              ? "bg-red-900/20 text-red-400 hover:bg-red-900/30 hover:text-red-300 border border-red-900/30" 
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+            }
           >
-            {isConfirming ? 'Deleting...' : 'Delete'}
+            {confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

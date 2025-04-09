@@ -1,10 +1,10 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail, Check } from 'lucide-react';
+import { Mail, Check, ArrowLeft } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { toast } from 'sonner';
 import authService from '@/services/authService';
@@ -68,115 +68,104 @@ const ForgotPassword = () => {
 
   if (isSuccess) {
     return (
-      <div className="auth-container animate-fade-in">
+      <div className="min-h-screen flex items-center justify-center bg-[#0d1117] p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <DocuVerseLogo className="mx-auto h-14 w-auto" />
-            <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
+            <h2 className="mt-6 text-3xl font-bold text-white">
               Reset Link Sent
             </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-sm text-gray-400">
               Check your email inbox for instructions
             </p>
           </div>
           
-          <Card className="border-none shadow-xl animate-slide-up">
-            <CardHeader className="space-y-1">
-              <div className="mx-auto bg-green-100 rounded-full p-3 w-16 h-16 flex items-center justify-center">
-                <Check className="h-8 w-8 text-green-600" />
+          <div className="border border-gray-800 bg-[#161b22] rounded-lg shadow-xl p-8">
+            <div className="space-y-6">
+              <div className="mx-auto bg-green-900/30 rounded-full p-3 w-16 h-16 flex items-center justify-center border border-green-700">
+                <Check className="h-8 w-8 text-green-400" />
               </div>
-              <h3 className="text-xl font-semibold text-center mt-4">Success!</h3>
-            </CardHeader>
+              <h3 className="text-xl font-semibold text-center text-white">Success!</h3>
             
-            <CardContent>
               <div className="space-y-4 text-center">
-                <p>
+                <p className="text-gray-300">
                   We've sent a password reset link to:
                 </p>
-                <p className="font-semibold">{email}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="font-semibold text-white bg-[#1c2128] py-2 px-4 rounded-md">{email}</p>
+                <p className="text-sm text-gray-400">
                   Please check your email and follow the instructions to reset your password.
                   If you don't see the email in your inbox, please check your spam folder.
                 </p>
               </div>
-            </CardContent>
-            
-            <CardFooter className="flex flex-col space-y-4 pt-4">
+              
               <Link to="/login" className="w-full">
-                <Button className="w-full bg-docuBlue hover:bg-docuBlue-700">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2">
+                  <ArrowLeft size={16} />
                   Return to Login
                 </Button>
               </Link>
-            </CardFooter>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="auth-container animate-fade-in">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#0d1117] p-4">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
           <DocuVerseLogo className="mx-auto h-14 w-auto" />
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
+          <h2 className="mt-6 text-3xl font-bold text-white">
             Forgot Password
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-gray-400">
             Enter your email and we'll send you a link to reset your password
           </p>
         </div>
         
-        <Card className="border-none shadow-xl animate-slide-up">
-          <CardHeader className="space-y-1 pb-2">
-            <h3 className="text-xl font-semibold">Reset Password</h3>
-          </CardHeader>
+        <div className="border border-gray-800 bg-[#161b22] rounded-lg shadow-xl p-6">
+          {error && (
+            <Alert variant="destructive" className="mb-6 bg-red-900/30 border-red-800 text-red-200">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           
-          <CardContent>
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="email@example.com"
-                    className={`pl-10 ${error ? 'border-red-500' : ''}`}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-gray-300">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="email@example.com"
+                  className={`pl-10 border-gray-700 bg-[#0d1117] text-gray-300 ${error ? 'border-red-500' : ''}`}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
-              
-              <Button
-                type="submit"
-                className="w-full bg-docuBlue hover:bg-docuBlue-700"
-                disabled={isLoading}
-              >
+            </div>
+            
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 relative overflow-hidden group"
+              disabled={isLoading}
+            >
+              <span className="absolute inset-0 w-0 bg-white/20 transition-all duration-300 ease-out group-hover:w-full"></span>
+              <span className="relative z-10">
                 {isLoading ? 'Processing...' : 'Send Reset Link'}
-              </Button>
-            </form>
-          </CardContent>
-          
-          <CardFooter className="flex flex-col space-y-4 pt-0">
-            <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-              Remember your password?{' '}
-              <Link
-                to="/login"
-                className="font-medium text-primary hover:text-primary/90"
-              >
-                Sign in
+              </span>
+            </Button>
+            
+            <div className="flex items-center justify-center gap-2 pt-4 border-t border-gray-800 mt-4">
+              <ArrowLeft size={16} className="text-gray-400" />
+              <Link to="/login" className="text-blue-400 hover:text-blue-300 text-sm">
+                Back to login
               </Link>
             </div>
-          </CardFooter>
-        </Card>
+          </form>
+        </div>
       </div>
     </div>
   );

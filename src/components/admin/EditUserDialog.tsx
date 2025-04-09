@@ -165,7 +165,7 @@ export function EditUserDialog({ user, open, onOpenChange, onSuccess }: EditUser
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} className="bg-blue-900/20 border-blue-800/30 text-white" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -179,7 +179,7 @@ export function EditUserDialog({ user, open, onOpenChange, onSuccess }: EditUser
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} className="bg-blue-900/20 border-blue-800/30 text-white" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -194,7 +194,7 @@ export function EditUserDialog({ user, open, onOpenChange, onSuccess }: EditUser
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} className="bg-blue-900/20 border-blue-800/30 text-white" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -208,7 +208,12 @@ export function EditUserDialog({ user, open, onOpenChange, onSuccess }: EditUser
                 <FormItem>
                   <FormLabel>New Password (leave blank to keep current)</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <Input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      {...field} 
+                      className="bg-blue-900/20 border-blue-800/30 text-white" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -226,14 +231,14 @@ export function EditUserDialog({ user, open, onOpenChange, onSuccess }: EditUser
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-blue-900/20 border-blue-800/30 text-white">
                         <SelectValue placeholder="Select a role" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                      <SelectItem value="FullUser">Full User</SelectItem>
-                      <SelectItem value="SimpleUser">Simple User</SelectItem>
+                    <SelectContent className="bg-[#0a1033] border-blue-900/30">
+                      <SelectItem value="Admin" className="text-white hover:bg-blue-900/20">Admin</SelectItem>
+                      <SelectItem value="FullUser" className="text-white hover:bg-blue-900/20">Full User</SelectItem>
+                      <SelectItem value="SimpleUser" className="text-white hover:bg-blue-900/20">Simple User</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -246,14 +251,18 @@ export function EditUserDialog({ user, open, onOpenChange, onSuccess }: EditUser
                 control={form.control}
                 name="isActive"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-blue-800/30 p-3 bg-blue-900/10">
                     <div className="space-y-0.5">
-                      <FormLabel>Active Status</FormLabel>
+                      <FormLabel className="text-white">Block User</FormLabel>
+                      <div className="text-xs text-blue-300">
+                        {field.value ? "User can access the system" : "User is blocked from the system"}
+                      </div>
                     </div>
                     <FormControl>
                       <Switch
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        className={field.value ? "bg-green-600" : "bg-red-600"}
                       />
                     </FormControl>
                   </FormItem>
@@ -264,14 +273,18 @@ export function EditUserDialog({ user, open, onOpenChange, onSuccess }: EditUser
                 control={form.control}
                 name="isEmailConfirmed"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-blue-800/30 p-3 bg-blue-900/10">
                     <div className="space-y-0.5">
-                      <FormLabel>Email Verified</FormLabel>
+                      <FormLabel className="text-white">Email Verified</FormLabel>
+                      <div className="text-xs text-blue-300">
+                        {field.value ? "Email has been verified" : "Email not verified"}
+                      </div>
                     </div>
                     <FormControl>
                       <Switch
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        className={field.value ? "bg-green-600" : "bg-red-600"}
                       />
                     </FormControl>
                   </FormItem>
@@ -285,10 +298,15 @@ export function EditUserDialog({ user, open, onOpenChange, onSuccess }: EditUser
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
+                className="bg-transparent border-blue-800/40 text-blue-300 hover:bg-blue-800/20 hover:text-blue-200"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
                 {isSubmitting ? 'Saving...' : 'Save Changes'}
               </Button>
             </DialogFooter>

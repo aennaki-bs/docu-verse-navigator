@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { History, ScrollText } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 interface ViewUserLogsDialogProps {
   userId: number;
@@ -37,40 +37,41 @@ export function ViewUserLogsDialog({
     enabled: open,
   });
 
-  // Map numeric action types to readable text based on backend enum
-  const getActionTypeText = (actionType: number): string => {
-    switch (actionType) {
-      case 0: return 'Logout';
-      case 1: return 'Login';
-      case 2: return 'Create Profile';
-      case 3: return 'Update Profile';
-      case 4: return 'Create Document';
-      case 5: return 'Update Document';
-      case 6: return 'Delete Document';
-      case 7: return 'Create User';
-      case 8: return 'Update User';
-      case 9: return 'Delete User';
-      default: return `Action ${actionType}`;
-    }
+  const getActionTypeLabel = (actionType: number): string => {
+    const actionTypes = {
+      0: 'Logout',
+      1: 'Login',
+      2: 'Profile Create',
+      3: 'Profile Update',
+      4: 'Document Create',
+      5: 'Document Update',
+      6: 'Document Delete',
+      7: 'Profile Create',
+      8: 'Profile Update',
+      9: 'Profile Delete'
+    };
+    
+    return actionTypes[actionType as keyof typeof actionTypes] || `Action ${actionType}`;
   };
 
-  const getActionColor = (actionType: number) => {
-    // Color coding based on action type
+  const getActionColor = (actionType: number): string => {
     switch (actionType) {
       case 0: // Logout
         return 'bg-yellow-100 text-yellow-800';
       case 1: // Login
         return 'bg-purple-100 text-purple-800';
-      case 2: // Create Profile
-      case 4: // Create Document
-      case 7: // Create User
+      case 2: // Profile Create
+      case 7: // Profile Create (duplicate)
         return 'bg-green-100 text-green-800';
-      case 3: // Update Profile
-      case 5: // Update Document
-      case 8: // Update User
+      case 3: // Profile Update
+      case 8: // Profile Update (duplicate)
         return 'bg-blue-100 text-blue-800';
-      case 6: // Delete Document
-      case 9: // Delete User
+      case 4: // Document Create
+        return 'bg-green-100 text-green-800';
+      case 5: // Document Update
+        return 'bg-blue-100 text-blue-800';
+      case 6: // Document Delete
+      case 9: // Profile Delete
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -79,54 +80,55 @@ export function ViewUserLogsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto bg-[#0a1033] border-blue-900/30 text-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <History className="h-5 w-5" />
-            User Activity Logs
-          </DialogTitle>
-          <DialogDescription>
-            View all activity history for this user
+          <DialogTitle>User Activity Logs</DialogTitle>
+          <DialogDescription className="text-blue-300">
+            View all activity logs for this user
           </DialogDescription>
         </DialogHeader>
         
         {isLoading ? (
-          <div className="flex justify-center py-10">Loading logs...</div>
+          <div className="flex justify-center py-10 text-blue-300">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mr-2"></div>
+            Loading logs...
+          </div>
         ) : isError ? (
-          <div className="text-red-500 py-10">Error loading activity logs</div>
+          <div className="text-red-400 py-10 flex items-center justify-center">
+            <AlertCircle className="h-5 w-5 mr-2" />
+            Error loading activity logs
+          </div>
         ) : logs && logs.length > 0 ? (
-          <div className="rounded-md border">
+          <div className="rounded-md border border-blue-900/30">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Details</TableHead>
+              <TableHeader className="bg-blue-900/20">
+                <TableRow className="border-blue-900/30 hover:bg-transparent">
+                  <TableHead className="text-blue-300">Action</TableHead>
+                  <TableHead className="text-blue-300">Timestamp</TableHead>
+                  <TableHead className="text-blue-300">Description</TableHead>
+                  <TableHead className="text-blue-300">User</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {logs.map((log) => (
-                  <TableRow key={log.id}>
+                  <TableRow key={log.id} className="border-blue-900/30 hover:bg-blue-900/10">
                     <TableCell>
                       <Badge className={getActionColor(log.actionType)}>
-                        {getActionTypeText(log.actionType)}
+                        {getActionTypeLabel(log.actionType)}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-gray-300">
                       {format(new Date(log.timestamp), 'PPpp')}
+                    </TableCell>
+                    <TableCell className="text-gray-300">
+                      {log.description || '-'}
                     </TableCell>
                     <TableCell>
                       {log.user.username}
-                      <span className="text-xs text-gray-500 ml-2">
-                        ({log.user.role})
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {log.description ? (
-                        <span className="text-sm text-muted-foreground">{log.description}</span>
-                      ) : (
-                        <span className="text-sm text-muted-foreground italic">No additional details</span>
+                      {log.user.role && (
+                        <span className="text-xs text-gray-400 ml-2">
+                          ({log.user.role})
+                        </span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -135,9 +137,8 @@ export function ViewUserLogsDialog({
             </Table>
           </div>
         ) : (
-          <div className="text-center py-10 text-gray-500 flex flex-col items-center">
-            <ScrollText className="h-12 w-12 text-gray-300 mb-2" />
-            <p>No activity logs found for this user</p>
+          <div className="text-center py-10 text-gray-400">
+            No activity logs found for this user
           </div>
         )}
       </DialogContent>

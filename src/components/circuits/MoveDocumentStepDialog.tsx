@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { ArrowRightFromLine } from 'lucide-react';
+import { ArrowRightFromLine, Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   circuitDetailId: z.string().min(1, { message: 'Please select a step' }),
@@ -60,7 +60,7 @@ export default function MoveDocumentStepDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch circuit details
-  const { data: circuitDetails } = useQuery({
+  const { data: circuitDetails, isLoading } = useQuery({
     queryKey: ['circuit-details', circuitId],
     queryFn: () => circuitService.getCircuitDetailsByCircuitId(circuitId),
     enabled: open && !!circuitId,
@@ -102,56 +102,70 @@ export default function MoveDocumentStepDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="circuitDetailId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select Step</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a step" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {circuitDetails?.map((detail) => (
-                        <SelectItem 
-                          key={detail.id} 
-                          value={detail.id.toString()}
-                          disabled={detail.id === currentStepId}
-                        >
-                          {detail.orderIndex}. {detail.title}
-                          {detail.id === currentStepId ? ' (Current)' : ''}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {isLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          </div>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="circuitDetailId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Select Step</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="bg-[#111633] border-blue-900/30 text-white">
+                          <SelectValue placeholder="Select a step" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-[#111633] border-blue-900/30 text-white">
+                        {circuitDetails?.map((detail) => (
+                          <SelectItem 
+                            key={detail.id} 
+                            value={detail.id.toString()}
+                            disabled={detail.id === currentStepId}
+                          >
+                            {detail.orderIndex + 1}. {detail.title}
+                            {detail.id === currentStepId ? ' (Current)' : ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Moving...' : 'Move Document'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isSubmitting}
+                  className="border-blue-900/30 text-white hover:bg-blue-900/20"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {isSubmitting ? 
+                    <>Moving... <Loader2 className="ml-2 h-4 w-4 animate-spin" /></> : 
+                    <>Move Document <ArrowRightFromLine className="ml-2 h-4 w-4" /></>
+                  }
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -3,14 +3,11 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Lock, User, WifiOff, ShieldAlert } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { motion } from 'framer-motion';
 import { checkApiConnection } from '@/services/api';
 
 const Login = () => {
@@ -122,137 +119,176 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container animate-fade-in">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <DocuVerseLogo className="mx-auto h-14 w-auto" />
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            Welcome back
-          </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Sign in to your account to continue
-          </p>
-        </div>
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="border-none shadow-xl">
-            <CardHeader className="space-y-1 pb-2">
-              <h3 className="text-xl font-semibold">Sign In</h3>
-            </CardHeader>
+    <div className="min-h-screen flex">
+      {/* Left side - Login form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-[#0d1117]">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <DocuVerseLogo className="mx-auto h-14 w-auto" />
+            <h2 className="mt-6 text-3xl font-bold text-white">
+              DocuVerse
+            </h2>
+            <p className="mt-2 text-sm text-gray-400">
+              Sign in to your account
+            </p>
+          </div>
+          
+          <div className="bg-[#161b22] rounded-lg border border-gray-800 p-6 shadow-xl">
+            {apiError && (
+              <Alert variant="destructive" className="mb-4 bg-red-900/30 border-red-800 text-red-200">
+                <AlertDescription className="flex items-center gap-2">
+                  {!isApiAvailable && <WifiOff size={16} />}
+                  {apiError.includes('SSL') && <ShieldAlert size={16} />}
+                  {apiError}
+                </AlertDescription>
+              </Alert>
+            )}
             
-            <CardContent>
-              {apiError && (
-                <Alert variant="destructive" className="mb-4 animate-pulse">
-                  <AlertDescription className="flex items-center gap-2">
-                    {!isApiAvailable && <WifiOff size={16} />}
-                    {apiError.includes('SSL') && <ShieldAlert size={16} />}
-                    {apiError}
-                  </AlertDescription>
-                </Alert>
-              )}
-              
-              {!isApiAvailable && (
-                <div className="mb-4 text-center">
-                  <Button 
-                    variant="outline"
-                    onClick={handleRetryConnection}
-                    disabled={isCheckingApi}
-                    className="w-full"
-                  >
-                    {isCheckingApi ? 'Checking connection...' : 'Retry Connection'}
-                  </Button>
-                </div>
-              )}
-              
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="emailOrUsername">Login</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="emailOrUsername"
-                      type="text"
-                      placeholder="email@example.com or username"
-                      className={`pl-10 ${errors.emailOrUsername ? 'border-red-500' : ''}`}
-                      value={emailOrUsername}
-                      onChange={(e) => {
-                        setEmailOrUsername(e.target.value);
-                        setApiError(null); // Clear API error when user types
-                      }}
-                    />
-                  </div>
-                  {errors.emailOrUsername && (
-                    <p className="text-sm text-red-500">{errors.emailOrUsername}</p>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link to="/forgot-password" className="text-sm font-medium text-primary">
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      className={`pl-10 ${errors.password ? 'border-red-500' : ''}`}
-                      value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        setApiError(null); // Clear API error when user types
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={togglePasswordVisibility}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <p className="text-sm text-red-500">{errors.password}</p>
-                  )}
-                </div>
-                
-                <Button
-                  type="submit"
-                  className="w-full bg-docuBlue hover:bg-docuBlue-700 relative overflow-hidden group"
-                  disabled={isLoading || !isApiAvailable}
+            {!isApiAvailable && (
+              <div className="mb-4 text-center">
+                <Button 
+                  variant="outline"
+                  onClick={handleRetryConnection}
+                  disabled={isCheckingApi}
+                  className="w-full border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
                 >
-                  <span className="absolute inset-0 w-0 bg-white/20 transition-all duration-300 ease-out group-hover:w-full"></span>
-                  <span className="relative z-10">
-                    {isLoading ? 'Signing in...' : 'Sign in'}
-                  </span>
+                  {isCheckingApi ? 'Checking connection...' : 'Retry Connection'}
                 </Button>
-              </form>
-            </CardContent>
+              </div>
+            )}
             
-            <CardFooter className="flex flex-col space-y-4 pt-0">
-              <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label htmlFor="emailOrUsername" className="block text-sm font-medium text-gray-300">
+                  Login
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                  <Input
+                    id="emailOrUsername"
+                    type="text"
+                    placeholder="Email or username"
+                    className={`pl-10 border-gray-700 bg-[#0d1117] text-gray-300 ${errors.emailOrUsername ? 'border-red-500' : 'border-gray-700'}`}
+                    value={emailOrUsername}
+                    onChange={(e) => {
+                      setEmailOrUsername(e.target.value);
+                      setApiError(null); // Clear API error when user types
+                    }}
+                  />
+                </div>
+                {errors.emailOrUsername && (
+                  <p className="text-sm text-red-500">{errors.emailOrUsername}</p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+                    Password
+                  </label>
+                  <Link to="/forgot-password" className="text-sm font-medium text-blue-400 hover:text-blue-300">
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    className={`pl-10 border-gray-700 bg-[#0d1117] text-gray-300 ${errors.password ? 'border-red-500' : ''}`}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setApiError(null); // Clear API error when user types
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-300"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-sm text-red-500">{errors.password}</p>
+                )}
+              </div>
+              
+              <Button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white relative overflow-hidden group"
+                disabled={isLoading || !isApiAvailable}
+              >
+                <span className="absolute inset-0 w-0 bg-white/20 transition-all duration-300 ease-out group-hover:w-full"></span>
+                <span className="relative z-10">
+                  {isLoading ? 'Signing in...' : 'Sign In'}
+                </span>
+              </Button>
+              
+              <div className="text-center text-sm text-gray-400">
                 Don't have an account?{' '}
                 <Link
                   to="/register"
-                  className="font-medium text-primary hover:text-primary/90"
+                  className="font-medium text-blue-400 hover:text-blue-300"
                 >
                   Sign up
                 </Link>
               </div>
-            </CardFooter>
-          </Card>
-        </motion.div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      {/* Right side - Image and text */}
+      <div className="hidden lg:block lg:w-1/2 bg-gradient-to-r from-[#0d1117] to-[#161b22] relative">
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-40"
+          style={{ 
+            backgroundImage: "url('data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%232d3748' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E')"
+          }}
+        ></div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-12">
+          <div className="text-center max-w-lg">
+            <h1 className="text-4xl font-bold text-white mb-4">
+              Welcome to Business Management Platform
+            </h1>
+            <p className="text-lg text-gray-300">
+              Streamline your business operations with our comprehensive management solution
+            </p>
+            
+            <div className="mt-12 space-y-6">
+              <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+                <div className="bg-blue-500/20 p-2 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <h3 className="text-white font-medium">Secure Authentication</h3>
+                  <p className="text-sm text-gray-400">Enterprise-grade security for your data</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+                <div className="bg-purple-500/20 p-2 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <h3 className="text-white font-medium">Powerful Dashboard</h3>
+                  <p className="text-sm text-gray-400">Manage documents and workflows efficiently</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,16 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
+import { DocumentType } from '@/models/document';
+import { Layers, ArrowRight, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import documentService from '@/services/documentService';
+import { toast } from 'sonner';
 import { 
   Dialog,
   DialogContent,
@@ -18,57 +15,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { FolderPlus, Plus, Trash, LogOut, UserCog, ChevronRight, Check, RefreshCw } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import documentService from '@/services/documentService';
-import { DocumentType } from '@/models/document';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import DocuVerseLogo from '@/components/DocuVerseLogo';
-
-const typeSchema = z.object({
-  typeName: z.string().min(2, "Type name must be at least 2 characters."),
-  typeAttr: z.string().optional(),
-});
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const DocumentTypes = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [types, setTypes] = useState<DocumentType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [typeToDelete, setTypeToDelete] = useState<number | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [step, setStep] = useState(1);
-  const [isTypeNameValid, setIsTypeNameValid] = useState<boolean | null>(null);
-  const [isValidating, setIsValidating] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const form = useForm<z.infer<typeof typeSchema>>({
-    resolver: zodResolver(typeSchema),
-    defaultValues: {
-      typeName: "",
-      typeAttr: "",
-    },
-  });
+  const [typeToDelete, setTypeToDelete] = useState<DocumentType | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [typeToEdit, setTypeToEdit] = useState<DocumentType | null>(null);
+  const [typeName, setTypeName] = useState('');
+  const [typeKey, setTypeKey] = useState('');
+  const [typeAttr, setTypeAttr] = useState('');
 
   useEffect(() => {
     fetchTypes();
@@ -87,32 +54,15 @@ const DocumentTypes = () => {
     }
   };
 
-  const refreshTypes = async () => {
-    try {
-      setRefreshing(true);
-      await fetchTypes();
-      toast.success('Document types refreshed');
-    } catch (error) {
-      console.error('Failed to refresh document types:', error);
-      toast.error('Failed to refresh document types');
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  const handleLogout = () => {
-    logout(navigate);
-  };
-
-  const openDeleteDialog = (id: number) => {
-    setTypeToDelete(id);
+  const openDeleteDialog = (type: DocumentType) => {
+    setTypeToDelete(type);
     setDeleteDialogOpen(true);
   };
 
   const handleDelete = async () => {
     try {
-      if (typeToDelete) {
-        await documentService.deleteDocumentType(typeToDelete);
+      if (typeToDelete && typeToDelete.id) {
+        await documentService.deleteDocumentType(typeToDelete.id);
         toast.success('Document type deleted successfully');
         fetchTypes();
       }
@@ -125,324 +75,241 @@ const DocumentTypes = () => {
     }
   };
 
-  const getInitials = () => {
-    return `${user?.firstName?.[0] || ''}${user?.lastName?.[0] || ''}`;
+  const openEditDialog = (type: DocumentType) => {
+    setTypeToEdit(type);
+    setTypeName(type.typeName || '');
+    setTypeKey(type.typeKey || '');
+    setTypeAttr(type.typeAttr || '');
+    setEditDialogOpen(true);
   };
 
-  const validateTypeName = async (typeName: string) => {
-    if (typeName.length < 2) return;
-    
-    setIsValidating(true);
+  const handleEdit = async () => {
     try {
-      const exists = await documentService.validateTypeName(typeName);
-      setIsTypeNameValid(!exists);
-      return !exists;
-    } catch (error) {
-      console.error('Error validating type name:', error);
-      return false;
-    } finally {
-      setIsValidating(false);
-    }
-  };
-
-  const nextStep = async () => {
-    if (step === 1) {
-      const typeName = form.getValues("typeName");
-      const isValid = await validateTypeName(typeName);
-      
-      if (isValid) {
-        setStep(2);
-      } else {
-        form.setError("typeName", { 
-          type: "manual", 
-          message: "This type name already exists." 
-        });
+      if (typeToEdit && typeToEdit.id) {
+        const updatedType: DocumentType = {
+          ...typeToEdit,
+          typeName,
+          typeKey,
+          typeAttr
+        };
+        
+        // Check if the service has an updateDocumentType method, if not add it
+        await documentService.updateDocumentType(typeToEdit.id, updatedType);
+        toast.success('Document type updated successfully');
+        fetchTypes();
+        setEditDialogOpen(false);
+        setTypeToEdit(null);
       }
-    }
-  };
-
-  const prevStep = () => {
-    setStep(1);
-  };
-
-  const onSubmit = async (data: z.infer<typeof typeSchema>) => {
-    try {
-      await documentService.createDocumentType({
-        typeName: data.typeName,
-        typeAttr: data.typeAttr || undefined
-      });
-      toast.success('Document type created successfully');
-      form.reset();
-      setStep(1);
-      setIsDrawerOpen(false);
-      fetchTypes();
     } catch (error) {
-      console.error('Failed to create document type:', error);
-      toast.error('Failed to create document type');
+      console.error('Failed to update document type:', error);
+      toast.error('Failed to update document type');
     }
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
-      <header className="mb-8">
-        <div className="flex justify-between items-center">
+    <div className="space-y-6 p-6">
+      <div className="bg-[#0a1033] border border-blue-900/30 rounded-lg p-6 mb-6 transition-all">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Document Types</h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">Manage document types for your organization</p>
+            <h1 className="text-2xl md:text-3xl font-semibold mb-2 text-white flex items-center">
+              <Layers className="mr-3 h-6 w-6 text-blue-400" /> Document Types
+            </h1>
+            <p className="text-sm md:text-base text-gray-400">
+              Browse and manage document classification
+            </p>
           </div>
-          <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
-              onClick={refreshTypes} 
-              disabled={refreshing}
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            
-            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-              <DrawerTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="mr-2 h-5 w-5" /> Add Type
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent className="mx-auto max-w-md">
-                <DrawerHeader className="text-center">
-                  <DrawerTitle className="text-2xl font-bold">
-                    {step === 1 ? "Create Document Type" : "Additional Attributes"}
-                  </DrawerTitle>
-                  <DrawerDescription className="mt-2">
-                    {step === 1 
-                      ? "Enter a unique name for this document type" 
-                      : "Provide optional attributes for this document type"}
-                  </DrawerDescription>
-                </DrawerHeader>
-
-                <div className="flex justify-center mb-6">
-                  <div className="flex items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center 
-                      ${step === 1 ? "bg-blue-600 text-white" : "bg-green-500 text-white"}`}>
-                      {step === 1 ? "1" : <Check className="h-5 w-5"/>}
-                    </div>
-                    <div className={`h-1 w-16 ${step > 1 ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600"}`}></div>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center 
-                      ${step === 2 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400"}`}>
-                      2
-                    </div>
-                  </div>
-                </div>
-
-                <div className="px-6">
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      {step === 1 && (
-                        <FormField
-                          control={form.control}
-                          name="typeName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-base font-medium">Type Name*</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  placeholder="Enter document type name" 
-                                  className="h-12 text-base"
-                                  onChange={(e) => {
-                                    field.onChange(e);
-                                    setIsTypeNameValid(null);
-                                  }}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                This name must be unique and at least 2 characters long
-                              </FormDescription>
-                              {isTypeNameValid === false && (
-                                <p className="text-sm text-red-500 flex items-center mt-1">
-                                  <span className="inline-block w-4 h-4 rounded-full bg-red-100 text-red-600 text-center mr-1.5 text-xs font-bold">!</span>
-                                  This type name already exists
-                                </p>
-                              )}
-                              {isTypeNameValid === true && (
-                                <p className="text-sm text-green-500 flex items-center mt-1">
-                                  <span className="inline-block w-4 h-4 rounded-full bg-green-100 text-green-600 text-center mr-1.5 text-xs">✓</span>
-                                  Type name is available
-                                </p>
-                              )}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-
-                      {step === 2 && (
-                        <FormField
-                          control={form.control}
-                          name="typeAttr"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-base font-medium">Type Attributes (Optional)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  placeholder="Enter attributes (optional)" 
-                                  className="h-12 text-base"
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Additional attributes for this document type
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                    </form>
-                  </Form>
-                </div>
-                <DrawerFooter className="px-6">
-                  {step === 1 ? (
-                    <Button 
-                      onClick={nextStep}
-                      disabled={!form.getValues("typeName") || form.getValues("typeName").length < 2 || isValidating}
-                      className="w-full h-12 text-base"
-                    >
-                      Next <ChevronRight className="ml-1 h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <div className="flex flex-col gap-3 w-full">
-                      <Button onClick={form.handleSubmit(onSubmit)} className="w-full h-12 text-base bg-green-600 hover:bg-green-700">
-                        Create Type
-                      </Button>
-                      <Button variant="outline" onClick={prevStep} className="w-full h-12 text-base">
-                        Back
-                      </Button>
-                    </div>
-                  )}
-                  <DrawerClose asChild>
-                    <Button variant="outline" onClick={() => {
-                      setStep(1);
-                      form.reset();
-                    }} className="w-full h-10 text-sm mt-2">Cancel</Button>
-                  </DrawerClose>
-                </DrawerFooter>
-              </DrawerContent>
-            </Drawer>
-          </div>
+          <Button 
+            onClick={() => navigate('/document-types-management')} 
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Management View <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
         </div>
-      </header>
+      </div>
 
       {isLoading ? (
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-6 animate-pulse">
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-              <div className="space-y-3">
-                {[...Array(5)].map((_, index) => (
-                  <div key={index} className="h-16 bg-gray-100 dark:bg-gray-800 rounded"></div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : types.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex justify-between items-center">
-              <span>Available Document Types</span>
-              <Badge variant="outline" className="ml-2">{types.length} types</Badge>
-            </CardTitle>
-            <CardDescription>Document types help categorize your documents</CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="rounded-md overflow-hidden border-0">
-              <Table>
-                <TableHeader className="bg-gray-100 dark:bg-gray-800">
-                  <TableRow>
-                    <TableHead className="w-1/6">Type Key</TableHead>
-                    <TableHead className="w-1/3">Type Name</TableHead>
-                    <TableHead className="w-1/4">Attributes</TableHead>
-                    <TableHead className="w-1/6">Document Count</TableHead>
-                    <TableHead className="w-1/12 text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {types.map((type) => (
-                    <TableRow key={type.id} className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
-                      <TableCell className="font-medium">
-                        <Badge variant="outline" className="px-2 py-1 text-sm font-mono">
-                          {type.typeKey}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-semibold">{type.typeName}</TableCell>
-                      <TableCell>{type.typeAttr || "-"}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="px-2 py-1">
-                          {type.documentCounter}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className={`text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 ${
-                            type.documentCounter! > 0 ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                          onClick={() => type.documentCounter! === 0 && openDeleteDialog(type.id!)}
-                          disabled={type.documentCounter! > 0}
-                          title={type.documentCounter! > 0 ? "Cannot delete types with documents" : "Delete type"}
-                        >
-                          <Trash className="h-5 w-5" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((item) => (
+            <Card key={item} className="bg-[#0f1642] border-blue-900/30 shadow-lg h-[180px] animate-pulse">
+              <CardHeader className="pb-2">
+                <div className="h-6 bg-blue-800/30 rounded w-2/3"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-4 bg-blue-800/30 rounded w-1/2 mb-2"></div>
+                <div className="h-4 bg-blue-800/30 rounded w-3/4"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : (
-        <Card className="border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-          <CardContent className="p-0">
-            <div className="text-center py-20">
-              <FolderPlus className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500 mb-4" />
-              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">No document types found</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                Document types help categorize your documents. Start by creating your first document type.
-              </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {types.map((type) => (
+            <Card key={type.id} className="bg-[#0f1642] border-blue-900/30 shadow-lg overflow-hidden hover:border-blue-700/50 transition-all">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg text-white">{type.typeName || 'Unnamed Type'}</CardTitle>
+                  <div className="flex items-center space-x-1">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
+                            onClick={() => openEditDialog(type)}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Edit document type</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={`h-8 w-8 ${
+                              type.documentCounter && type.documentCounter > 0
+                                ? 'text-gray-500 cursor-not-allowed'
+                                : 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
+                            }`}
+                            onClick={() => type.documentCounter === 0 && openDeleteDialog(type)}
+                            disabled={type.documentCounter !== undefined && type.documentCounter > 0}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {type.documentCounter && type.documentCounter > 0
+                            ? "Cannot delete types with documents"
+                            : "Delete document type"}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-blue-300">Key: <span className="text-white">{type.typeKey || 'N/A'}</span></p>
+                {type.typeAttr && (
+                  <p className="text-sm text-blue-300 mt-1">
+                    Attributes: <span className="text-white">{type.typeAttr}</span>
+                  </p>
+                )}
+                <p className="text-sm text-blue-300 mt-2">
+                  Documents: <span className="text-white font-medium">{type.documentCounter || 0}</span>
+                </p>
+              </CardContent>
+              <CardFooter className="pt-0">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 p-0"
+                  onClick={() => navigate(`/documents?typeId=${type.id}`)}
+                >
+                  View documents
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+
+          {types.length === 0 && (
+            <div className="col-span-full flex flex-col items-center justify-center p-8 text-center rounded-lg border border-dashed border-blue-900/50 bg-blue-900/10">
+              <Layers className="h-12 w-12 text-blue-500/50 mb-4" />
+              <h3 className="text-xl font-medium text-blue-300 mb-2">No document types found</h3>
+              <p className="text-blue-400 mb-4">Create document types to better organize your documents</p>
               <Button 
-                onClick={() => setIsDrawerOpen(true)} 
-                className="px-6 py-2 text-base"
-                size="lg"
+                onClick={() => navigate('/document-types-management')} 
+                className="bg-blue-600 hover:bg-blue-700"
               >
-                <Plus className="mr-2 h-5 w-5" />
-                Add Document Type
+                Create Document Type
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
       )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">Confirm Delete</DialogTitle>
-            <DialogDescription className="text-base py-3">
-              Are you sure you want to delete this document type? This action cannot be undone.
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the document type "{typeToDelete?.typeName}"? 
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="sm:justify-between">
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="sm:w-1/3">
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleDelete} 
-              className="sm:w-1/3 bg-red-600 hover:bg-red-700"
-            >
+            <Button variant="destructive" onClick={handleDelete}>
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Document Type</DialogTitle>
+            <DialogDescription>
+              Update the details of your document type.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-1 gap-2">
+              <label htmlFor="typeName" className="text-blue-300 text-sm">
+                Type Name
+              </label>
+              <input
+                id="typeName"
+                className="bg-[#111633] border border-blue-900/50 rounded p-2 text-white"
+                value={typeName}
+                onChange={(e) => setTypeName(e.target.value)}
+                placeholder="Document Type Name"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <label htmlFor="typeKey" className="text-blue-300 text-sm">
+                  Type Key
+                </label>
+                <input
+                  id="typeKey"
+                  className="bg-[#111633] border border-blue-900/50 rounded p-2 text-white"
+                  value={typeKey}
+                  onChange={(e) => setTypeKey(e.target.value)}
+                  placeholder="KEY"
+                />
+              </div>
+              <div className="grid gap-2">
+                <label htmlFor="typeAttr" className="text-blue-300 text-sm">
+                  Attributes
+                </label>
+                <input
+                  id="typeAttr"
+                  className="bg-[#111633] border border-blue-900/50 rounded p-2 text-white"
+                  value={typeAttr}
+                  onChange={(e) => setTypeAttr(e.target.value)}
+                  placeholder="Attributes"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEdit} className="bg-blue-600 hover:bg-blue-700">
+              Save Changes
             </Button>
           </DialogFooter>
         </DialogContent>

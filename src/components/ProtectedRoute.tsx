@@ -17,6 +17,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
+  
+  // UI development mode - allow navigation to all routes regardless of authentication
+  const allowAllAccess = true; // Set to true to bypass authentication checks
 
   useEffect(() => {
     console.log('ProtectedRoute - Auth state:', { 
@@ -24,10 +27,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       isLoading, 
       userId: user?.userId,
       role: user?.role,
-      currentPath: location.pathname
+      currentPath: location.pathname,
+      bypassingAuth: allowAllAccess
     });
-  }, [isAuthenticated, isLoading, user, location]);
+  }, [isAuthenticated, isLoading, user, location, allowAllAccess]);
 
+  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -36,6 +41,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
+  // If in development mode, bypass all authentication checks
+  if (allowAllAccess) {
+    console.log('Development mode: Bypassing authentication checks');
+    return children ? <>{children}</> : <Outlet />;
+  }
+
+  // Regular authentication check (will only run if allowAllAccess is false)
   if (!isAuthenticated) {
     console.log('Not authenticated, redirecting to login');
     return <Navigate to="/login" state={{ from: location }} replace />;

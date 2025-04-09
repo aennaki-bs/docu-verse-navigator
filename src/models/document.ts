@@ -12,6 +12,9 @@ export interface Document {
   docDate: string;
   documentType: DocumentType;
   circuitId?: number;
+  circuit?: Circuit;
+  currentCircuitDetailId?: number;
+  currentCircuitDetail?: CircuitDetail;
   createdByUserId: number;
   createdBy: DocumentUser;
   lignesCount?: number;
@@ -25,13 +28,17 @@ export interface DocumentType {
   typeKey?: string;
   typeAttr?: string;
   documentCounter?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface DocumentUser {
+  id: number;
   username: string;
   firstName: string;
   lastName: string;
   role: string;
+  email: string;
 }
 
 export interface CreateDocumentRequest {
