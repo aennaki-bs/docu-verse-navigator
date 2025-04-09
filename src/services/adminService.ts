@@ -16,8 +16,9 @@ export interface UserDto {
 
 export interface LogHistoryDto {
   id: number;
-  actionType: string;
+  actionType: number; // Changed from string to number to match backend
   timestamp: string;
+  description: string; // Added to match backend model
   user: {
     username: string;
     role: string;
