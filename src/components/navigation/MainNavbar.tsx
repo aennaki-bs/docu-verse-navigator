@@ -18,7 +18,8 @@ import {
   LogOut, 
   Settings, 
   User,
-  ChevronDown
+  ChevronDown,
+  Database
 } from 'lucide-react';
 
 export function MainNavbar() {
@@ -27,6 +28,9 @@ export function MainNavbar() {
   const handleLogout = async () => {
     await logout();
   };
+
+  // Check if user has management permissions (Admin or FullUser)
+  const hasManagementPermissions = user?.role === 'Admin' || user?.role === 'FullUser';
 
   return (
     <nav className="border-b bg-background">
@@ -42,6 +46,11 @@ export function MainNavbar() {
               <Link to="/documents" className="flex items-center text-sm font-medium hover:text-primary">
                 <FileText className="mr-1 h-4 w-4" /> Documents
               </Link>
+              {hasManagementPermissions && (
+                <Link to="/document-types" className="flex items-center text-sm font-medium hover:text-primary">
+                  <Database className="mr-1 h-4 w-4" /> Document Types
+                </Link>
+              )}
               <Link to="/circuits" className="flex items-center text-sm font-medium hover:text-primary">
                 <GitBranch className="mr-1 h-4 w-4" /> Circuits
               </Link>
@@ -82,6 +91,14 @@ export function MainNavbar() {
                   <DropdownMenuItem asChild>
                     <Link to="/admin" className="flex items-center cursor-pointer w-full">
                       <Settings className="mr-2 h-4 w-4" /> Admin
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                
+                {hasManagementPermissions && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/document-types" className="flex items-center cursor-pointer w-full">
+                      <Database className="mr-2 h-4 w-4" /> Document Types
                     </Link>
                   </DropdownMenuItem>
                 )}

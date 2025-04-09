@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CircuitNavigation } from "@/components/navigation/CircuitNavigation";
 import { useQuery } from "@tanstack/react-query";
 import documentService from "@/services/documentService";
+import { Button } from "@/components/ui/button";
+import { Database } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -17,9 +19,21 @@ export default function Dashboard() {
     enabled: !!user,
   });
 
+  // Check if user has management permissions
+  const hasManagementPermissions = user?.role === 'Admin' || user?.role === 'FullUser';
+
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-semibold mb-6">Dashboard</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-semibold">Dashboard</h1>
+        
+        {hasManagementPermissions && (
+          <Button onClick={() => navigate('/document-types')} className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Manage Document Types
+          </Button>
+        )}
+      </div>
       
       <div className="grid gap-6">
         <section>

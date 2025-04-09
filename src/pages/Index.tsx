@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DocuVerseLogo from "@/components/DocuVerseLogo";
@@ -16,6 +15,9 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center">
+              <Link to="/document-types">
+                <Button variant="outline" className="mr-4">Document Types</Button>
+              </Link>
               <Link to="/login">
                 <Button variant="ghost">Sign in</Button>
               </Link>
