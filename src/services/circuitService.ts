@@ -70,6 +70,7 @@ const circuitService = {
   },
 
   moveDocumentToStep: async (request: MoveDocumentStepRequest): Promise<void> => {
+    console.log('Moving document to step:', request);
     await api.post('/CircuitProcessing/move-to-step', request);
   },
 

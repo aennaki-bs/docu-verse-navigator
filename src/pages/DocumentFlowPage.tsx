@@ -20,22 +20,23 @@ const DocumentFlowPage = () => {
   const navigate = useNavigate();
   const [document, setDocument] = useState<Document | null>(null);
   const [moveDialogOpen, setMoveDialogOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch document data
-  const { data: documentData, isLoading: isLoadingDocument, refetch: refetchDocument } = useQuery({
+  const { data: documentData, isLoading: isLoadingDocument, refetch: refetchDocument, error: documentError } = useQuery({
     queryKey: ['document', id],
     queryFn: () => documentService.getDocumentById(Number(id)),
   });
 
   // Fetch circuit details
-  const { data: circuitDetails, isLoading: isLoadingCircuitDetails } = useQuery({
+  const { data: circuitDetails, isLoading: isLoadingCircuitDetails, error: circuitDetailsError } = useQuery({
     queryKey: ['circuit-details', documentData?.circuitId],
     queryFn: () => circuitService.getCircuitDetailsByCircuitId(documentData?.circuitId || 0),
     enabled: !!documentData?.circuitId,
   });
 
   // Fetch document circuit history
-  const { data: circuitHistory, isLoading: isLoadingHistory, refetch: refetchHistory } = useQuery({
+  const { data: circuitHistory, isLoading: isLoadingHistory, refetch: refetchHistory, error: historyError } = useQuery({
     queryKey: ['document-circuit-history', id],
     queryFn: () => circuitService.getDocumentCircuitHistory(Number(id)),
     enabled: !!id,
@@ -46,7 +47,16 @@ const DocumentFlowPage = () => {
       console.log('Document data:', documentData);
       setDocument(documentData);
     }
-  }, [documentData]);
+    
+    // Collect any errors
+    const allErrors = [documentError, circuitDetailsError, historyError].filter(Boolean);
+    if (allErrors.length > 0) {
+      console.error('Errors loading document flow data:', allErrors);
+      setError('Error loading document flow data. Please try again.');
+    } else {
+      setError(null);
+    }
+  }, [documentData, documentError, circuitDetailsError, historyError]);
 
   if (!id) {
     navigate('/documents');
@@ -93,6 +103,20 @@ const DocumentFlowPage = () => {
         document={document}
         navigateBack={() => navigate(`/documents/${id}`)}
       />
+      
+      {/* Error message */}
+      {error && (
+        <div className="p-4 rounded bg-red-900/20 border border-red-900/30 text-red-400 mb-4">
+          {error}
+          <Button 
+            variant="link" 
+            className="text-red-400 underline ml-2 p-0 h-auto" 
+            onClick={() => window.location.reload()}
+          >
+            Reload page
+          </Button>
+        </div>
+      )}
       
       {/* Loading state */}
       {isLoading ? (

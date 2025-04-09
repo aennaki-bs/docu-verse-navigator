@@ -58,6 +58,7 @@ export default function MoveDocumentStepDialog({
   onSuccess,
 }: MoveDocumentStepDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch circuit details
   const { data: circuitDetails, isLoading } = useQuery({
@@ -75,7 +76,14 @@ export default function MoveDocumentStepDialog({
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
+    setError(null);
+    
     try {
+      console.log("Moving document to step:", {
+        documentId,
+        circuitDetailId: parseInt(values.circuitDetailId)
+      });
+      
       await circuitService.moveDocumentToStep({
         documentId,
         circuitDetailId: parseInt(values.circuitDetailId),
@@ -84,9 +92,11 @@ export default function MoveDocumentStepDialog({
       toast.success('Document moved to new step successfully');
       onOpenChange(false);
       onSuccess();
-    } catch (error) {
-      toast.error('Failed to move document to new step');
-      console.error(error);
+    } catch (error: any) {
+      console.error("Error moving document:", error);
+      const errorMessage = error?.response?.data || 'Failed to move document to new step';
+      toast.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -109,6 +119,12 @@ export default function MoveDocumentStepDialog({
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {error && (
+                <div className="p-3 rounded bg-red-900/20 border border-red-900/30 text-red-400 text-sm">
+                  {error}
+                </div>
+              )}
+              
               <FormField
                 control={form.control}
                 name="circuitDetailId"
