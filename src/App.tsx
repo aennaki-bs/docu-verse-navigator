@@ -94,6 +94,7 @@ const App = () => (
             </Route>
             
             {/* Catch-all route */}
+            {/* coment */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
