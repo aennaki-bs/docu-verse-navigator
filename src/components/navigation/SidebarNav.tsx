@@ -32,7 +32,7 @@ export function SidebarNav() {
   };
 
   return (
-    <Sidebar className="border-r border-blue-900/30 bg-[#0a1033]/60 backdrop-blur-md md:rounded-r-xl overflow-hidden">
+    <Sidebar className="border-r border-blue-900/30 bg-[#4659ca7a] md:rounded-r-xl overflow-hidden">
       <SidebarHeader className="p-4">
         <div className="flex items-center space-x-2 px-2">
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 w-8 h-8 rounded flex items-center justify-center text-white font-bold">
