@@ -76,21 +76,27 @@ const StepTwoEmailPassword = () => {
 
   return (
     <div className="space-y-4">
-      {/* Username field */}
-      <UsernameField 
-        value={formData.username} 
-        onChange={handleChange} 
-        localErrors={localErrors} 
-        validationErrors={stepValidation.errors} 
-      />
-      
-      {/* Email field */}
-      <EmailField 
-        value={formData.email} 
-        onChange={handleChange} 
-        localErrors={localErrors} 
-        validationErrors={stepValidation.errors} 
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Username field */}
+        <div className="col-span-1">
+          <UsernameField 
+            value={formData.username} 
+            onChange={handleChange} 
+            localErrors={localErrors} 
+            validationErrors={stepValidation.errors} 
+          />
+        </div>
+        
+        {/* Email field */}
+        <div className="col-span-1">
+          <EmailField 
+            value={formData.email} 
+            onChange={handleChange} 
+            localErrors={localErrors} 
+            validationErrors={stepValidation.errors} 
+          />
+        </div>
+      </div>
       
       {/* Password fields */}
       <PasswordFields 
@@ -101,7 +107,7 @@ const StepTwoEmailPassword = () => {
         localErrors={localErrors}
       />
       
-      <div className="flex space-x-2">
+      <div className="flex space-x-2 pt-2">
         <Button
           type="button"
           variant="outline"

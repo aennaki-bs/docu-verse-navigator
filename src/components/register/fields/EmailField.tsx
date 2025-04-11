@@ -35,10 +35,10 @@ const EmailField: React.FC<EmailFieldProps> = ({
         />
       </div>
       {localErrors.email && (
-        <p className="text-sm text-red-500">{localErrors.email}</p>
+        <p className="text-xs text-red-500">{localErrors.email}</p>
       )}
       {validationErrors.email && (
-        <p className="text-sm text-red-500">{validationErrors.email}</p>
+        <p className="text-xs text-red-500">{validationErrors.email}</p>
       )}
     </div>
   );

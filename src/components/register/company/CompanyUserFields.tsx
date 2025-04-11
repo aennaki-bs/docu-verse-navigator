@@ -23,7 +23,7 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
   handleChange
 }) => {
   return (
-    <>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Company Name */}
       <div className="space-y-1">
         <Label htmlFor="companyName">Company Name</Label>
@@ -39,7 +39,7 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
           />
         </div>
         {localErrors.companyName && (
-          <p className="text-sm text-red-500">{localErrors.companyName}</p>
+          <p className="text-xs text-red-500">{localErrors.companyName}</p>
         )}
       </div>
       
@@ -58,26 +58,7 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
           />
         </div>
         {localErrors.companyIRC && (
-          <p className="text-sm text-red-500">{localErrors.companyIRC}</p>
-        )}
-      </div>
-      
-      {/* Company Address */}
-      <div className="space-y-1">
-        <Label htmlFor="companyAddress">Company Address</Label>
-        <div className="relative">
-          <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            id="companyAddress"
-            name="companyAddress"
-            placeholder="Company Address"
-            className={`pl-10 ${localErrors.companyAddress ? 'border-red-500' : ''}`}
-            value={formData.companyAddress || ''}
-            onChange={handleChange}
-          />
-        </div>
-        {localErrors.companyAddress && (
-          <p className="text-sm text-red-500">{localErrors.companyAddress}</p>
+          <p className="text-xs text-red-500">{localErrors.companyIRC}</p>
         )}
       </div>
       
@@ -96,13 +77,13 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
           />
         </div>
         {localErrors.companyPhone && (
-          <p className="text-sm text-red-500">{localErrors.companyPhone}</p>
+          <p className="text-xs text-red-500">{localErrors.companyPhone}</p>
         )}
       </div>
       
       {/* Company Email */}
       <div className="space-y-1">
-        <Label htmlFor="companyEmail">Company Email (Optional)</Label>
+        <Label htmlFor="companyEmail">Company Email</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
@@ -115,12 +96,31 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
           />
         </div>
         {localErrors.companyEmail && (
-          <p className="text-sm text-red-500">{localErrors.companyEmail}</p>
+          <p className="text-xs text-red-500">{localErrors.companyEmail}</p>
         )}
       </div>
       
-      {/* Company Website */}
-      <div className="space-y-1">
+      {/* Company Address - Full Width */}
+      <div className="space-y-1 col-span-1 md:col-span-2">
+        <Label htmlFor="companyAddress">Company Address</Label>
+        <div className="relative">
+          <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            id="companyAddress"
+            name="companyAddress"
+            placeholder="Company Address"
+            className={`pl-10 ${localErrors.companyAddress ? 'border-red-500' : ''}`}
+            value={formData.companyAddress || ''}
+            onChange={handleChange}
+          />
+        </div>
+        {localErrors.companyAddress && (
+          <p className="text-xs text-red-500">{localErrors.companyAddress}</p>
+        )}
+      </div>
+      
+      {/* Company Website - Full Width */}
+      <div className="space-y-1 col-span-1 md:col-span-2">
         <Label htmlFor="companyWebsite">Company Website (Optional)</Label>
         <div className="relative">
           <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -134,7 +134,7 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
           />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

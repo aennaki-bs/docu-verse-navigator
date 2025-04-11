@@ -46,38 +46,42 @@ const StepOneUserInfo = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* User Type Selection */}
       <UserTypeSelector 
         userType={formData.userType} 
         onChange={handleUserTypeChange} 
       />
       
-      {/* Personal User Fields */}
-      {formData.userType === 'personal' && (
-        <PersonalUserFields
-          formData={formData}
-          localErrors={localErrors}
-          handleChange={handleChange}
-        />
-      )}
-      
-      {/* Company Fields */}
-      {formData.userType === 'company' && (
-        <CompanyUserFields
-          formData={formData}
-          localErrors={localErrors}
-          handleChange={handleChange}
-        />
-      )}
+      <div className="max-h-[350px] overflow-y-auto pr-1 py-1">
+        {/* Personal User Fields */}
+        {formData.userType === 'personal' && (
+          <PersonalUserFields
+            formData={formData}
+            localErrors={localErrors}
+            handleChange={handleChange}
+          />
+        )}
+        
+        {/* Company Fields */}
+        {formData.userType === 'company' && (
+          <CompanyUserFields
+            formData={formData}
+            localErrors={localErrors}
+            handleChange={handleChange}
+          />
+        )}
+      </div>
 
-      <Button
-        type="button"
-        className="w-full bg-docuBlue hover:bg-docuBlue-700"
-        onClick={handleNext}
-      >
-        Next
-      </Button>
+      <div className="pt-2">
+        <Button
+          type="button"
+          className="w-full bg-docuBlue hover:bg-docuBlue-700"
+          onClick={handleNext}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 };

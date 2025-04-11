@@ -34,10 +34,10 @@ const UsernameField: React.FC<UsernameFieldProps> = ({
         />
       </div>
       {localErrors.username && (
-        <p className="text-sm text-red-500">{localErrors.username}</p>
+        <p className="text-xs text-red-500">{localErrors.username}</p>
       )}
       {validationErrors.username && (
-        <p className="text-sm text-red-500">{validationErrors.username}</p>
+        <p className="text-xs text-red-500">{validationErrors.username}</p>
       )}
     </div>
   );

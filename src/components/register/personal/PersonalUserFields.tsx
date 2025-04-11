@@ -22,7 +22,7 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
   handleChange
 }) => {
   return (
-    <>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* First Name */}
       <div className="space-y-1">
         <Label htmlFor="firstName">First Name</Label>
@@ -38,7 +38,7 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
           />
         </div>
         {localErrors.firstName && (
-          <p className="text-sm text-red-500">{localErrors.firstName}</p>
+          <p className="text-xs text-red-500">{localErrors.firstName}</p>
         )}
       </div>
       
@@ -57,7 +57,7 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
           />
         </div>
         {localErrors.lastName && (
-          <p className="text-sm text-red-500">{localErrors.lastName}</p>
+          <p className="text-xs text-red-500">{localErrors.lastName}</p>
         )}
       </div>
       
@@ -76,26 +76,7 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
           />
         </div>
         {localErrors.cin && (
-          <p className="text-sm text-red-500">{localErrors.cin}</p>
-        )}
-      </div>
-      
-      {/* Personal Address */}
-      <div className="space-y-1">
-        <Label htmlFor="personalAddress">Address</Label>
-        <div className="relative">
-          <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            id="personalAddress"
-            name="personalAddress"
-            placeholder="Your Address"
-            className={`pl-10 ${localErrors.personalAddress ? 'border-red-500' : ''}`}
-            value={formData.personalAddress || ''}
-            onChange={handleChange}
-          />
-        </div>
-        {localErrors.personalAddress && (
-          <p className="text-sm text-red-500">{localErrors.personalAddress}</p>
+          <p className="text-xs text-red-500">{localErrors.cin}</p>
         )}
       </div>
       
@@ -114,10 +95,29 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
           />
         </div>
         {localErrors.personalPhone && (
-          <p className="text-sm text-red-500">{localErrors.personalPhone}</p>
+          <p className="text-xs text-red-500">{localErrors.personalPhone}</p>
         )}
       </div>
-    </>
+      
+      {/* Personal Address - Full Width */}
+      <div className="space-y-1 col-span-1 md:col-span-2">
+        <Label htmlFor="personalAddress">Address</Label>
+        <div className="relative">
+          <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            id="personalAddress"
+            name="personalAddress"
+            placeholder="Your Address"
+            className={`pl-10 ${localErrors.personalAddress ? 'border-red-500' : ''}`}
+            value={formData.personalAddress || ''}
+            onChange={handleChange}
+          />
+        </div>
+        {localErrors.personalAddress && (
+          <p className="text-xs text-red-500">{localErrors.personalAddress}</p>
+        )}
+      </div>
+    </div>
   );
 };
 
