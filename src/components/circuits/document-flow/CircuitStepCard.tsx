@@ -1,124 +1,161 @@
 
-import { Check, X, MoveRight, CheckCircle } from 'lucide-react';
-import { Card, CardHeader, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Clock, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DocumentCircuitHistory } from '@/models/documentCircuit';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { Step, DocumentHistory } from '@/models/circuit';
 
 interface CircuitStepCardProps {
-  detail: any;
+  step: Step;
   currentStepId: number | undefined | null;
-  historyForStep: DocumentCircuitHistory[];
+  historyForStep: DocumentHistory[];
   isSimpleUser: boolean;
   onMoveClick: () => void;
   onProcessClick: () => void;
 }
 
-export const CircuitStepCard = ({ 
-  detail, 
-  currentStepId, 
-  historyForStep, 
-  isSimpleUser, 
+export function CircuitStepCard({
+  step,
+  currentStepId,
+  historyForStep,
+  isSimpleUser,
   onMoveClick,
   onProcessClick
-}: CircuitStepCardProps) => {
-  const isCurrentStep = detail.id === currentStepId;
+}: CircuitStepCardProps) {
+  const isCurrent = step.id === currentStepId;
+  const hasHistory = historyForStep.length > 0;
+  
+  // Calculate status based on step history
+  const getStepStatus = () => {
+    if (!hasHistory) {
+      return isCurrent ? 'current' : 'pending';
+    }
+    
+    const latestHistory = historyForStep[historyForStep.length - 1];
+    if (isCurrent) return 'current';
+    if (latestHistory.isApproved) return 'approved';
+    return 'rejected';
+  };
+  
+  const status = getStepStatus();
+  
+  // Apply different styling based on status
+  const getBorderStyle = () => {
+    switch(status) {
+      case 'current':
+        return 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]';
+      case 'approved':
+        return 'border-green-500/30';
+      case 'rejected':
+        return 'border-red-500/30';
+      default:
+        return 'border-gray-800';
+    }
+  };
+  
+  const getHeaderStyle = () => {
+    switch(status) {
+      case 'current':
+        return 'bg-blue-900/40 border-b border-blue-500/30';
+      case 'approved':
+        return 'bg-green-900/20 border-b border-green-500/30';
+      case 'rejected':
+        return 'bg-red-900/20 border-b border-red-500/30';
+      default:
+        return 'bg-gray-900/40 border-b border-gray-800';
+    }
+  };
+  
+  const getStatusBadge = () => {
+    switch(status) {
+      case 'current':
+        return <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">Current</Badge>;
+      case 'approved':
+        return <Badge className="bg-green-900/20 text-green-300 border-green-500/30">Approved</Badge>;
+      case 'rejected':
+        return <Badge className="bg-red-900/20 text-red-300 border-red-500/30">Rejected</Badge>;
+      default:
+        return <Badge variant="outline" className="text-gray-400 border-gray-700">Pending</Badge>;
+    }
+  };
   
   return (
-    <Card 
-      className={`h-full ${
-        isCurrentStep 
-          ? 'bg-[#0a1033] border-green-500 shadow-md shadow-green-500/20' 
-          : 'bg-[#0a1033] border-blue-900/30'
-      }`}
-    >
-      <CardHeader className={`pb-3 ${
-        isCurrentStep ? 'border-b border-green-500/30 bg-[#060927]' : 'border-b border-blue-900/30'
-      }`}>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center">
-            <Badge 
-              variant={isCurrentStep ? "success" : "outline"} 
-              className="mr-2"
-            >
-              {detail.orderIndex + 1}
-            </Badge>
-            {detail.title}
-          </CardTitle>
-          {isCurrentStep && (
-            <Badge variant="success" className="ml-2">Current</Badge>
-          )}
+    <Card className={cn(
+      "border-2 transition-all duration-200",
+      getBorderStyle()
+    )}>
+      <CardHeader className={cn("p-4", getHeaderStyle())}>
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col">
+            <CardTitle className="text-lg font-semibold">
+              {step.title}
+            </CardTitle>
+            {step.responsibleRole && (
+              <span className="text-xs mt-1 text-gray-400">
+                Required: {step.responsibleRole.name}
+              </span>
+            )}
+          </div>
+          {getStatusBadge()}
         </div>
       </CardHeader>
-      
-      <CardContent className="p-4">
-        <p className="text-sm text-gray-400 mb-4">
-          {detail.descriptif || 'No description provided for this step'}
-        </p>
-
-        {/* History items for this step */}
-        <div className="space-y-3">
-          {historyForStep.length > 0 ? (
-            historyForStep.map(history => (
-              <Card key={history.id} className="bg-[#070b28] border border-blue-900/30">
-                <CardContent className="p-3">
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="font-medium text-sm">
-                      Processed by: {history.userName || history.processedBy || 'Unknown'}
-                    </span>
-                    <Badge variant={history.isApproved ? "success" : "destructive"}>
-                      {history.isApproved ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-gray-400">
-                    {new Date(history.processedAt).toLocaleString()}
-                  </p>
-                  {history.comments && (
-                    <div className="mt-2 p-2 bg-[#111633]/40 rounded text-xs border border-blue-900/30">
-                      "{history.comments}"
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <div className="text-center text-gray-500 text-sm p-2">
-              No history for this step yet
-            </div>
-          )}
+      <CardContent className="p-4 text-sm">
+        <div className="text-gray-400 mb-4">
+          {step.descriptif || "No description available for this step."}
         </div>
-      </CardContent>
-      
-      <CardFooter className="p-3 border-t border-blue-900/30 bg-[#060927] flex justify-between">
-        {detail.responsibleRoleId ? (
-          <Badge variant="outline" className="text-xs">
-            Responsible: Role #{detail.responsibleRoleId}
-          </Badge>
-        ) : (
-          <span className="text-xs text-gray-500">No responsible role</span>
-        )}
         
-        {isCurrentStep && !isSimpleUser && (
-          <div className="flex space-x-2">
-            <Button 
-              size="sm" 
-              variant="outline"
-              className="text-xs bg-green-900/10 border-green-900/30 hover:bg-green-900/20"
-              onClick={onProcessClick}
-            >
-              <CheckCircle className="h-3 w-3 mr-1" /> Process
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline"
-              className="text-xs"
-              onClick={onMoveClick}
-            >
-              <MoveRight className="h-3 w-3 mr-1" /> Move
-            </Button>
+        {hasHistory && (
+          <div className="mt-4 space-y-3">
+            <h4 className="text-xs uppercase text-gray-500 font-semibold">History</h4>
+            {historyForStep.map((item, index) => (
+              <div key={item.id} className="pl-4 border-l-2 text-xs space-y-1 pb-2 relative">
+                <div className={cn(
+                  "w-3 h-3 rounded-full absolute -left-[7px] top-0",
+                  item.isApproved ? "bg-green-400" : "bg-red-400"
+                )} />
+                <div className="flex items-center">
+                  {item.isApproved ? (
+                    <CheckCircle className="h-3 w-3 mr-1 text-green-400" />
+                  ) : (
+                    <XCircle className="h-3 w-3 mr-1 text-red-400" />
+                  )}
+                  <span className="font-medium">
+                    {item.isApproved ? 'Approved' : 'Rejected'} by {item.processedBy?.firstName} {item.processedBy?.lastName}
+                  </span>
+                </div>
+                <div className="flex items-center text-gray-500">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {new Date(item.processedAt).toLocaleString()}
+                </div>
+                {item.comments && (
+                  <p className="text-gray-400 mt-1">{item.comments}</p>
+                )}
+              </div>
+            ))}
           </div>
         )}
-      </CardFooter>
+      </CardContent>
+      
+      {isCurrent && !isSimpleUser && (
+        <CardFooter className="p-3 pt-0 flex justify-between">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full border-blue-900/30 hover:bg-blue-900/20"
+            onClick={onMoveClick}
+          >
+            <ArrowRight className="h-4 w-4 mr-2" /> Move
+          </Button>
+          <Button 
+            size="sm" 
+            className="w-full ml-2 bg-blue-600 hover:bg-blue-700"
+            onClick={onProcessClick}
+          >
+            Process
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
-};
+}
