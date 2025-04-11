@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -259,6 +259,17 @@ const RightSideContent = ({ currentStep }: { currentStep: number }) => {
 
 const RegisterForm = () => {
   const { currentStep } = useMultiStepForm();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  
+  // Reset scroll position when step changes
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollArea) {
+        scrollArea.scrollTop = 0;
+      }
+    }
+  }, [currentStep]);
 
   const renderStep = () => {
     switch (currentStep) {
@@ -278,25 +289,18 @@ const RegisterForm = () => {
   return (
     <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
       {/* Left side - Registration form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 bg-[#0d1117] h-screen">
-        <div className="w-full max-w-xl py-8">
-          {/* <div className="text-center mb-8">
-            <DocuVerseLogo className="mx-auto h-14 w-auto" />
-            <h2 className="mt-4 text-3xl font-bold text-white">
-              Create an account
-            </h2>
-            <p className="mt-2 text-sm text-gray-400">
-              Join DocuVerse to manage your documents
-            </p>
-          </div> */}
-          
+      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 bg-[#0d1117] h-screen overflow-hidden">
+        <div className="w-full max-w-2xl py-8">
           <Card className="border-gray-800 bg-gradient-to-b from-[#161b22] to-[#0d1117] shadow-2xl">
             <CardHeader className="space-y-1 pb-2 px-8 pt-6 border-b border-gray-800">
               <StepIndicator currentStep={currentStep} />
               <StepTitle currentStep={currentStep} />
             </CardHeader>
             
-            <ScrollArea className="h-[56vh]">
+            <ScrollArea 
+              ref={scrollAreaRef} 
+              className="h-[56vh]"
+            >
               <CardContent className="pt-8 px-8">
                 {renderStep()}
               </CardContent>
@@ -331,6 +335,32 @@ const RegisterForm = () => {
           </div>
         </div>
       </div>
+      
+      {/* Add global style to prevent body scrolling */}
+      <style jsx global>{`
+        body {
+          overflow: hidden;
+        }
+        
+        /* Custom scrollbar styling */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(30, 41, 59, 0.2);
+          border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(59, 130, 246, 0.5);
+          border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(59, 130, 246, 0.7);
+        }
+      `}</style>
     </div>
   );
 };
