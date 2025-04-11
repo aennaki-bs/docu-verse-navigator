@@ -78,6 +78,7 @@ export default function CreateDocumentDialog({
         typeId: values.typeId,
         documentAlias: values.documentAlias,
         docDate: values.docDate,
+        status: 0, // Adding default status as Draft
       });
 
       toast.success('Document created successfully');

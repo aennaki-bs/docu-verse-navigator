@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Document, Ligne } from '@/models/document';
 import { LigneItem } from './LigneItem';
-import { LigneEmptyState } from './LigneEmptyState';
-import { LigneSummaryFooter } from './LigneSummaryFooter';
+import LigneEmptyState from './LigneEmptyState';
+import LigneSummaryFooter from './LigneSummaryFooter';
 import { CreateLigneDialog } from './dialogs/CreateLigneDialog';
 import { EditLigneDialog } from './dialogs/EditLigneDialog';
 import { DeleteLigneDialog } from './dialogs/DeleteLigneDialog';
@@ -72,13 +72,14 @@ export function LignesListWrapper({
                 canManageDocuments={canManageDocuments}
                 onEdit={() => handleEditClick(ligne)}
                 onDelete={() => handleDeleteClick(ligne)}
+                onUpdate={handleSuccess} // Add the missing onUpdate prop
               />
             ))}
             
-            <LigneSummaryFooter totalAmount={totalAmount} />
+            <LigneSummaryFooter lignes={lignes} />
           </div>
         ) : (
-          <LigneEmptyState canAdd={canManageDocuments} onAddClick={() => setIsCreateDialogOpen(true)} />
+          <LigneEmptyState canManageDocuments={canManageDocuments} onCreateClick={() => setIsCreateDialogOpen(true)} />
         )}
       </CardContent>
       

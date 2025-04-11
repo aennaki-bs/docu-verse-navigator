@@ -4,15 +4,15 @@ import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DocumentTypeTable } from '@/components/document-types/DocumentTypeTable';
+import DocumentTypeTable from '@/components/document-types/DocumentTypeTable';
 import { DocumentTypeForm } from '@/components/document-types/DocumentTypeForm';
 import documentTypeService from '@/services/documentTypeService';
 import { DocumentType } from '@/models/document';
 import { useQuery } from '@tanstack/react-query';
-import { LoadingState } from '@/components/document-types/LoadingState';
-import { EmptyState } from '@/components/document-types/EmptyState';
-import { DeleteConfirmDialog } from '@/components/document-types/DeleteConfirmDialog';
-import { BottomActionBar } from '@/components/document-types/BottomActionBar';
+import LoadingState from '@/components/document-types/LoadingState';
+import EmptyState from '@/components/document-types/EmptyState';
+import DeleteConfirmDialog from '@/components/document-types/DeleteConfirmDialog';
+import BottomActionBar from '@/components/document-types/BottomActionBar';
 
 export default function DocumentTypesManagement() {
   const [isFormOpen, setIsFormOpen] = useState(false);

@@ -93,6 +93,7 @@ export default function EditDocumentDialog({
         typeId: values.typeId,
         documentAlias: values.documentAlias,
         docDate: values.docDate,
+        status: document.status, // Keep the existing status
       });
 
       toast.success('Document updated successfully');
