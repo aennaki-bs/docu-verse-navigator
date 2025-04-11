@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -145,9 +146,13 @@ const DocumentsPage = () => {
           </Button>
         )
       },
-      cell: ({ row }) => (
-        <Badge variant="secondary">{row.original.documentType.typeName}</Badge>
-      ),
+      cell: ({ row }) => {
+        // Add safety check for documentType
+        if (!row.original || !row.original.documentType) {
+          return <Badge variant="outline">Unknown</Badge>;
+        }
+        return <Badge variant="secondary">{row.original.documentType.typeName}</Badge>;
+      },
     },
     {
       accessorKey: 'docDate',
@@ -166,7 +171,12 @@ const DocumentsPage = () => {
           </Button>
         )
       },
-      cell: ({ row }) => new Date(row.original.docDate).toLocaleDateString(),
+      cell: ({ row }) => {
+        if (!row.original || !row.original.docDate) {
+          return "N/A";
+        }
+        return new Date(row.original.docDate).toLocaleDateString();
+      },
     },
     {
       accessorKey: 'status',
@@ -186,6 +196,10 @@ const DocumentsPage = () => {
         )
       },
       cell: ({ row }) => {
+        if (!row.original) {
+          return <Badge variant="outline">Unknown</Badge>;
+        }
+      
         let statusText = 'Unknown';
         let badgeVariant: "default" | "secondary" | "outline" | "destructive" = "default";
 
@@ -216,50 +230,56 @@ const DocumentsPage = () => {
     {
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-              >
-                <path d="M3 12h18M3 6h18M3 18h18" />
-              </svg>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleEditDocument(row.original.id)}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleViewDocumentFlow(row.original.id)}>
-              <FileText className="mr-2 h-4 w-4" /> View Flow
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleDeleteDocument(row.original)}>
-              <Trash2 className="mr-2 h-4 w-4" /> Delete
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <AddToCircuitButton
-                documentId={row.original.id}
-                documentTitle={row.original.title}
-                onSuccess={refetchDocuments}
-              />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      cell: ({ row }) => {
+        if (!row.original) {
+          return null;
+        }
+        
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                >
+                  <path d="M3 12h18M3 6h18M3 18h18" />
+                </svg>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => handleEditDocument(row.original.id)}>
+                <Edit className="mr-2 h-4 w-4" /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleViewDocumentFlow(row.original.id)}>
+                <FileText className="mr-2 h-4 w-4" /> View Flow
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleDeleteDocument(row.original)}>
+                <Trash2 className="mr-2 h-4 w-4" /> Delete
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <AddToCircuitButton
+                  documentId={row.original.id}
+                  documentTitle={row.original.title}
+                  onSuccess={refetchDocuments}
+                />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
     },
   ];
 

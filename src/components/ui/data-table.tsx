@@ -33,15 +33,23 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {validData.map((row, rowIndex) => (
-            <TableRow key={rowIndex}>
-              {columns.map((column, columnIndex) => (
-                <TableCell key={columnIndex}>
-                  {column.cell && row ? column.cell({ row }) : (row && (row as any)[column.accessorKey])}
-                </TableCell>
-              ))}
+          {validData.length > 0 ? (
+            validData.map((row, rowIndex) => (
+              <TableRow key={rowIndex}>
+                {columns.map((column, columnIndex) => (
+                  <TableCell key={columnIndex}>
+                    {column.cell && row ? column.cell({ row }) : (row && column.accessorKey && (row as any)[column.accessorKey])}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>
