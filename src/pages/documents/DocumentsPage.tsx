@@ -37,7 +37,7 @@ const DocumentsPage = () => {
 
   const { data: documentsData, isLoading: isLoadingDocuments, refetch: refetchDocuments } = useQuery({
     queryKey: ['documents', search, sortConfig],
-    queryFn: () => documentService.getAllDocuments(search, sortConfig?.key, sortConfig?.direction),
+    queryFn: () => documentService.getAllDocuments(),
   });
 
   const { data: documentTypesData, isLoading: isLoadingDocumentTypes } = useQuery({

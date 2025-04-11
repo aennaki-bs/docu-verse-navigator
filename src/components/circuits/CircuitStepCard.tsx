@@ -5,9 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DocumentHistory, Step } from '@/models/circuit';
 
-interface CircuitStepCardProps {
+export interface CircuitStepCardProps {
   step: Step;
-  currentStepId: number | undefined | null;
+  currentStepId?: number | null;
   historyForStep: DocumentHistory[];
   isSimpleUser: boolean;
   onMoveClick: () => void;
@@ -82,53 +82,46 @@ export const CircuitStepCard = ({
         {historyForStep.length > 0 && (
           <div className="border-t border-gray-800 pt-2">
             <div className="text-xs font-semibold mb-1 text-gray-400">
-              History ({historyForStep.length})
+              History
             </div>
-            <div className="space-y-2 max-h-32 overflow-y-auto">
-              {historyForStep.map((history) => (
-                <div 
-                  key={history.id} 
-                  className="text-xs bg-gray-800/30 p-1.5 rounded"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-gray-300">
-                      {history.action?.title || 'Action'}
-                    </span>
-                    {history.isApproved ? (
-                      <CheckCircle className="h-3 w-3 text-green-500" />
-                    ) : (
-                      <AlertCircle className="h-3 w-3 text-red-500" />
-                    )}
-                  </div>
-                  <div className="flex items-center text-gray-400">
-                    <Clock className="h-3 w-3 mr-1" />
-                    <span>
-                      {new Date(history.processedAt).toLocaleDateString()}
-                    </span>
-                  </div>
+            <div className="space-y-2 text-xs">
+              {historyForStep.slice(0, 3).map((history, index) => (
+                <div key={index} className="flex justify-between">
+                  <span className="text-gray-400">
+                    {new Date(history.actionDate).toLocaleDateString()}
+                  </span>
+                  <span className="text-gray-300">
+                    {history.actionBy.firstName} {history.actionBy.lastName}
+                  </span>
                 </div>
               ))}
+              {historyForStep.length > 3 && (
+                <div className="text-center text-gray-500 text-xs mt-1">
+                  +{historyForStep.length - 3} more entries
+                </div>
+              )}
             </div>
           </div>
         )}
 
         {/* Actions */}
         {isCurrentStep && !isSimpleUser && (
-          <div className="flex gap-2 pt-2 border-t border-gray-800">
-            <Button 
-              size="sm" 
-              className="w-full text-xs h-7"
+          <div className="border-t border-gray-800 pt-2 flex justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-green-400 hover:text-green-300 hover:bg-green-900/20"
               onClick={onProcessClick}
             >
-              Process
+              <CheckCircle className="mr-1 h-3 w-3" /> Process
             </Button>
-            <Button 
+            <Button
+              variant="ghost"
               size="sm"
-              variant="outline"
-              className="w-full text-xs h-7"
+              className="w-full text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
               onClick={onMoveClick}
             >
-              Move
+              Move &rarr;
             </Button>
           </div>
         )}

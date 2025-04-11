@@ -1,98 +1,101 @@
 
 import { useState } from 'react';
 import { Document, Ligne } from '@/models/document';
-import LigneItem from './LigneItem';
-import LigneEmptyState from './LigneEmptyState';
-import LigneSummaryFooter from './LigneSummaryFooter';
-import CreateLigneDialog from './dialogs/CreateLigneDialog';
-import EditLigneDialog from './dialogs/EditLigneDialog';
-import DeleteLigneDialog from './dialogs/DeleteLigneDialog';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { LigneItem } from './LigneItem';
+import { CreateLigneDialog } from './dialogs/CreateLigneDialog';
+import { EditLigneDialog } from './dialogs/EditLigneDialog';
+import { DeleteLigneDialog } from './dialogs/DeleteLigneDialog';
 
 interface LignesListWrapperProps {
   document: Document;
   lignes: Ligne[];
   canManageDocuments: boolean;
-  isCreateDialogOpen: boolean;
-  setIsCreateDialogOpen: (open: boolean) => void;
+  onLignesUpdate: () => void;
 }
 
-const LignesListWrapper = ({ 
-  document, 
-  lignes, 
+export function LignesListWrapper({
+  document,
+  lignes,
   canManageDocuments,
-  isCreateDialogOpen,
-  setIsCreateDialogOpen
-}: LignesListWrapperProps) => {
+  onLignesUpdate
+}: LignesListWrapperProps) {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [expandedLigneId, setExpandedLigneId] = useState<number | null>(null);
-  const [currentLigne, setCurrentLigne] = useState<Ligne | null>(null);
+  const [selectedLigne, setSelectedLigne] = useState<Ligne | null>(null);
 
-  const toggleLigneExpansion = (ligneId: number) => {
-    setExpandedLigneId(expandedLigneId === ligneId ? null : ligneId);
+  const handleCreateLigne = () => {
+    setIsCreateDialogOpen(true);
   };
 
-  const handleEditDialogOpen = (ligne: Ligne) => {
-    setCurrentLigne(ligne);
+  const handleEditLigne = (ligne: Ligne) => {
+    setSelectedLigne(ligne);
     setIsEditDialogOpen(true);
   };
 
-  const handleDeleteDialogOpen = (ligne: Ligne) => {
-    setCurrentLigne(ligne);
+  const handleDeleteLigne = (ligne: Ligne) => {
+    setSelectedLigne(ligne);
     setIsDeleteDialogOpen(true);
   };
 
+  const handleDialogSuccess = () => {
+    onLignesUpdate();
+  };
+
   return (
-    <div className="relative">
-      {lignes.length === 0 ? (
-        <LigneEmptyState 
-          canManageDocuments={canManageDocuments}
-          onCreateClick={() => setIsCreateDialogOpen(true)}
-        />
-      ) : (
-        <>
-          <div className="max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-800/50 scrollbar-track-blue-950/30">
-            <div className="p-4 space-y-3">
-              {lignes.map((ligne) => (
-                <LigneItem 
-                  key={ligne.id}
-                  ligne={ligne}
-                  expandedLigneId={expandedLigneId}
-                  toggleLigneExpansion={toggleLigneExpansion}
-                  document={document}
-                  canManageDocuments={canManageDocuments}
-                  onEdit={handleEditDialogOpen}
-                  onDelete={handleDeleteDialogOpen}
-                />
-              ))}
-            </div>
-          </div>
-          
-          {lignes.length > 0 && <LigneSummaryFooter lignes={lignes} />}
-        </>
+    <div className="space-y-4">
+      {canManageDocuments && (
+        <div className="flex justify-end">
+          <Button onClick={handleCreateLigne}>
+            <Plus className="mr-2 h-4 w-4" /> Add Line
+          </Button>
+        </div>
       )}
 
-      <CreateLigneDialog 
-        document={document}
+      {lignes.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          No lines found for this document. {canManageDocuments && "Use the 'Add Line' button to create one."}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {lignes.map((ligne) => (
+            <LigneItem
+              key={ligne.id}
+              ligne={ligne}
+              document={document}
+              onUpdate={onLignesUpdate}
+              canManageDocuments={canManageDocuments}
+            />
+          ))}
+        </div>
+      )}
+
+      <CreateLigneDialog
+        documentId={document.id}
         isOpen={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
+        onSuccess={handleDialogSuccess}
       />
 
-      <EditLigneDialog 
-        document={document}
-        ligne={currentLigne}
-        isOpen={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-      />
+      {selectedLigne && (
+        <>
+          <EditLigneDialog
+            ligne={selectedLigne}
+            isOpen={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            onSuccess={handleDialogSuccess}
+          />
 
-      <DeleteLigneDialog 
-        document={document}
-        ligne={currentLigne}
-        isOpen={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      />
+          <DeleteLigneDialog
+            ligne={selectedLigne}
+            isOpen={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+            onSuccess={handleDialogSuccess}
+          />
+        </>
+      )}
     </div>
   );
-};
-
-export default LignesListWrapper;
+}

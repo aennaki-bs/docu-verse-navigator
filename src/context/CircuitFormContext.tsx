@@ -1,11 +1,20 @@
+
 import { createContext, useContext, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
 import { Circuit, Step } from '@/models/circuit';
 
-// Extend the Circuit type with a steps array for form usage
-interface CircuitFormData extends Omit<Circuit, 'id'> {
+// Define a separate interface for the form data without extending Circuit
+// to avoid type conflicts with the steps property
+interface CircuitFormData {
+  circuitKey: string;
+  title: string;
+  descriptif: string;
+  isActive: boolean;
+  hasOrderedFlow: boolean;
+  allowBacktrack: boolean;
+  crdCounter: number;
   steps: Partial<Step>[];
 }
 

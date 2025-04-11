@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2 } from 'lucide-react';
@@ -56,7 +57,7 @@ export default function SousLignesList({ ligne, onUpdate }: SousLignesListProps)
         ligneId: ligne.id,
         title: newSousLigneTitle.trim(),
         attribute: newSousLigneAttribute.trim(),
-        amount: 0, // Adding the required amount field
+        amount: 0, // Required field
         orderIndex: ligne.sousLignesCount || 0,
       });
 
