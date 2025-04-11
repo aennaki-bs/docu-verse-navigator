@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 // Create axios instance with default configuration
 const api = axios.create({
   // Use HTTP for localhost connections to avoid SSL errors
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5204/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://192.168.1.94:5204/api',
   headers: {
     'Content-Type': 'application/json',
   },
