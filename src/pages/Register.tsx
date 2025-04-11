@@ -42,8 +42,8 @@ const StepIndicator = ({ currentStep }: { currentStep: number }) => {
 // Step title component
 const StepTitle = ({ currentStep }: { currentStep: number }) => {
   const titles = [
-    'User Information',
-    'Account Credentials',
+    'Account Details',
+    'Credentials',
     'Admin Access (Optional)'
   ];
 
@@ -69,10 +69,10 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left side - Registration form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-[#0d1117]">
-        <div className="w-full max-w-md space-y-8">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 bg-[#0d1117] overflow-auto max-h-screen">
+        <div className="w-full max-w-md space-y-6 py-6">
           <div className="text-center">
             <DocuVerseLogo className="mx-auto h-14 w-auto" />
             <h2 className="mt-6 text-3xl font-bold text-white">
@@ -89,7 +89,7 @@ const RegisterForm = () => {
               <StepTitle currentStep={currentStep} />
             </CardHeader>
             
-            <CardContent className="pt-6">
+            <CardContent className="pt-6 max-h-[60vh] overflow-y-auto">
               {renderStep()}
             </CardContent>
             
@@ -109,7 +109,7 @@ const RegisterForm = () => {
       </div>
       
       {/* Right side - Image and text */}
-      <div className="hidden lg:block lg:w-1/2 bg-gradient-to-r from-[#0d1117] to-[#161b22] relative">
+      <div className="hidden md:block md:w-1/2 bg-gradient-to-r from-[#0d1117] to-[#161b22] relative">
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-40"
           style={{ 

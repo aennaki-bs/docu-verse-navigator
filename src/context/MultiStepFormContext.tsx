@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import authService from '@/services/authService';
 
 interface FormData {
+  userType: 'personal' | 'company';
   firstName: string;
   lastName: string;
   username: string;
@@ -11,6 +12,17 @@ interface FormData {
   password: string;
   confirmPassword: string;
   adminSecretKey?: string;
+  // Personal user fields
+  cin?: string;
+  personalAddress?: string;
+  personalPhone?: string;
+  // Company fields
+  companyName?: string;
+  companyIRC?: string;
+  companyAddress?: string;
+  companyPhone?: string;
+  companyEmail?: string;
+  companyWebsite?: string;
 }
 
 interface StepValidation {
@@ -33,6 +45,7 @@ interface MultiStepFormContextType {
 }
 
 const initialFormData: FormData = {
+  userType: 'personal',
   firstName: '',
   lastName: '',
   username: '',
@@ -40,6 +53,17 @@ const initialFormData: FormData = {
   password: '',
   confirmPassword: '',
   adminSecretKey: '',
+  // Personal user fields
+  cin: '',
+  personalAddress: '',
+  personalPhone: '',
+  // Company fields
+  companyName: '',
+  companyIRC: '',
+  companyAddress: '',
+  companyPhone: '',
+  companyEmail: '',
+  companyWebsite: '',
 };
 
 const MultiStepFormContext = createContext<MultiStepFormContextType>({
@@ -156,7 +180,21 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
         firstName: formData.firstName,
         lastName: formData.lastName,
         username: formData.username,
-        adminSecretKey: formData.adminSecretKey ? formData.adminSecretKey : undefined
+        adminSecretKey: formData.adminSecretKey ? formData.adminSecretKey : undefined,
+        userType: formData.userType,
+        // Include additional fields based on user type
+        ...(formData.userType === 'personal' ? {
+          cin: formData.cin,
+          personalAddress: formData.personalAddress,
+          personalPhone: formData.personalPhone,
+        } : {
+          companyName: formData.companyName,
+          companyIRC: formData.companyIRC,
+          companyAddress: formData.companyAddress,
+          companyPhone: formData.companyPhone,
+          companyEmail: formData.companyEmail,
+          companyWebsite: formData.companyWebsite,
+        })
       });
       
       // Call API to register user
@@ -168,6 +206,20 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
         confirmPassword: formData.confirmPassword,
         username: formData.username,
         adminSecretKey: formData.adminSecretKey,
+        userType: formData.userType,
+        // Include additional fields based on user type
+        ...(formData.userType === 'personal' ? {
+          cin: formData.cin,
+          personalAddress: formData.personalAddress,
+          personalPhone: formData.personalPhone,
+        } : {
+          companyName: formData.companyName,
+          companyIRC: formData.companyIRC,
+          companyAddress: formData.companyAddress,
+          companyPhone: formData.companyPhone,
+          companyEmail: formData.companyEmail,
+          companyWebsite: formData.companyWebsite,
+        })
       });
       
       console.log("Registration response:", response);

@@ -13,6 +13,18 @@ export interface RegisterCredentials {
   lastName: string;
   username?: string;
   adminSecretKey?: string;
+  userType?: 'personal' | 'company';
+  // Personal user fields
+  cin?: string;
+  personalAddress?: string;
+  personalPhone?: string;
+  // Company fields
+  companyName?: string;
+  companyIRC?: string;
+  companyAddress?: string;
+  companyPhone?: string;
+  companyEmail?: string;
+  companyWebsite?: string;
 }
 
 export interface UserInfo {
@@ -29,6 +41,18 @@ export interface UserInfo {
   phoneNumber?: string;
   isActive?: boolean;
   isOnline?: boolean;
+  userType?: 'personal' | 'company';
+  // Personal user fields
+  cin?: string;
+  personalAddress?: string;
+  personalPhone?: string;
+  // Company fields
+  companyName?: string;
+  companyIRC?: string;
+  companyAddress?: string;
+  companyPhone?: string;
+  companyEmail?: string;
+  companyWebsite?: string;
 }
 
 export interface UpdateProfileRequest {
