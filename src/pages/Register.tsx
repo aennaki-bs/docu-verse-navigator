@@ -335,38 +335,49 @@ const RegisterForm = () => {
           </div>
         </div>
       </div>
-      
-      {/* Add global style to prevent body scrolling */}
-      <style jsx global>{`
-        body {
-          overflow: hidden;
-        }
-        
-        /* Custom scrollbar styling */
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(30, 41, 59, 0.2);
-          border-radius: 10px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(59, 130, 246, 0.5);
-          border-radius: 10px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(59, 130, 246, 0.7);
-        }
-      `}</style>
     </div>
   );
 };
 
 // Wrapper component with MultiStepFormProvider
 const Register = () => {
+  // Add the CSS for global styles directly in the Head section
+  useEffect(() => {
+    // Create style element
+    const style = document.createElement('style');
+    style.textContent = `
+      body {
+        overflow: hidden;
+      }
+      
+      /* Custom scrollbar styling */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(30, 41, 59, 0.2);
+        border-radius: 10px;
+      }
+      
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.5);
+        border-radius: 10px;
+      }
+      
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(59, 130, 246, 0.7);
+      }
+    `;
+    
+    document.head.appendChild(style);
+    
+    // Cleanup function to remove the style when component unmounts
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   return (
     <MultiStepFormProvider>
       <RegisterForm />
