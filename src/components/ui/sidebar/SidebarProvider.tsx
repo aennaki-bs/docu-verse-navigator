@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -8,11 +9,12 @@ import {
   SIDEBAR_WIDTH,
   SIDEBAR_WIDTH_ICON,
   SIDEBAR_KEYBOARD_SHORTCUT,
-  SidebarContext,
-  SidebarProviderProps
+  type SidebarContext as SidebarContextType,
+  type SidebarProviderProps
 } from "./types";
 
-const SidebarContext = React.createContext<SidebarContext | null>(null);
+// Change to create a new context rather than importing from types
+const SidebarContext = React.createContext<SidebarContextType | null>(null);
 
 export function useSidebar() {
   const context = React.useContext(SidebarContext);
