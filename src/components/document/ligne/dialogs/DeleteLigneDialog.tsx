@@ -1,73 +1,96 @@
 
 import { useState } from 'react';
+import { AlertCircle, Trash2, Ban } from 'lucide-react';
+import { Document, Ligne } from '@/models/document';
 import { toast } from 'sonner';
-import ligneService from '@/services/ligneService';
-import { Ligne } from '@/models/document';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { useQueryClient } from '@tanstack/react-query';
+import documentService from '@/services/documentService';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
-export interface DeleteLigneDialogProps {
-  ligne: Ligne;
+interface DeleteLigneDialogProps {
+  document: Document;
+  ligne: Ligne | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
 }
 
-export function DeleteLigneDialog({
-  ligne,
-  isOpen,
-  onOpenChange,
-  onSuccess,
-}: DeleteLigneDialogProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
+const DeleteLigneDialog = ({ document, ligne, isOpen, onOpenChange }: DeleteLigneDialogProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
+  const handleDeleteLigne = async () => {
+    if (!ligne) return;
+    
     try {
-      await ligneService.deleteLigne(ligne.id);
+      setIsSubmitting(true);
+      await documentService.deleteLigne(ligne.id);
       toast.success('Line deleted successfully');
       onOpenChange(false);
-      if (onSuccess) onSuccess();
+      
+      // Refresh document data
+      queryClient.invalidateQueries({queryKey: ['document', document.id]});
+      queryClient.invalidateQueries({queryKey: ['documentLignes', document.id]});
     } catch (error) {
-      console.error('Error deleting ligne:', error);
+      console.error('Failed to delete line:', error);
       toast.error('Failed to delete line');
     } finally {
-      setIsDeleting(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Line</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete "{ligne.title}"? This action cannot be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={(e) => {
-              e.preventDefault();
-              handleDelete();
-            }}
-            disabled={isDeleting}
-            className="bg-red-600 hover:bg-red-700 text-white"
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px] bg-gradient-to-br from-gray-900/95 to-red-900/80 border-white/10 text-white shadow-xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center text-red-300">
+            <AlertCircle className="h-5 w-5 mr-2" /> Confirm Delete
+          </DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="text-gray-300 mb-4">Are you sure you want to delete this line? This will also delete all related sous-lignes.</p>
+          {ligne && (
+            <div className="p-4 bg-red-900/20 rounded-md border border-red-500/30 mt-4">
+              <p className="font-medium text-white">{ligne.title}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="outline" className="font-mono text-xs border-red-500/30 bg-red-900/30 text-red-300">
+                  {ligne.ligneKey}
+                </Badge>
+                <span className="text-sm text-red-300">Price: ${ligne.prix.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+        <DialogFooter className="gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="border-gray-400/30 text-gray-300 hover:text-white hover:bg-gray-700/50"
           >
-            {isDeleting ? 'Deleting...' : 'Delete'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+            <Ban className="h-4 w-4 mr-2" /> Cancel
+          </Button>
+          <Button 
+            variant="destructive" 
+            onClick={handleDeleteLigne} 
+            disabled={isSubmitting}
+            className={`bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 ${isSubmitting ? 'opacity-70' : ''}`}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Deleting...
+              </div>
+            ) : (
+              <>
+                <Trash2 className="h-4 w-4 mr-2" /> Delete Line
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
-}
+};
+
+export default DeleteLigneDialog;

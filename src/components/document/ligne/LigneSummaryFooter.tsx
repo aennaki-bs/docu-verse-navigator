@@ -7,8 +7,8 @@ interface LigneSummaryFooterProps {
 }
 
 const LigneSummaryFooter = ({ lignes }: LigneSummaryFooterProps) => {
-  const getTotalAmount = () => {
-    return lignes.reduce((total, ligne) => total + ligne.amount, 0).toFixed(2);
+  const getTotalPrice = () => {
+    return lignes.reduce((total, ligne) => total + ligne.prix, 0).toFixed(2);
   };
 
   return (
@@ -19,7 +19,7 @@ const LigneSummaryFooter = ({ lignes }: LigneSummaryFooterProps) => {
       <div className="text-lg font-medium flex items-center">
         Total: <span className="text-green-400 ml-2 flex items-center">
           <DollarSign className="h-4 w-4 mr-0.5" />
-          {getTotalAmount()}
+          {getTotalPrice()}
         </span>
       </div>
     </div>

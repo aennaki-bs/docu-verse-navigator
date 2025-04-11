@@ -5,15 +5,8 @@ import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
 import { Circuit, Step } from '@/models/circuit';
 
-// Define a separate interface for the form data
-interface CircuitFormData {
-  circuitKey: string;
-  title: string;
-  descriptif: string;
-  isActive: boolean;
-  hasOrderedFlow: boolean;
-  allowBacktrack: boolean;
-  crdCounter: number;
+// Extend the Circuit type with a steps array for form usage
+interface CircuitFormData extends Omit<Circuit, 'id'> {
   steps: Partial<Step>[];
 }
 

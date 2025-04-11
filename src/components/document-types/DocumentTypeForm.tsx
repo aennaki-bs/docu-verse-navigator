@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import documentTypeService from '@/services/documentTypeService';
 import {
@@ -21,18 +20,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DocumentType } from '@/models/document';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm as useHookForm } from 'react-hook-form';
-
-const formSchema = z.object({
-  typeName: z.string().min(1, "Type name is required"),
-  typeAttr: z.string().optional(),
-  typeKey: z.string().optional(),
-  documentCounter: z.number().nonnegative().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
 
 interface DocumentTypeFormProps {
   open: boolean;
@@ -47,61 +34,43 @@ export function DocumentTypeForm({
   documentType,
   onSuccess,
 }: DocumentTypeFormProps) {
+  const [typeName, setTypeName] = useState(documentType?.typeName || '');
+  const [typeAttr, setTypeAttr] = useState(documentType?.typeAttr || '');
+  const [typeKey, setTypeKey] = useState(documentType?.typeKey || '');
+  const [documentCounter, setDocumentCounter] = useState(documentType?.documentCounter?.toString() || '0');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
   const isNew = !documentType;
 
-  const form = useHookForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      typeName: documentType?.typeName || '',
-      typeAttr: documentType?.typeAttr || '',
-      typeKey: documentType?.typeKey || '',
-      documentCounter: documentType?.documentCounter || 0,
-    },
-  });
-
-  useEffect(() => {
-    if (documentType) {
-      form.reset({
-        typeName: documentType.typeName,
-        typeAttr: documentType.typeAttr || '',
-        typeKey: documentType.typeKey || '',
-        documentCounter: documentType.documentCounter || 0,
-      });
-    } else {
-      form.reset({
-        typeName: '',
-        typeAttr: '',
-        typeKey: '',
-        documentCounter: 0,
-      });
-    }
-  }, [documentType, form]);
-
-  const handleSubmit = async (values: FormValues) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
+    setError('');
 
     try {
       if (isNew) {
         // Create new document type
-        await documentTypeService.createDocumentType({
-          typeName: values.typeName,
-          typeAttr: values.typeAttr,
-          typeKey: values.typeKey,
-          documentCounter: values.documentCounter,
-        });
+        const newDocType: Partial<DocumentType> = {
+          typeName,
+          typeAttr,
+          typeKey,
+          documentCounter: parseInt(documentCounter)
+        };
+        await documentTypeService.createDocumentType(newDocType as DocumentType);
         toast.success('Document type created successfully');
-      } else if (documentType) {
+      } else {
         // Update existing document type
         await documentTypeService.updateDocumentType(documentType.id, {
-          typeName: values.typeName,
-          typeAttr: values.typeAttr,
+          ...documentType,
+          typeName,
+          typeAttr
         });
         toast.success('Document type updated successfully');
       }
       onSuccess();
-      onOpenChange(false);
     } catch (error: any) {
+      setError(error.message || 'Failed to save document type');
       toast.error(error.message || 'Failed to save document type');
     } finally {
       setIsSubmitting(false);
@@ -117,29 +86,41 @@ export function DocumentTypeForm({
             {isNew ? 'Add a new document type' : 'Update document type details'}
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <Form>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && <p className="text-red-500">{error}</p>}
             <FormField
-              control={form.control}
+              control={{}}
               name="typeName"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Type Name</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter type name" required />
+                    <Input
+                      type="text"
+                      value={typeName}
+                      onChange={(e) => setTypeName(e.target.value)}
+                      placeholder="Enter type name"
+                      required
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
-              control={form.control}
+              control={{}}
               name="typeAttr"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Type Attribute</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter type attribute" />
+                    <Input
+                      type="text"
+                      value={typeAttr}
+                      onChange={(e) => setTypeAttr(e.target.value)}
+                      placeholder="Enter type attribute"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -148,30 +129,35 @@ export function DocumentTypeForm({
             {isNew && (
               <>
                 <FormField
-                  control={form.control}
+                  control={{}}
                   name="typeKey"
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem>
                       <FormLabel>Type Key</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Enter type key" />
+                        <Input
+                          type="text"
+                          value={typeKey}
+                          onChange={(e) => setTypeKey(e.target.value)}
+                          placeholder="Enter type key"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
-                  control={form.control}
+                  control={{}}
                   name="documentCounter"
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem>
                       <FormLabel>Document Counter</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          {...field} 
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                          placeholder="Enter document counter" 
+                        <Input
+                          type="number"
+                          value={documentCounter}
+                          onChange={(e) => setDocumentCounter(e.target.value)}
+                          placeholder="Enter document counter"
                         />
                       </FormControl>
                       <FormMessage />

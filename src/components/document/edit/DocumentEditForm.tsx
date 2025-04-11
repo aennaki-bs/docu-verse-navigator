@@ -1,208 +1,218 @@
-
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Document,
-  DocumentType,
-  UpdateDocumentRequest
-} from '@/models/document';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import documentService from '@/services/documentService';
 import documentTypeService from '@/services/documentTypeService';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Document, DocumentType } from '@/models/document';
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
+import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+
+const formSchema = z.object({
+  title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
+  content: z.string().optional(),
+  docDate: z.date(),
+  documentAlias: z.string().optional(),
+  typeId: z.string().min(1, { message: 'Please select a document type' }),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 interface DocumentEditFormProps {
   document: Document;
-  documentTypes?: DocumentType[];
-  isLoading?: boolean;
-  isSubmitting?: boolean;
-  onSubmit: (documentData: UpdateDocumentRequest) => Promise<void>;
-  onCancel: () => void;
+  onSuccess: () => void;
 }
 
-export function DocumentEditForm({
-  document,
-  documentTypes = [],
-  isLoading = false,
-  isSubmitting = false,
-  onSubmit,
-  onCancel
-}: DocumentEditFormProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    document?.docDate ? new Date(document.docDate) : undefined
-  );
-  const [availableTypes, setAvailableTypes] = useState<DocumentType[]>(documentTypes);
+export default function DocumentEditForm({ document, onSuccess }: DocumentEditFormProps) {
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [date, setDate] = useState<Date | undefined>(document ? new Date(document.docDate) : undefined);
 
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm<UpdateDocumentRequest>({
+  const { data: documentTypes } = useQuery({
+    queryKey: ['documentTypes'],
+    queryFn: documentTypeService.getAllDocumentTypes,
+  });
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      title: document?.title || '',
-      content: document?.content || '',
-      docDate: document?.docDate || new Date().toISOString(),
-      status: document?.status || 0,
-      typeId: document?.typeId || 1
-    }
+      title: document.title,
+      content: document.content,
+      docDate: new Date(document.docDate),
+      documentAlias: document.documentAlias || '',
+      typeId: document.typeId.toString(),
+    },
   });
 
   useEffect(() => {
-    // Load document types if not provided
-    if (documentTypes.length === 0) {
-      const loadDocumentTypes = async () => {
-        try {
-          const types = await documentTypeService.getAllDocumentTypes();
-          setAvailableTypes(types);
-        } catch (error) {
-          console.error('Failed to load document types:', error);
-          toast.error('Failed to load document types');
-        }
-      };
-      
-      loadDocumentTypes();
-    }
-    
-    // Update form when document changes
-    if (document) {
-      setValue('title', document.title);
-      setValue('content', document.content);
-      setValue('docDate', document.docDate);
-      setValue('status', document.status);
-      setValue('typeId', document.typeId);
-      
-      if (document.docDate) {
-        setSelectedDate(new Date(document.docDate));
-      }
-    }
-  }, [document, documentTypes, setValue]);
+    setDate(new Date(document.docDate));
+  }, [document.docDate]);
 
-  const handleFormSubmit = (data: UpdateDocumentRequest) => {
-    // Ensure docDate is set from the calendar if available
-    if (selectedDate) {
-      data.docDate = selectedDate.toISOString();
+  const updateDocument = async (formData: FormData) => {
+    try {
+      setIsSubmitting(true);
+      setError('');
+
+      await documentService.updateDocument(document.id, {
+        title: formData.title,
+        content: formData.content,
+        documentAlias: formData.documentAlias || '',
+        docDate: format(formData.docDate, 'yyyy-MM-dd'),
+        status: document.status, // Keep existing status
+        typeId: parseInt(formData.typeId)
+      });
+
+      toast.success('Document updated successfully');
+      onSuccess();
+      navigate('/documents');
+    } catch (error: any) {
+      setError(error?.message || 'Failed to update document');
+      toast.error(error?.message || 'Failed to update document');
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    onSubmit(data);
+  };
+
+  const onSubmit = (data: FormData) => {
+    updateDocument(data);
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-      <div className="grid gap-6">
-        <div className="grid gap-3">
-          <Label htmlFor="title">Document Title</Label>
-          <Input
-            id="title"
-            placeholder="Enter document title"
-            {...register('title', { required: 'Title is required' })}
-            disabled={isLoading || isSubmitting}
-          />
-          {errors.title && (
-            <p className="text-sm text-red-500">{errors.title.message}</p>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {error && <div className="text-red-500">{error}</div>}
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter document title" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
-
-        <div className="grid gap-3">
-          <Label htmlFor="content">Content</Label>
-          <Textarea
-            id="content"
-            placeholder="Document content"
-            className="min-h-[120px]"
-            {...register('content')}
-            disabled={isLoading || isSubmitting}
-          />
-        </div>
-
-        <div className="grid gap-3">
-          <Label htmlFor="docDate">Document Date</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                id="docDate"
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left",
-                  !selectedDate && "text-muted-foreground"
-                )}
-                disabled={isLoading || isSubmitting}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {selectedDate ? format(selectedDate, 'PPP') : <span>Pick a date</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <div className="grid gap-3">
-          <Label htmlFor="typeId">Document Type</Label>
-          <Select
-            defaultValue={document?.typeId?.toString()}
-            onValueChange={(value) => setValue('typeId', parseInt(value))}
-            disabled={isLoading || isSubmitting}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select document type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {availableTypes && availableTypes.map((type) => (
-                  <SelectItem key={type.id} value={type.id.toString()}>
-                    {type.typeName}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="grid gap-3">
-          <Label htmlFor="status">Status</Label>
-          <Select
-            defaultValue={document?.status?.toString()}
-            onValueChange={(value) => setValue('status', parseInt(value))}
-            disabled={isLoading || isSubmitting}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="0">Draft</SelectItem>
-              <SelectItem value="1">In Progress</SelectItem>
-              <SelectItem value="2">Completed</SelectItem>
-              <SelectItem value="3">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Cancel
+        />
+        <FormField
+          control={form.control}
+          name="content"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Content</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Enter document content" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="docDate"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Document Date</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[240px] pl-3 text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      {date ? format(date, "yyyy-MM-dd") : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(date) => {
+                      setDate(date)
+                      field.onChange(date)
+                    }}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date("1900-01-01")
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="documentAlias"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Document Alias</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter document alias" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="typeId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Document Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a document type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {documentTypes?.map((type) => (
+                    <SelectItem key={type.id} value={type.id.toString()}>
+                      {type.typeName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Updating...' : 'Update Document'}
         </Button>
-        <Button type="submit" disabled={isSubmitting || isLoading}>
-          {isSubmitting ? 'Saving...' : 'Save Changes'}
-        </Button>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 }

@@ -1,6 +1,6 @@
 
 import { Document, Ligne } from '@/models/document';
-import { LignesListWrapper } from './ligne/LignesListWrapper';
+import LignesListWrapper from './ligne/LignesListWrapper';
 
 interface LignesListProps {
   document: Document;

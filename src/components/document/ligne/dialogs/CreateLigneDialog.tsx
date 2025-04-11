@@ -1,16 +1,17 @@
-
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { toast } from 'sonner';
+import ligneService from '@/services/ligneService';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import ligneService from '@/services/ligneService';
 import {
   Form,
   FormControl,
@@ -19,131 +20,135 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useForm as useHookForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
 
 const formSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
   description: z.string().optional(),
-  amount: z.number().min(0, 'Amount must be 0 or greater'),
+  amount: z.string().refine((value) => !isNaN(parseFloat(value)), {
+    message: 'Amount must be a number',
+  }),
+  article: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export interface CreateLigneDialogProps {
+interface CreateLigneDialogProps {
   documentId: number;
-  isOpen: boolean;
+  open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess: () => void;
 }
 
-export function CreateLigneDialog({
+export default function CreateLigneDialog({
   documentId,
-  isOpen,
+  open,
   onOpenChange,
   onSuccess,
 }: CreateLigneDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const form = useHookForm<FormValues>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      amount: 0,
-    },
   });
 
-  const handleSubmit = async (values: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
       await ligneService.createLigne({
         documentId,
-        title: values.title,
-        description: values.description || '',
-        amount: values.amount,
+        title: data.title,
+        description: data.description,
+        amount: parseFloat(data.amount),
+        article: data.article,
       });
-      
-      toast.success('Line added successfully');
+      toast.success('Ligne created successfully');
+      reset();
       onOpenChange(false);
-      if (onSuccess) onSuccess();
-      form.reset();
+      onSuccess();
     } catch (error) {
-      console.error('Error creating ligne:', error);
-      toast.error('Failed to add line');
+      toast.error('Failed to create ligne');
+      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add Line</DialogTitle>
+          <DialogTitle>Create New Ligne</DialogTitle>
           <DialogDescription>
-            Add a new line to the document
+            Add a new ligne to the document
           </DialogDescription>
         </DialogHeader>
-        
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <Form>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <FormField
-              control={form.control}
+              control={{ ...register }}
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Title *</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Line title" />
+                    <Input placeholder="Enter ligne title" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage>{errors.title?.message}</FormMessage>
                 </FormItem>
               )}
             />
-            
             <FormField
-              control={form.control}
+              control={{ ...register }}
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description (optional)</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea {...field} placeholder="Line description" />
+                    <Textarea placeholder="Enter ligne description" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage>{errors.description?.message}</FormMessage>
                 </FormItem>
               )}
             />
-            
             <FormField
-              control={form.control}
+              control={{ ...register }}
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel>Amount *</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      placeholder="Line amount" 
-                    />
+                    <Input placeholder="Enter amount" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage>{errors.amount?.message}</FormMessage>
                 </FormItem>
               )}
             />
-            
+            <FormField
+              control={{ ...register }}
+              name="article"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Article</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter article" {...field} />
+                  </FormControl>
+                  <FormMessage>{errors.article?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
             <DialogFooter>
-              <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Adding...' : 'Add Line'}
+                {isSubmitting ? 'Creating...' : 'Create Ligne'}
               </Button>
             </DialogFooter>
           </form>
