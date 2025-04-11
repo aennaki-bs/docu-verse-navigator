@@ -1,143 +1,81 @@
 
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { useMultiStepForm } from '@/context/MultiStepFormContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { KeyRound, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const StepThreeAdminKey = () => {
-  const { formData, setFormData, registerUser, prevStep, stepValidation } = useMultiStepForm();
-  const [isAdmin, setIsAdmin] = React.useState(false);
-  const [showAdminKey, setShowAdminKey] = React.useState(false);
-  const [localErrors, setLocalErrors] = React.useState<Record<string, string>>({});
-  const navigate = useNavigate();
+  const { formData, setFormData, prevStep, nextStep } = useMultiStepForm();
+  const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ [name]: value });
   };
 
-  const handleToggleAdmin = () => {
-    setIsAdmin(!isAdmin);
-    if (!isAdmin) {
-      setFormData({ adminSecretKey: '' });
-    }
-  };
-
-  const toggleShowAdminKey = () => {
-    setShowAdminKey(!showAdminKey);
-  };
-
   const validateStep = () => {
-    const errors: Record<string, string> = {};
-    
-    if (isAdmin && (!formData.adminSecretKey || formData.adminSecretKey.trim() === '')) {
-      errors.adminSecretKey = 'Admin secret key is required';
-    }
-    
-    setLocalErrors(errors);
-    return Object.keys(errors).length === 0;
+    // Admin key is optional, so there's no validation requirement
+    return true;
   };
 
-  const handleSubmit = async () => {
+  const handleNext = () => {
     if (!validateStep()) {
-      toast.error("Please provide all required information");
+      toast.error("Please correct all errors before proceeding");
       return;
     }
     
-    // Register user with or without admin key
-    console.log("Submitting registration with email:", formData.email);
-    const success = await registerUser();
-    
-    if (success) {
-      console.log("Registration successful, navigating to verification page with email:", formData.email);
-      
-      // Force a small delay to ensure state is updated
-      setTimeout(() => {
-        // Make sure email is defined before navigating
-        if (formData.email) {
-          // Explicitly navigate to the email verification page with the email in state
-          navigate('/verify-email', { 
-            state: { email: formData.email },
-            replace: true
-          });
-        } else {
-          console.error("Email is missing in formData");
-          navigate('/verify-email');
-        }
-      }, 300); // Increased delay further for better state handling
-    }
+    // Go to review step instead of submitting
+    nextStep();
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center space-x-2">
-        <Checkbox id="isAdmin" checked={isAdmin} onCheckedChange={handleToggleAdmin} />
-        <Label htmlFor="isAdmin" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          I am an administrator
-        </Label>
+    <div className="space-y-5">
+      <div className="text-center mb-4">
+        <h3 className="text-lg font-medium mb-1">Admin Secret Key (Optional)</h3>
+        <p className="text-sm text-gray-500">Provide an admin secret key if you have administrative privileges</p>
       </div>
       
-      {isAdmin && (
-        <div className="space-y-1">
-          <Label htmlFor="adminSecretKey">Admin Secret Key</Label>
-          <div className="relative">
-            <KeyRound className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              id="adminSecretKey"
-              name="adminSecretKey"
-              type={showAdminKey ? "text" : "password"}
-              placeholder="Enter admin secret key"
-              className={`pl-10 ${localErrors.adminSecretKey ? 'border-red-500' : ''}`}
-              value={formData.adminSecretKey || ''}
-              onChange={handleChange}
-            />
-            <button 
-              type="button"
-              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
-              onClick={toggleShowAdminKey}
-              tabIndex={-1}
-            >
-              {showAdminKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-          {localErrors.adminSecretKey && (
-            <p className="text-sm text-red-500">{localErrors.adminSecretKey}</p>
-          )}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="adminSecretKey">Secret Key</Label>
+          <Input
+            id="adminSecretKey"
+            name="adminSecretKey"
+            type="password"
+            placeholder="Enter admin secret key"
+            value={formData.adminSecretKey}
+            onChange={handleChange}
+            className="bg-black/5"
+          />
           <p className="text-xs text-gray-500">
-            Enter the secret key provided by your organization administrator.
+            Leave this field empty if you don't have an admin secret key.
           </p>
         </div>
-      )}
-      
-      {stepValidation.errors.registration && (
-        <Alert variant="destructive" className="mt-2">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{stepValidation.errors.registration}</AlertDescription>
-        </Alert>
-      )}
-      
-      <div className="flex space-x-2">
+      </div>
+
+      <div className="flex gap-2 pt-4">
         <Button
           type="button"
-          variant="outline"
           className="flex-1"
+          variant="outline"
           onClick={prevStep}
         >
+          <ChevronLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
+
         <Button
           type="button"
           className="flex-1 bg-docuBlue hover:bg-docuBlue-700"
-          onClick={handleSubmit}
-          disabled={stepValidation.isLoading}
+          onClick={handleNext}
         >
-          {stepValidation.isLoading ? 'Creating Account...' : 'Create Account'}
+          <span className="flex items-center">
+            Next
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </span>
         </Button>
       </div>
     </div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -7,13 +6,14 @@ import DocuVerseLogo from '@/components/DocuVerseLogo';
 import StepOneUserInfo from '@/components/register/StepOneUserInfo';
 import StepTwoEmailPassword from '@/components/register/StepTwoEmailPassword';
 import StepThreeAdminKey from '@/components/register/StepThreeAdminKey';
+import StepFourSummary from '@/components/register/StepFourSummary';
 import { MultiStepFormProvider, useMultiStepForm } from '@/context/MultiStepFormContext';
 
 // Step indicator component
 const StepIndicator = ({ currentStep }: { currentStep: number }) => {
   return (
     <div className="flex justify-center mb-6">
-      {[1, 2, 3].map((step) => (
+      {[1, 2, 3, 4].map((step) => (
         <div key={step} className="flex items-center">
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -26,7 +26,7 @@ const StepIndicator = ({ currentStep }: { currentStep: number }) => {
           >
             {step < currentStep ? '✓' : step}
           </div>
-          {step < 3 && (
+          {step < 4 && (
             <div
               className={`h-1 w-10 ${
                 step < currentStep ? 'bg-blue-600' : 'bg-gray-700'
@@ -44,7 +44,8 @@ const StepTitle = ({ currentStep }: { currentStep: number }) => {
   const titles = [
     'Account Details',
     'Credentials',
-    'Admin Access (Optional)'
+    'Admin Access (Optional)',
+    'Review Information'
   ];
 
   return (
@@ -153,7 +154,7 @@ const RightSideContent = ({ currentStep }: { currentStep: number }) => {
         </div>
       </>
     );
-  } else {
+  } else if (currentStep === 3) {
     return (
       <>
         <h1 className="text-4xl font-bold text-white mb-4">
@@ -202,6 +203,55 @@ const RightSideContent = ({ currentStep }: { currentStep: number }) => {
         </div>
       </>
     );
+  } else if (currentStep === 4) {
+    return (
+      <>
+        <h1 className="text-4xl font-bold text-white mb-4">
+          Review Your Information
+        </h1>
+        <p className="text-lg text-gray-300 mb-8">
+          Please verify all details before completing registration
+        </p>
+        
+        <div className="space-y-6">
+          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+            <div className="bg-green-500/20 p-2 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <h3 className="text-white font-medium">Review Account Details</h3>
+              <p className="text-sm text-gray-400">Verify personal information and account type</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+            <div className="bg-blue-500/20 p-2 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <h3 className="text-white font-medium">Confirm Credentials</h3>
+              <p className="text-sm text-gray-400">Check username, email, and password</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+            <div className="bg-purple-500/20 p-2 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <h3 className="text-white font-medium">Make Corrections</h3>
+              <p className="text-sm text-gray-400">Go back to any step to edit information</p>
+            </div>
+          </div>
+        </div>
+      </>
+    );
   }
 };
 
@@ -216,6 +266,8 @@ const RegisterForm = () => {
         return <StepTwoEmailPassword />;
       case 3:
         return <StepThreeAdminKey />;
+      case 4:
+        return <StepFourSummary />;
       default:
         return <StepOneUserInfo />;
     }

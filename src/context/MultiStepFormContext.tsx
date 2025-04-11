@@ -36,6 +36,7 @@ interface MultiStepFormContextType {
   stepValidation: StepValidation;
   nextStep: () => void;
   prevStep: () => void;
+  setCurrentStep: (step: number) => void;
   setFormData: (data: Partial<FormData>) => void;
   validateUsername: () => Promise<boolean>;
   validateEmail: () => Promise<boolean>;
@@ -72,6 +73,7 @@ const MultiStepFormContext = createContext<MultiStepFormContextType>({
   stepValidation: { isLoading: false, errors: {} },
   nextStep: () => {},
   prevStep: () => {},
+  setCurrentStep: () => {},
   setFormData: () => {},
   validateUsername: async () => false,
   validateEmail: async () => false,
@@ -282,6 +284,7 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
         stepValidation,
         nextStep,
         prevStep,
+        setCurrentStep,
         setFormData,
         validateUsername,
         validateEmail,
