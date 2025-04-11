@@ -1,266 +1,292 @@
-
-import { useState, useEffect } from 'react';
-import { useDocumentsData } from './hooks/useDocumentsData';
-import DocumentsHeader from './components/DocumentsHeader';
-import DocumentsTable from './components/DocumentsTable';
-import DocumentsEmptyState from './components/DocumentsEmptyState';
-import DocumentsFilterBar from './components/DocumentsFilterBar';
-import SelectedDocumentsBar from './components/SelectedDocumentsBar';
-import DeleteConfirmDialog from './components/DeleteConfirmDialog';
-import { Document } from '@/models/document';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { Plus, Edit, Trash2, FileText, Search, ArrowDown, ArrowUp } from 'lucide-react';
 import { toast } from 'sonner';
-import AssignCircuitDialog from '@/components/circuits/AssignCircuitDialog';
-import { useAuth } from '@/context/AuthContext';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import documentService from '@/services/documentService';
+import { Document } from '@/models/document';
+import { DataTable } from "@/components/ui/data-table"
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { DocumentType } from '@/models/document';
+import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { confirm } from '@/components/ui/confirm-dialog';
+import { DocumentColumn } from '@/components/document/DocumentColumn';
+import AddToCircuitButton from '@/components/circuits/AddToCircuitButton';
+
+interface SortConfig {
+  key: string;
+  direction: "ascending" | "descending";
+}
 
 const DocumentsPage = () => {
-  const { user } = useAuth();
-  const canManageDocuments = user?.role === 'Admin' || user?.role === 'FullUser';
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
+  const [search, setSearch] = useState('');
+  const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
+  const navigate = useNavigate();
+  const [isCreating, setIsCreating] = useState(false);
 
-  const { 
-    documents,
-    filteredItems,
-    isLoading,
-    fetchDocuments,
-    deleteDocument,
-    deleteMultipleDocuments,
-    useFakeData,
-    sortConfig,
-    setSortConfig,
-    requestSort
-  } = useDocumentsData();
+  const { data: documentsData, isLoading: isLoadingDocuments, refetch: refetchDocuments } = useQuery({
+    queryKey: ['documents', search, sortConfig],
+    queryFn: () => documentService.getAllDocuments(search, sortConfig?.key, sortConfig?.direction),
+  });
 
-  const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [documentToDelete, setDocumentToDelete] = useState<number | null>(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [pageSize] = useState(10);
-  const [assignCircuitDialogOpen, setAssignCircuitDialogOpen] = useState(false);
-  const [documentToAssign, setDocumentToAssign] = useState<Document | null>(null);
+  const { data: documentTypesData, isLoading: isLoadingDocumentTypes } = useQuery({
+    queryKey: ['documentTypes'],
+    queryFn: () => documentService.getAllDocumentTypes(),
+  });
 
   useEffect(() => {
-    setTotalPages(Math.ceil(filteredItems.length / pageSize));
-    setPage(1); // Reset to first page when filters change
-  }, [filteredItems, pageSize]);
+    if (documentsData) {
+      setDocuments(documentsData);
+    }
+  }, [documentsData]);
 
-  const getPageDocuments = () => {
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
-    return filteredItems.slice(start, end);
+  useEffect(() => {
+    if (documentTypesData) {
+      setDocumentTypes(documentTypesData);
+    }
+  }, [documentTypesData]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
   };
 
-  const handleSelectDocument = (id: number) => {
-    if (!canManageDocuments) {
-      toast.error('You do not have permission to select documents');
-      return;
-    }
-    
-    setSelectedDocuments(prev => {
-      if (prev.includes(id)) {
-        return prev.filter(docId => docId !== id);
-      } else {
-        return [...prev, id];
-      }
+  const handleCreateDocument = () => {
+    setIsCreating(true);
+    navigate('/documents/create');
+  };
+
+  const handleEditDocument = (id: number) => {
+    navigate(`/documents/${id}/edit`);
+  };
+
+  const handleDeleteDocument = async (document: Document) => {
+    const confirmed = await confirm({
+      title: 'Delete Document',
+      description: `Are you sure you want to delete document "${document.title}"? This action cannot be undone.`,
     });
-  };
 
-  const handleSelectAll = () => {
-    if (!canManageDocuments) {
-      toast.error('You do not have permission to select documents');
+    if (!confirmed) {
       return;
     }
-    
-    if (selectedDocuments.length === getPageDocuments().length) {
-      setSelectedDocuments([]);
-    } else {
-      setSelectedDocuments(getPageDocuments().map(doc => doc.id));
-    }
-  };
 
-  const openDeleteDialog = (id?: number) => {
-    if (!canManageDocuments) {
-      toast.error('You do not have permission to delete documents');
-      return;
-    }
-    
-    if (id) {
-      setDocumentToDelete(id);
-    } else if (selectedDocuments.length > 0) {
-      setDocumentToDelete(null);
-    } else {
-      return;
-    }
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDelete = async () => {
     try {
-      if (documentToDelete) {
-        await deleteDocument(documentToDelete);
-        toast.success('Document deleted successfully' + (useFakeData ? ' (simulated)' : ''));
-      } else if (selectedDocuments.length > 0) {
-        await deleteMultipleDocuments(selectedDocuments);
-        toast.success(`${selectedDocuments.length} documents deleted successfully` + (useFakeData ? ' (simulated)' : ''));
-        setSelectedDocuments([]);
-      }
+      await documentService.deleteDocument(document.id);
+      toast.success(`Document "${document.title}" deleted successfully`);
+      refetchDocuments();
     } catch (error) {
-      console.error('Failed to delete document(s):', error);
-      toast.error('Failed to delete document(s)');
-    } finally {
-      setDeleteDialogOpen(false);
-      setDocumentToDelete(null);
+      console.error('Error deleting document:', error);
+      toast.error('Failed to delete document');
     }
   };
 
-  const openAssignCircuitDialog = (document: Document) => {
-    if (!canManageDocuments) {
-      toast.error('You do not have permission to assign documents to circuits');
-      return;
+  const handleViewDocumentFlow = (id: number) => {
+    navigate(`/document-flow/${id}`);
+  };
+
+  const requestSort = (key: string) => {
+    let direction: "ascending" | "descending" = "ascending";
+    
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
     }
     
-    setDocumentToAssign(document);
-    setAssignCircuitDialogOpen(true);
+    setSortConfig({ key, direction });
   };
 
-  const handleAssignCircuitSuccess = () => {
-    toast.success('Document assigned to circuit successfully');
-    if (!useFakeData) {
-      fetchDocuments();
-    }
-  };
+  const columns: DocumentColumn<Document>[] = [
+    {
+      accessorKey: 'title',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => requestSort('title')}
+          >
+            Title
+            {sortConfig?.key === 'title' && sortConfig?.direction === 'ascending' ? (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            ) : sortConfig?.key === 'title' && sortConfig?.direction === 'descending' ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : null}
+          </Button>
+        )
+      },
+      cell: ({ row }) => (
+        <div className="flex items-center">
+          {row.original.title}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'documentType.typeName',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => requestSort('documentType.typeName')}
+          >
+            Type
+            {sortConfig?.key === 'documentType.typeName' && sortConfig?.direction === 'ascending' ? (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            ) : sortConfig?.key === 'documentType.typeName' && sortConfig?.direction === 'descending' ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : null}
+          </Button>
+        )
+      },
+      cell: ({ row }) => (
+        <Badge variant="secondary">{row.original.documentType.typeName}</Badge>
+      ),
+    },
+    {
+      accessorKey: 'docDate',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => requestSort('docDate')}
+          >
+            Date
+            {sortConfig?.key === 'docDate' && sortConfig?.direction === 'ascending' ? (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            ) : sortConfig?.key === 'docDate' && sortConfig?.direction === 'descending' ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : null}
+          </Button>
+        )
+      },
+      cell: ({ row }) => new Date(row.original.docDate).toLocaleDateString(),
+    },
+    {
+      accessorKey: 'status',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => requestSort('status')}
+          >
+            Status
+            {sortConfig?.key === 'status' && sortConfig?.direction === 'ascending' ? (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            ) : sortConfig?.key === 'status' && sortConfig?.direction === 'descending' ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : null}
+          </Button>
+        )
+      },
+      cell: ({ row }) => {
+        let statusText = 'Unknown';
+        let badgeVariant: "default" | "secondary" | "outline" | "destructive" = "default";
+
+        switch (row.original.status) {
+          case 0:
+            statusText = 'Draft';
+            badgeVariant = "outline";
+            break;
+          case 1:
+            statusText = 'In Progress';
+            badgeVariant = "secondary";
+            break;
+          case 2:
+            statusText = 'Completed';
+            badgeVariant = "default";
+            break;
+          case 3:
+            statusText = 'Rejected';
+            badgeVariant = "destructive";
+            break;
+          default:
+            break;
+        }
+
+        return <Badge variant={badgeVariant}>{statusText}</Badge>;
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
+                <path d="M3 12h18M3 6h18M3 18h18" />
+              </svg>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => handleEditDocument(row.original.id)}>
+              <Edit className="mr-2 h-4 w-4" /> Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleViewDocumentFlow(row.original.id)}>
+              <FileText className="mr-2 h-4 w-4" /> View Flow
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleDeleteDocument(row.original)}>
+              <Trash2 className="mr-2 h-4 w-4" /> Delete
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <AddToCircuitButton
+                documentId={row.original.id}
+                documentTitle={row.original.title}
+                onSuccess={refetchDocuments}
+              />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
 
   return (
-    <div className="p-6 space-y-6">
-      <DocumentsHeader 
-        useFakeData={useFakeData} 
-        fetchDocuments={fetchDocuments} 
-        canManageDocuments={canManageDocuments}
-        selectedDocuments={selectedDocuments}
-        openDeleteDialog={openDeleteDialog}
-        openAssignCircuitDialog={(documentId) => {
-          const selectedDoc = documents.find(doc => doc.id === documentId);
-          if (selectedDoc) {
-            openAssignCircuitDialog(selectedDoc);
-          }
-        }}
-      />
-      
-      <Card className="border-blue-900/30 bg-[#0a1033]/80 backdrop-blur-sm shadow-lg overflow-hidden">
-        <CardHeader className="p-4 border-b border-blue-900/30">
-          <DocumentsFilterBar />
-        </CardHeader>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-8 space-y-4">
-              <div className="h-10 bg-blue-900/20 rounded animate-pulse"></div>
-              {[...Array(5)].map((_, index) => (
-                <div key={index} className="h-16 bg-blue-900/10 rounded animate-pulse"></div>
-              ))}
-            </div>
-          ) : getPageDocuments().length > 0 ? (
-            <div className="overflow-x-auto">
-              <DocumentsTable 
-                documents={getPageDocuments()}
-                selectedDocuments={selectedDocuments}
-                canManageDocuments={canManageDocuments}
-                handleSelectDocument={handleSelectDocument}
-                handleSelectAll={handleSelectAll}
-                openDeleteDialog={openDeleteDialog}
-                openAssignCircuitDialog={openAssignCircuitDialog}
-                page={page}
-                pageSize={pageSize}
-                sortConfig={sortConfig}
-                requestSort={requestSort}
-              />
-            </div>
-          ) : (
-            <DocumentsEmptyState canManageDocuments={canManageDocuments} />
-          )}
-          
-          {totalPages > 1 && filteredItems.length > 0 && (
-            <div className="p-4 border-t border-blue-900/30">
-              <Pagination className="justify-center">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => setPage(p => Math.max(1, p - 1))}
-                      className={page === 1 ? "pointer-events-none opacity-50" : "hover:bg-blue-800/30"}
-                    />
-                  </PaginationItem>
-                  
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum = page;
-                    if (page <= 3) {
-                      pageNum = i + 1;
-                    } else if (page >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = page - 2 + i;
-                    }
-                    
-                    if (pageNum > 0 && pageNum <= totalPages) {
-                      return (
-                        <PaginationItem key={i}>
-                          <PaginationLink 
-                            onClick={() => setPage(pageNum)}
-                            isActive={page === pageNum}
-                            className={page === pageNum ? "bg-blue-600" : "hover:bg-blue-800/30"}
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    }
-                    return null;
-                  })}
-                  
-                  <PaginationItem>
-                    <PaginationNext 
-                      onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                      className={page === totalPages ? "pointer-events-none opacity-50" : "hover:bg-blue-800/30"}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+    <div className="container mx-auto py-10">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-3xl font-semibold">Documents</h1>
+        <Button onClick={handleCreateDocument} disabled={isCreating}>
+          <Plus className="mr-2 h-4 w-4" />
+          Create Document
+        </Button>
+      </div>
 
-      {selectedDocuments.length > 0 && (
-        <SelectedDocumentsBar 
-          selectedCount={selectedDocuments.length}
-          openDeleteDialog={openDeleteDialog}
-          openAssignCircuitDialog={() => {
-            if (selectedDocuments.length === 1) {
-              const selectedDoc = documents.find(doc => doc.id === selectedDocuments[0]);
-              if (selectedDoc) {
-                openAssignCircuitDialog(selectedDoc);
-              }
-            }
-          }}
-          showAssignCircuit={selectedDocuments.length === 1}
+      <div className="mb-4">
+        <Input
+          type="text"
+          placeholder="Search documents..."
+          value={search}
+          onChange={handleSearchChange}
+          className="w-full max-w-md"
         />
-      )}
+      </div>
 
-      <DeleteConfirmDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onConfirm={handleDelete}
-        isSingleDocument={documentToDelete !== null}
-        count={selectedDocuments.length}
-      />
-
-      {documentToAssign && (
-        <AssignCircuitDialog
-          documentId={documentToAssign.id}
-          documentTitle={documentToAssign.title}
-          open={assignCircuitDialogOpen}
-          onOpenChange={setAssignCircuitDialogOpen}
-          onSuccess={handleAssignCircuitSuccess}
-        />
+      {documents && (
+        <div className="rounded-md border">
+          <DataTable columns={columns} data={documents} />
+        </div>
       )}
     </div>
   );
