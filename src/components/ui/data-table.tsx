@@ -15,6 +15,9 @@ interface DataTableProps<TData> {
 }
 
 export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
+  // Filter out any undefined or null data items
+  const validData = data ? data.filter(row => row !== undefined && row !== null) : [];
+  
   return (
     <div className="rounded-md border">
       <Table>
@@ -30,11 +33,11 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((row, rowIndex) => (
+          {validData.map((row, rowIndex) => (
             <TableRow key={rowIndex}>
               {columns.map((column, columnIndex) => (
                 <TableCell key={columnIndex}>
-                  {column.cell ? column.cell({ row }) : (row as any)[column.accessorKey]}
+                  {column.cell && row ? column.cell({ row }) : (row && (row as any)[column.accessorKey])}
                 </TableCell>
               ))}
             </TableRow>
