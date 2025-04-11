@@ -313,7 +313,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                   name="passwordHash"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Password account</FormLabel>
+                      <FormLabel className="text-white">Password</FormLabel>
                       <div className="relative">
                         <FormControl>
                           <Input 
