@@ -18,20 +18,23 @@ export function Layout() {
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat"
           }}>
-        {/* side-bar responsive*/}
-        <div className={`fixed inset-0 z-50 ${isMobile ? 'bg-[#070b2878]' : 'bg-[#070b2870]'} backdrop-blur-lg border-b border-blue-900/30`}>
+        {/* Background overlay */}
+        <div className="absolute inset-0 bg-[#070b28]/80"></div>
+        
+        {/* Navigation bar - fixed position */}
+        <div className={`fixed inset-x-0 top-0 z-50 ${isMobile ? 'bg-[#070b28]' : 'bg-[#070b28]/90'} backdrop-blur-lg border-b border-blue-900/30 h-16`}>
           <MainNavbar />
           <SidebarNav />
         </div>
         
         {/* Main content area with proper padding */}
         <div className="flex flex-1 relative pt-16">
-          <main className="flex-1 h-full overflow-auto transition-all duration-200">
+          <main className="flex-1 h-full overflow-auto transition-all duration-200 z-10">
             <div className="container mx-auto px-4 py-4">
               <div className="flex justify-between items-center py-2">
                 <SidebarTrigger className="md:hidden" />
               </div>
-              <div className="bg-[#111633]/70 backdrop-blur-md border border-blue-900/30 dark:bg-[#111633]/70 rounded-xl shadow-lg overflow-hidden">
+              <div className="bg-[#111633]/95 border border-blue-900/30 rounded-xl shadow-lg overflow-hidden">
                 <Outlet />
               </div>
             </div>
