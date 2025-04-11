@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Edit, Trash2, Info, Lock } from 'lucide-react';
+import { Edit, Trash2, Info, Lock, ArrowLeftRight } from 'lucide-react';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
 import { useAuth } from '@/context/AuthContext';
@@ -15,48 +15,48 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
-import EditCircuitDetailDialog from './EditCircuitDetailDialog';
+import EditCircuitStepDialog from './EditCircuitStepDialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Step } from '@/models/circuit';
 
-interface CircuitDetailsListProps {
-  circuitDetails: Step[];
+interface CircuitStepsListProps {
+  steps: Step[];
   onUpdate: () => void;
 }
 
-export default function CircuitDetailsList({
-  circuitDetails,
+export default function CircuitStepsList({
+  steps,
   onUpdate,
-}: CircuitDetailsListProps) {
+}: CircuitStepsListProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedDetail, setSelectedDetail] = useState<Step | null>(null);
+  const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const { user } = useAuth();
   const isSimpleUser = user?.role === 'SimpleUser';
 
-  const handleEdit = (detail: Step) => {
+  const handleEdit = (step: Step) => {
     if (isSimpleUser) {
       toast.error('You do not have permission to edit circuit steps');
       return;
     }
-    setSelectedDetail(detail);
+    setSelectedStep(step);
     setEditDialogOpen(true);
   };
 
-  const handleDelete = (detail: Step) => {
+  const handleDelete = (step: Step) => {
     if (isSimpleUser) {
       toast.error('You do not have permission to delete circuit steps');
       return;
     }
-    setSelectedDetail(detail);
+    setSelectedStep(step);
     setDeleteDialogOpen(true);
   };
 
   const confirmDelete = async () => {
-    if (!selectedDetail) return;
+    if (!selectedStep) return;
     
     try {
-      await circuitService.deleteStep(selectedDetail.id);
+      await circuitService.deleteStep(selectedStep.id);
       toast.success("Circuit step deleted successfully");
       onUpdate();
     } catch (error) {
@@ -65,10 +65,10 @@ export default function CircuitDetailsList({
     }
   };
 
-  // Sort circuit details by order index
-  const sortedDetails = [...circuitDetails].sort((a, b) => a.orderIndex - b.orderIndex);
+  // Sort steps by order index
+  const sortedSteps = [...steps].sort((a, b) => a.orderIndex - b.orderIndex);
 
-  if (sortedDetails.length === 0) {
+  if (sortedSteps.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
         No steps defined for this circuit yet. {!isSimpleUser && 'Add a step to get started.'}
@@ -93,27 +93,35 @@ export default function CircuitDetailsList({
             <TableHead>Title</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Responsible Role</TableHead>
+            <TableHead>Final Step</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedDetails.map((detail) => (
-            <TableRow key={detail.id}>
+          {sortedSteps.map((step) => (
+            <TableRow key={step.id}>
               <TableCell className="font-medium text-center">
-                <Badge variant="outline">{detail.orderIndex + 1}</Badge>
+                <Badge variant="outline">{step.orderIndex + 1}</Badge>
               </TableCell>
               <TableCell className="font-mono text-xs">
-                {detail.stepKey}
+                {step.stepKey}
               </TableCell>
-              <TableCell>{detail.title}</TableCell>
+              <TableCell>{step.title}</TableCell>
               <TableCell className="max-w-xs truncate">
-                {detail.descriptif || 'No description'}
+                {step.descriptif || 'No description'}
               </TableCell>
               <TableCell>
-                {detail.responsibleRole ? (
-                  <Badge>{detail.responsibleRole.name}</Badge>
+                {step.responsibleRole ? (
+                  <Badge>{step.responsibleRole.name}</Badge>
                 ) : (
                   <span className="text-gray-400">None</span>
+                )}
+              </TableCell>
+              <TableCell>
+                {step.isFinalStep ? (
+                  <Badge className="bg-green-500/20 text-green-200">Yes</Badge>
+                ) : (
+                  <span className="text-gray-400">No</span>
                 )}
               </TableCell>
               <TableCell className="text-right space-x-2">
@@ -133,7 +141,7 @@ export default function CircuitDetailsList({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleEdit(detail)}
+                      onClick={() => handleEdit(step)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -141,7 +149,7 @@ export default function CircuitDetailsList({
                       variant="outline"
                       size="sm"
                       className="text-red-500 hover:text-red-700"
-                      onClick={() => handleDelete(detail)}
+                      onClick={() => handleDelete(step)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -154,10 +162,10 @@ export default function CircuitDetailsList({
       </Table>
 
       {/* Edit & Delete Dialogs - Only render if user has permissions */}
-      {selectedDetail && !isSimpleUser && (
+      {selectedStep && !isSimpleUser && (
         <>
-          <EditCircuitDetailDialog
-            circuitDetail={selectedDetail}
+          <EditCircuitStepDialog
+            step={selectedStep}
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
             onSuccess={onUpdate}
@@ -165,7 +173,7 @@ export default function CircuitDetailsList({
           
           <DeleteConfirmDialog
             title="Delete Circuit Step"
-            description={`Are you sure you want to delete the step "${selectedDetail.title}"? This action cannot be undone.`}
+            description={`Are you sure you want to delete the step "${selectedStep.title}"? This action cannot be undone.`}
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
             onConfirm={confirmDelete}

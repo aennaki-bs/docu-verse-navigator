@@ -31,15 +31,15 @@ const DocumentFlowPage = () => {
     queryFn: () => documentService.getDocumentById(Number(id)),
   });
 
-  // Fetch circuit details
-  const { data: circuitDetails, isLoading: isLoadingCircuitDetails, error: circuitDetailsError } = useQuery({
-    queryKey: ['circuit-details', documentData?.circuitId],
-    queryFn: () => circuitService.getCircuitDetailsByCircuitId(documentData?.circuitId || 0),
+  // Fetch circuit steps
+  const { data: steps, isLoading: isLoadingSteps, error: stepsError } = useQuery({
+    queryKey: ['circuit-steps', documentData?.circuitId],
+    queryFn: () => circuitService.getStepsByCircuitId(documentData?.circuitId || 0),
     enabled: !!documentData?.circuitId,
   });
 
   // Fetch document circuit history
-  const { data: circuitHistory, isLoading: isLoadingHistory, refetch: refetchHistory, error: historyError } = useQuery({
+  const { data: history, isLoading: isLoadingHistory, refetch: refetchHistory, error: historyError } = useQuery({
     queryKey: ['document-circuit-history', id],
     queryFn: () => circuitService.getDocumentCircuitHistory(Number(id)),
     enabled: !!id,
@@ -52,14 +52,14 @@ const DocumentFlowPage = () => {
     }
     
     // Collect any errors
-    const allErrors = [documentError, circuitDetailsError, historyError].filter(Boolean);
+    const allErrors = [documentError, stepsError, historyError].filter(Boolean);
     if (allErrors.length > 0) {
       console.error('Errors loading document flow data:', allErrors);
       setError('Error loading document flow data. Please try again.');
     } else {
       setError(null);
     }
-  }, [documentData, documentError, circuitDetailsError, historyError]);
+  }, [documentData, documentError, stepsError, historyError]);
 
   if (!id) {
     navigate('/documents');
@@ -77,8 +77,6 @@ const DocumentFlowPage = () => {
     refetchHistory();
     toast.success("Document step processed successfully");
   };
-
-  console.log('Circuit ID from document:', documentData?.circuitId);
   
   // Check if the document has been loaded and doesn't have a circuit assigned
   const isNoCircuit = !isLoadingDocument && documentData && documentData.circuitId === null;
@@ -101,12 +99,12 @@ const DocumentFlowPage = () => {
     );
   }
 
-  const isLoading = isLoadingDocument || isLoadingCircuitDetails || isLoadingHistory;
-  const currentStepId = document?.currentCircuitDetailId;
+  const isLoading = isLoadingDocument || isLoadingSteps || isLoadingHistory;
+  const currentStepId = document?.currentStepId || document?.currentCircuitDetailId;
   const isSimpleUser = user?.role === 'SimpleUser';
 
   // Find current step details for processing
-  const currentStepDetail = circuitDetails?.find(d => d.id === currentStepId);
+  const currentStep = steps?.find(s => s.id === currentStepId);
 
   return (
     <div className="p-6 space-y-6">
@@ -141,10 +139,10 @@ const DocumentFlowPage = () => {
             {document && <DocumentCard document={document} />}
 
             {/* Circuit Steps */}
-            {circuitDetails && circuitDetails.length > 0 && (
+            {steps && steps.length > 0 && (
               <CircuitStepsSection
-                circuitDetails={circuitDetails}
-                circuitHistory={circuitHistory || []}
+                steps={steps}
+                history={history || []}
                 currentStepId={currentStepId}
                 isSimpleUser={isSimpleUser}
                 onMoveClick={() => setMoveDialogOpen(true)}
@@ -155,23 +153,24 @@ const DocumentFlowPage = () => {
         </div>
       )}
       
-      {document && (
+      {document && document.circuitId && (
         <>
           <MoveDocumentStepDialog
             documentId={Number(id)}
             documentTitle={document.title}
-            circuitId={document.circuitId!}
-            currentStepId={document.currentCircuitDetailId}
+            circuitId={document.circuitId}
+            currentStepId={currentStepId}
             open={moveDialogOpen}
             onOpenChange={setMoveDialogOpen}
             onSuccess={handleMoveSuccess}
           />
           
-          {currentStepDetail && (
+          {currentStep && currentStepId && (
             <ProcessCircuitStepDialog
               documentId={Number(id)}
               documentTitle={document.title}
-              currentStep={currentStepDetail.title}
+              currentStep={currentStep.title}
+              currentStepId={currentStepId}
               open={processDialogOpen}
               onOpenChange={setProcessDialogOpen}
               onSuccess={handleProcessSuccess}

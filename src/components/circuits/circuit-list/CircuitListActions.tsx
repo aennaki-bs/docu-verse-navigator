@@ -3,6 +3,7 @@ import { Edit, Trash2, FileText, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Circuit } from '@/models/circuit';
 
 interface CircuitListActionsProps {
   circuit: Circuit;

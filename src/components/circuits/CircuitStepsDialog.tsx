@@ -11,33 +11,33 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import CircuitDetailsList from './CircuitDetailsList';
-import CreateCircuitDetailDialog from './CreateCircuitDetailDialog';
+import CircuitStepsList from './CircuitStepsList';
+import CreateCircuitStepDialog from './CreateCircuitStepDialog';
 import { useAuth } from '@/context/AuthContext';
 import { Circuit } from '@/models/circuit';
 
-interface CircuitDetailsDialogProps {
+interface CircuitStepsDialogProps {
   circuit: Circuit;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export default function CircuitDetailsDialog({
+export default function CircuitStepsDialog({
   circuit,
   open,
   onOpenChange,
-}: CircuitDetailsDialogProps) {
-  const [createDetailDialogOpen, setCreateDetailDialogOpen] = useState(false);
+}: CircuitStepsDialogProps) {
+  const [createStepDialogOpen, setCreateStepDialogOpen] = useState(false);
   const { user } = useAuth();
   const isSimpleUser = user?.role === 'SimpleUser';
   
   const { 
-    data: circuitDetails,
+    data: steps,
     isLoading,
     isError,
     refetch
   } = useQuery({
-    queryKey: ['circuit-details', circuit.id],
+    queryKey: ['circuit-steps', circuit.id],
     queryFn: () => circuitService.getStepsByCircuitId(circuit.id),
     enabled: open
   });
@@ -54,7 +54,7 @@ export default function CircuitDetailsDialog({
       toast.error('You do not have permission to add circuit steps');
       return;
     }
-    setCreateDetailDialogOpen(true);
+    setCreateStepDialogOpen(true);
   };
 
   return (
@@ -62,7 +62,7 @@ export default function CircuitDetailsDialog({
       <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex justify-between items-center">
-            <span>Circuit Details: {circuit.title}</span>
+            <span>Circuit Steps: {circuit.title}</span>
             {!isSimpleUser ? (
               <Button onClick={handleAddStep} size="sm">
                 <Plus className="mr-2 h-4 w-4" /> Add Step
@@ -81,21 +81,21 @@ export default function CircuitDetailsDialog({
           </div>
         ) : isError ? (
           <div className="text-red-500 p-4">
-            Error loading circuit details
+            Error loading circuit steps
           </div>
         ) : (
-          <CircuitDetailsList 
-            circuitDetails={circuitDetails || []} 
+          <CircuitStepsList 
+            steps={steps || []} 
             onUpdate={refetch}
           />
         )}
         
-        {/* Create Circuit Detail Dialog - Only render if not SimpleUser */}
+        {/* Create Circuit Step Dialog - Only render if not SimpleUser */}
         {!isSimpleUser && (
-          <CreateCircuitDetailDialog
+          <CreateCircuitStepDialog
             circuitId={circuit.id}
-            open={createDetailDialogOpen}
-            onOpenChange={setCreateDetailDialogOpen}
+            open={createStepDialogOpen}
+            onOpenChange={setCreateStepDialogOpen}
             onSuccess={() => {
               refetch();
               toast.success("Circuit step added successfully");
