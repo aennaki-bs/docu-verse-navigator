@@ -1,6 +1,6 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import StepOneUserInfo from '@/components/register/StepOneUserInfo';
@@ -12,13 +12,13 @@ import { MultiStepFormProvider, useMultiStepForm } from '@/context/MultiStepForm
 // Step indicator component
 const StepIndicator = ({ currentStep }: { currentStep: number }) => {
   return (
-    <div className="flex justify-center mb-6">
+    <div className="flex justify-center mb-8">
       {[1, 2, 3, 4].map((step) => (
         <div key={step} className="flex items-center">
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center ${
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
               step === currentStep
-                ? 'bg-blue-600 text-white'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
                 : step < currentStep
                 ? 'bg-blue-900/30 text-blue-400 border border-blue-500'
                 : 'bg-gray-800 text-gray-500 border border-gray-700'
@@ -28,7 +28,7 @@ const StepIndicator = ({ currentStep }: { currentStep: number }) => {
           </div>
           {step < 4 && (
             <div
-              className={`h-1 w-10 ${
+              className={`h-1.5 w-12 rounded-full transition-all ${
                 step < currentStep ? 'bg-blue-600' : 'bg-gray-700'
               }`}
             ></div>
@@ -214,39 +214,39 @@ const RightSideContent = ({ currentStep }: { currentStep: number }) => {
         </p>
         
         <div className="space-y-6">
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-green-500/20 p-2 rounded-full">
+          <div className="flex items-center space-x-3 bg-[#1c2128]/70 p-4 rounded-lg border border-blue-900/40 backdrop-blur-sm">
+            <div className="bg-green-500/20 p-3 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
             <div className="text-left">
-              <h3 className="text-white font-medium">Review Account Details</h3>
-              <p className="text-sm text-gray-400">Verify personal information and account type</p>
+              <h3 className="text-white font-medium">Verify Account Details</h3>
+              <p className="text-sm text-gray-400">Confirm your personal information and contact details</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-blue-500/20 p-2 rounded-full">
+          <div className="flex items-center space-x-3 bg-[#1c2128]/70 p-4 rounded-lg border border-blue-900/40 backdrop-blur-sm">
+            <div className="bg-blue-500/20 p-3 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
             </div>
             <div className="text-left">
-              <h3 className="text-white font-medium">Confirm Credentials</h3>
-              <p className="text-sm text-gray-400">Check username, email, and password</p>
+              <h3 className="text-white font-medium">Secure Access Information</h3>
+              <p className="text-sm text-gray-400">Check your username, email, and password</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-purple-500/20 p-2 rounded-full">
+          <div className="flex items-center space-x-3 bg-[#1c2128]/70 p-4 rounded-lg border border-blue-900/40 backdrop-blur-sm">
+            <div className="bg-purple-500/20 p-3 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
             </div>
             <div className="text-left">
-              <h3 className="text-white font-medium">Make Corrections</h3>
-              <p className="text-sm text-gray-400">Go back to any step to edit information</p>
+              <h3 className="text-white font-medium">Complete Registration</h3>
+              <p className="text-sm text-gray-400">Submit your registration when all information is verified</p>
             </div>
           </div>
         </div>
@@ -277,8 +277,8 @@ const RegisterForm = () => {
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left side - Registration form */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 bg-[#0d1117] overflow-auto max-h-screen">
-        <div className="w-full max-w-md space-y-6 py-6">
-          <div className="text-center">
+        <div className="w-full max-w-md py-8">
+          <div className="text-center mb-8">
             <DocuVerseLogo className="mx-auto h-14 w-auto" />
             <h2 className="mt-6 text-3xl font-bold text-white">
               Create an account
@@ -288,22 +288,22 @@ const RegisterForm = () => {
             </p>
           </div>
           
-          <Card className="border-gray-800 bg-[#161b22] shadow-xl">
+          <Card className="border-gray-800 bg-gradient-to-b from-[#161b22] to-[#0d1117] shadow-2xl">
             <CardHeader className="space-y-1 pb-2 border-b border-gray-800">
               <StepIndicator currentStep={currentStep} />
               <StepTitle currentStep={currentStep} />
             </CardHeader>
             
-            <CardContent className="pt-6 max-h-[60vh] overflow-y-auto">
+            <CardContent className="pt-6 px-5 md:px-7 max-h-[65vh] overflow-y-auto custom-scrollbar">
               {renderStep()}
             </CardContent>
             
-            <CardFooter className="flex flex-col space-y-4 pt-0 border-t border-gray-800">
+            <CardFooter className="flex flex-col space-y-4 pt-4 pb-5 border-t border-gray-800">
               <div className="text-center text-sm text-gray-400">
                 Already have an account?{' '}
                 <Link
                   to="/login"
-                  className="font-medium text-blue-400 hover:text-blue-300"
+                  className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
                 >
                   Sign in
                 </Link>
