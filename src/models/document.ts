@@ -78,6 +78,7 @@ export interface CreateLigneRequest {
   orderIndex?: number;
   // Legacy properties still in use by components
   article?: string;
+  prix?: number;
 }
 
 export interface UpdateLigneRequest {
@@ -87,6 +88,7 @@ export interface UpdateLigneRequest {
   orderIndex?: number;
   // Legacy properties still in use by components
   article?: string;
+  prix?: number;
 }
 
 export interface SousLigne {

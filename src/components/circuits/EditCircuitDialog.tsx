@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
+import { Circuit } from '@/models/circuit';
 import {
   Dialog,
   DialogContent,

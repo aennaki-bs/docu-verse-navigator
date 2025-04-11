@@ -14,6 +14,7 @@ export interface Circuit {
   createdAt?: string;
   updatedAt?: string;
   circuitDetails?: CircuitDetail[];
+  steps?: Step[];  // Added for compatibility with CircuitFormContext
 }
 
 export interface CircuitDetail {

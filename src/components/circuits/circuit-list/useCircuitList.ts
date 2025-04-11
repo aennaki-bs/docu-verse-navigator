@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
+import { Circuit } from '@/models/circuit';
 
 interface UseCircuitListProps {
   onApiError?: (errorMessage: string) => void;
@@ -39,7 +40,7 @@ export function useCircuitList({ onApiError, searchQuery }: UseCircuitListProps)
     if (!searchQuery.trim() || !circuits) return circuits;
     
     const query = searchQuery.toLowerCase();
-    return circuits.filter(circuit => 
+    return circuits.filter((circuit: Circuit) => 
       circuit.circuitKey?.toLowerCase().includes(query) || 
       circuit.title?.toLowerCase().includes(query) || 
       circuit.descriptif?.toLowerCase().includes(query)

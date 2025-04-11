@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
 import {
@@ -21,6 +20,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -51,50 +51,38 @@ export default function CreateCircuitStepDialog({
 }: CreateCircuitStepDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch existing steps to determine next order index
-  const { data: steps } = useQuery({
-    queryKey: ['circuit-steps', circuitId],
-    queryFn: () => circuitService.getStepsByCircuitId(circuitId),
-    enabled: open,
-  });
-
-  // Calculate the next order index
-  const nextOrderIndex = steps && steps.length > 0 
-    ? Math.max(...steps.map(d => d.orderIndex)) + 1 
-    : 0;
-
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
       descriptif: '',
-      orderIndex: nextOrderIndex || 0,
-      isFinalStep: false
-    },
-    values: {
-      title: '',
-      descriptif: '',
-      orderIndex: nextOrderIndex || 0,
-      isFinalStep: false
+      orderIndex: 0,
+      isFinalStep: false,
     },
   });
 
   const onSubmit = async (values: FormValues) => {
+    if (!circuitId) {
+      toast.error('Circuit ID is required');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await circuitService.createStep({
-        circuitId: circuitId,
+        circuitId,
         title: values.title,
         descriptif: values.descriptif || '',
         orderIndex: values.orderIndex,
-        isFinalStep: values.isFinalStep,
+        isFinalStep: values.isFinalStep
       });
       
+      toast.success('Circuit step added successfully');
       form.reset();
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      toast.error('Failed to create circuit step');
+      toast.error('Failed to add circuit step');
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -105,9 +93,9 @@ export default function CreateCircuitStepDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add Circuit Step</DialogTitle>
+          <DialogTitle>Add New Circuit Step</DialogTitle>
           <DialogDescription>
-            Create a new step for this circuit
+            Create a new step for this circuit workflow.
           </DialogDescription>
         </DialogHeader>
 
@@ -120,7 +108,10 @@ export default function CreateCircuitStepDialog({
                 <FormItem>
                   <FormLabel>Title *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter step title" {...field} />
+                    <Input 
+                      placeholder="Enter step title"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -135,7 +126,7 @@ export default function CreateCircuitStepDialog({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter step description"
+                      placeholder="Describe this step..."
                       {...field}
                       value={field.value || ''}
                     />
@@ -152,7 +143,12 @@ export default function CreateCircuitStepDialog({
                 <FormItem>
                   <FormLabel>Order</FormLabel>
                   <FormControl>
-                    <Input type="number" min="0" {...field} />
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Step order"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
