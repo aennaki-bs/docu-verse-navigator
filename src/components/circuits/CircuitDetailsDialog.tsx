@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import CircuitDetailsList from './CircuitDetailsList';
 import CreateCircuitDetailDialog from './CreateCircuitDetailDialog';
 import { useAuth } from '@/context/AuthContext';
-import { Circuit } from '@/models/circuit';
 
 interface CircuitDetailsDialogProps {
   circuit: Circuit;
@@ -38,7 +37,7 @@ export default function CircuitDetailsDialog({
     refetch
   } = useQuery({
     queryKey: ['circuit-details', circuit.id],
-    queryFn: () => circuitService.getStepsByCircuitId(circuit.id),
+    queryFn: () => circuitService.getCircuitDetailsByCircuitId(circuit.id),
     enabled: open
   });
 

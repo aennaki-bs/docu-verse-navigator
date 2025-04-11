@@ -1,92 +1,87 @@
 
-import { Circuit, Step } from './circuit';
-import { User } from './types';
-
-// Updating just the document interface to match the new schema
 export interface Document {
   id: number;
-  documentKey: string;
   title: string;
+  documentKey: string;
   content: string;
-  docDate: string;
-  status: number; // 0=Draft, 1=In Progress, 2=Completed, 3=Rejected
-  documentAlias?: string;
-  circuitId?: number | null;
-  circuit?: Circuit;
-  currentStepId?: number | null;
-  currentStep?: Step;
-  isCircuitCompleted: boolean;
-  typeId: number;
-  documentType: DocumentType;
-  createdByUserId: number;
-  createdBy: User;
+  status: number;
+  documentAlias: string;
   createdAt: string;
   updatedAt: string;
-  lignesCount?: number;
-  // Legacy properties still in use by components
+  typeId: number;
+  docDate: string;
+  documentType: DocumentType;
+  circuitId?: number;
+  circuit?: Circuit;
   currentCircuitDetailId?: number;
+  currentCircuitDetail?: CircuitDetail;
+  createdByUserId: number;
+  createdBy: DocumentUser;
+  lignesCount?: number;
+  sousLignesCount?: number;
+  lignes?: Ligne[];
 }
 
 export interface DocumentType {
-  id: number;
+  id?: number;
   typeName: string;
-  // Legacy properties still in use by components
   typeKey?: string;
   typeAttr?: string;
   documentCounter?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface DocumentUser {
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  email: string;
 }
 
 export interface CreateDocumentRequest {
   title: string;
-  content?: string;
-  docDate: string;
-  status: number;
+  content: string;
   documentAlias?: string;
   typeId: number;
+  docDate?: string;
+  circuitId?: number;
 }
 
 export interface UpdateDocumentRequest {
-  title: string;
+  title?: string;
   content?: string;
-  docDate: string;
-  status: number;
   documentAlias?: string;
-  typeId: number;
+  typeId?: number;
+  docDate?: string;
+  circuitId?: number;
 }
 
 export interface Ligne {
   id: number;
   documentId: number;
+  ligneKey: string;
   title: string;
-  description?: string;
-  amount: number;
-  orderIndex: number;
+  article: string;
+  prix: number;
   createdAt: string;
   updatedAt: string;
+  document?: Document;
+  sousLignes?: SousLigne[];
   sousLignesCount?: number;
-  // Legacy properties still in use by components
-  ligneKey?: string;
-  article?: string;
-  prix?: number;
 }
 
 export interface CreateLigneRequest {
   documentId: number;
   title: string;
-  description?: string;
-  amount: number;
-  orderIndex?: number;
-  // Legacy properties still in use by components
-  article?: string;
-  prix?: number;
+  article: string;
+  prix: number;
 }
 
 export interface UpdateLigneRequest {
-  title: string;
-  description?: string;
-  amount: number;
-  orderIndex?: number;
-  // Legacy properties still in use by components
+  title?: string;
   article?: string;
   prix?: number;
 }
@@ -94,32 +89,21 @@ export interface UpdateLigneRequest {
 export interface SousLigne {
   id: number;
   ligneId: number;
-  title: string;
-  description?: string;
-  amount: number;
-  orderIndex: number;
-  createdAt: string;
-  updatedAt: string;
-  // Legacy properties still in use by components
   sousLigneKey?: string;
-  attribute?: string;
+  title: string;
+  attribute: string;
+  createdAt?: string;
+  updatedAt?: string;
+  ligne?: Ligne;
 }
 
 export interface CreateSousLigneRequest {
   ligneId: number;
   title: string;
-  description?: string;
-  amount: number;
-  orderIndex?: number;
-  // Legacy properties still in use by components
-  attribute?: string;
+  attribute: string;
 }
 
 export interface UpdateSousLigneRequest {
-  title: string;
-  description?: string;
-  amount: number;
-  orderIndex?: number;
-  // Legacy properties still in use by components
+  title?: string;
   attribute?: string;
 }

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,10 +24,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
   descriptif: z.string().optional(),
+  isActive: z.boolean().default(true),
+  hasOrderedFlow: z.boolean().default(true),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -49,6 +53,8 @@ export default function CreateCircuitDialog({
     defaultValues: {
       title: '',
       descriptif: '',
+      isActive: true,
+      hasOrderedFlow: true,
     },
   });
 
@@ -58,17 +64,19 @@ export default function CreateCircuitDialog({
       await circuitService.createCircuit({
         title: values.title,
         descriptif: values.descriptif || '',
-        isActive: true,
-        hasOrderedFlow: true,
-        allowBacktrack: false,
+        isActive: values.isActive,
+        hasOrderedFlow: values.hasOrderedFlow,
+        createdAt: new Date().toISOString(), // Add required properties
+        updatedAt: new Date().toISOString(), // Add required properties
       });
       
       toast.success('Circuit created successfully');
+      form.reset();
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      console.error('Error creating circuit:', error);
       toast.error('Failed to create circuit');
+      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -78,9 +86,9 @@ export default function CreateCircuitDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New Circuit</DialogTitle>
+          <DialogTitle>Create Circuit</DialogTitle>
           <DialogDescription>
-            Add a new circuit to the system
+            Create a new circuit for document workflow
           </DialogDescription>
         </DialogHeader>
 
@@ -117,6 +125,44 @@ export default function CreateCircuitDialog({
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Active</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="hasOrderedFlow"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Sequential Flow</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <DialogFooter>
               <Button

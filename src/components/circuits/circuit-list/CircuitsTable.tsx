@@ -9,7 +9,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { CircuitListActions } from './CircuitListActions';
-import { Circuit } from '@/models/circuit';
 
 interface CircuitsTableProps {
   circuits: Circuit[];

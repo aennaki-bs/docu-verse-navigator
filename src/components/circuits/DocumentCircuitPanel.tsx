@@ -67,7 +67,6 @@ export default function DocumentCircuitPanel({ document, onUpdate }: CircuitPane
 
   const canProcess = document.currentCircuitDetailId && !document.isCircuitCompleted;
   const canMove = document.circuitId && !document.isCircuitCompleted;
-  const currentStepId = document.currentStepId || document.currentCircuitDetailId;
 
   return (
     <Card className="w-full">
@@ -173,7 +172,6 @@ export default function DocumentCircuitPanel({ document, onUpdate }: CircuitPane
           documentId={document.id}
           documentTitle={document.title}
           currentStep={document.currentCircuitDetail?.title || 'Current step'}
-          currentStepId={currentStepId}
           open={processDialogOpen}
           onOpenChange={setProcessDialogOpen}
           onSuccess={handleProcessSuccess}
@@ -185,7 +183,7 @@ export default function DocumentCircuitPanel({ document, onUpdate }: CircuitPane
           documentId={document.id}
           documentTitle={document.title}
           circuitId={document.circuitId}
-          currentStepId={currentStepId}
+          currentStepId={document.currentCircuitDetailId}
           open={moveStepDialogOpen}
           onOpenChange={setMoveStepDialogOpen}
           onSuccess={handleMoveSuccess}

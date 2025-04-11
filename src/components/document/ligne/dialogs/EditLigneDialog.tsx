@@ -1,166 +1,142 @@
+
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { Edit, CheckCircle2, Ban } from 'lucide-react';
+import { Document, Ligne, UpdateLigneRequest } from '@/models/document';
 import { toast } from 'sonner';
-import ligneService from '@/services/ligneService';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { useQueryClient } from '@tanstack/react-query';
+import documentService from '@/services/documentService';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Ligne } from '@/models/document';
-
-const formSchema = z.object({
-  title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
-  description: z.string().optional(),
-  amount: z.string().refine((value) => !isNaN(parseFloat(value)), {
-    message: 'Amount must be a number',
-  }),
-  article: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
 
 interface EditLigneDialogProps {
-  ligne: Ligne;
-  open: boolean;
+  document: Document;
+  ligne: Ligne | null;
+  isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
 }
 
-export function EditLigneDialog({
-  ligne,
-  open,
-  onOpenChange,
-  onSuccess,
-}: EditLigneDialogProps) {
+const EditLigneDialog = ({ document, ligne, isOpen, onOpenChange }: EditLigneDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [title, setTitle] = useState(ligne.title);
-  const [description, setDescription] = useState(ligne.description || '');
-  const [amount, setAmount] = useState(ligne.amount.toString());
-  const [article, setArticle] = useState(ligne.article || '');
+  const [title, setTitle] = useState('');
+  const [article, setArticle] = useState('');
+  const [prix, setPrix] = useState<number>(0);
+  
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (ligne) {
       setTitle(ligne.title);
-      setDescription(ligne.description || '');
-      setAmount(ligne.amount.toString());
-      setArticle(ligne.article || '');
+      setArticle(ligne.article);
+      setPrix(ligne.prix);
     }
   }, [ligne]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setIsSubmitting(true);
-  
-  try {
-    await ligneService.updateLigne(ligne.id, {
-      title,
-      description,
-      amount: parseFloat(amount),
-      article,
-      // Remove prix from here as it doesn't exist in UpdateLigneRequest
-      orderIndex: ligne.orderIndex
-    });
+  const resetForm = () => {
+    setTitle('');
+    setArticle('');
+    setPrix(0);
+  };
+
+  const handleUpdateLigne = async () => {
+    if (!ligne) return;
     
-    toast.success('Ligne updated successfully');
-    onOpenChange(false);
-    onSuccess();
-  } catch (error) {
-    toast.error('Failed to update ligne');
-    console.error(error);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    try {
+      setIsSubmitting(true);
+      await documentService.updateLigne(ligne.id, {
+        title,
+        article,
+        prix
+      });
+      toast.success('Line updated successfully');
+      resetForm();
+      onOpenChange(false);
+      
+      // Refresh document data
+      queryClient.invalidateQueries({queryKey: ['document', document.id]});
+      queryClient.invalidateQueries({queryKey: ['documentLignes', document.id]});
+    } catch (error) {
+      console.error('Failed to update line:', error);
+      toast.error('Failed to update line');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-gray-900/95 to-blue-900/90 border-white/10 text-white shadow-xl">
         <DialogHeader>
-          <DialogTitle>Edit Ligne</DialogTitle>
-          <DialogDescription>
-            Update the details for this Ligne.
-          </DialogDescription>
+          <DialogTitle className="flex items-center text-blue-300">
+            <Edit className="h-5 w-5 mr-2" /> Edit Line
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Ligne title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Ligne description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-            <FormItem>
-              <FormLabel>Amount</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Ligne amount"
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-            <FormItem>
-              <FormLabel>Article</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Ligne article"
-                  value={article}
-                  onChange={(e) => setArticle(e.target.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+            <Label htmlFor="edit-title" className="text-blue-200">Title<span className="text-red-400">*</span></Label>
+            <Input 
+              id="edit-title" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              placeholder="Enter line title"
+              className="bg-blue-950/40 border-blue-400/20 text-white placeholder:text-blue-400/50 focus:border-blue-400"
+            />
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Updating...' : 'Update Ligne'}
-            </Button>
-          </DialogFooter>
-        </form>
+          <div className="space-y-2">
+            <Label htmlFor="edit-article" className="text-blue-200">Article Description<span className="text-red-400">*</span></Label>
+            <Textarea 
+              id="edit-article" 
+              value={article} 
+              onChange={(e) => setArticle(e.target.value)} 
+              placeholder="Enter article description"
+              rows={3}
+              className="bg-blue-950/40 border-blue-400/20 text-white placeholder:text-blue-400/50 focus:border-blue-400"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-prix" className="text-blue-200">Price (€)<span className="text-red-400">*</span></Label>
+            <Input 
+              id="edit-prix" 
+              type="number" 
+              value={prix} 
+              onChange={(e) => setPrix(Number(e.target.value))} 
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              className="bg-blue-950/40 border-blue-400/20 text-white placeholder:text-blue-400/50 focus:border-blue-400"
+            />
+          </div>
+        </div>
+        <DialogFooter className="gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="border-blue-400/30 text-blue-300 hover:text-white hover:bg-blue-700/50"
+          >
+            <Ban className="h-4 w-4 mr-2" /> Cancel
+          </Button>
+          <Button 
+            onClick={handleUpdateLigne} 
+            disabled={isSubmitting}
+            className={`bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 ${isSubmitting ? 'opacity-70' : ''}`}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Saving...
+              </div>
+            ) : (
+              <>
+                <CheckCircle2 className="h-4 w-4 mr-2" /> Save Changes
+              </>
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+};
 
+export default EditLigneDialog;

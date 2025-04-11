@@ -33,7 +33,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRightFromLine, Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
-  stepId: z.string().min(1, { message: 'Please select a step' }),
+  circuitDetailId: z.string().min(1, { message: 'Please select a step' }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -60,17 +60,17 @@ export default function MoveDocumentStepDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch circuit steps
-  const { data: steps, isLoading } = useQuery({
-    queryKey: ['circuit-steps', circuitId],
-    queryFn: () => circuitService.getStepsByCircuitId(circuitId),
+  // Fetch circuit details
+  const { data: circuitDetails, isLoading } = useQuery({
+    queryKey: ['circuit-details', circuitId],
+    queryFn: () => circuitService.getCircuitDetailsByCircuitId(circuitId),
     enabled: open && !!circuitId,
   });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      stepId: '',
+      circuitDetailId: '',
     },
   });
 
@@ -81,12 +81,12 @@ export default function MoveDocumentStepDialog({
     try {
       console.log("Moving document to step:", {
         documentId,
-        stepId: parseInt(values.stepId)
+        circuitDetailId: parseInt(values.circuitDetailId)
       });
       
       await circuitService.moveDocumentToStep({
         documentId,
-        stepId: parseInt(values.stepId),
+        circuitDetailId: parseInt(values.circuitDetailId),
       });
       
       toast.success('Document moved to new step successfully');
@@ -127,7 +127,7 @@ export default function MoveDocumentStepDialog({
               
               <FormField
                 control={form.control}
-                name="stepId"
+                name="circuitDetailId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-white">Select Step</FormLabel>
@@ -141,14 +141,14 @@ export default function MoveDocumentStepDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-[#111633] border-blue-900/30 text-white">
-                        {steps?.map((step) => (
+                        {circuitDetails?.map((detail) => (
                           <SelectItem 
-                            key={step.id} 
-                            value={step.id.toString()}
-                            disabled={step.id === currentStepId}
+                            key={detail.id} 
+                            value={detail.id.toString()}
+                            disabled={detail.id === currentStepId}
                           >
-                            {step.orderIndex + 1}. {step.title}
-                            {step.id === currentStepId ? ' (Current)' : ''}
+                            {detail.orderIndex + 1}. {detail.title}
+                            {detail.id === currentStepId ? ' (Current)' : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -1,159 +1,139 @@
+
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { Plus, Ban } from 'lucide-react';
+import { Document, CreateLigneRequest } from '@/models/document';
 import { toast } from 'sonner';
-import ligneService from '@/services/ligneService';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { useQueryClient } from '@tanstack/react-query';
+import documentService from '@/services/documentService';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 
-const formSchema = z.object({
-  title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
-  description: z.string().optional(),
-  amount: z.string().refine((value) => !isNaN(parseFloat(value)), {
-    message: 'Amount must be a number',
-  }),
-  article: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
 interface CreateLigneDialogProps {
-  documentId: number;
-  open: boolean;
+  document: Document;
+  isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
 }
 
-export default function CreateLigneDialog({
-  documentId,
-  open,
-  onOpenChange,
-  onSuccess,
-}: CreateLigneDialogProps) {
+const CreateLigneDialog = ({ document, isOpen, onOpenChange }: CreateLigneDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-  });
+  const [title, setTitle] = useState('');
+  const [article, setArticle] = useState('');
+  const [prix, setPrix] = useState<number>(0);
+  
+  const queryClient = useQueryClient();
 
-  const onSubmit = async (data: FormValues) => {
-    setIsSubmitting(true);
+  const resetForm = () => {
+    setTitle('');
+    setArticle('');
+    setPrix(0);
+  };
+
+  const handleCreateLigne = async () => {
+    if (!title || !article) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
     try {
-      await ligneService.createLigne({
-        documentId,
-        title: data.title,
-        description: data.description,
-        amount: parseFloat(data.amount),
-        article: data.article,
-      });
-      toast.success('Ligne created successfully');
-      reset();
+      setIsSubmitting(true);
+      const newLigne: CreateLigneRequest = {
+        documentId: document.id,
+        title,
+        article,
+        prix
+      };
+
+      await documentService.createLigne(newLigne);
+      toast.success('Line created successfully');
+      resetForm();
       onOpenChange(false);
-      onSuccess();
+      
+      // Refresh document data
+      queryClient.invalidateQueries({queryKey: ['document', document.id]});
+      queryClient.invalidateQueries({queryKey: ['documentLignes', document.id]});
     } catch (error) {
-      toast.error('Failed to create ligne');
-      console.error(error);
+      console.error('Failed to create line:', error);
+      toast.error('Failed to create line');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-gray-900/95 to-blue-900/90 border-white/10 text-white shadow-xl">
         <DialogHeader>
-          <DialogTitle>Create New Ligne</DialogTitle>
-          <DialogDescription>
-            Add a new ligne to the document
-          </DialogDescription>
+          <DialogTitle className="flex items-center text-blue-300">
+            <Plus className="h-5 w-5 mr-2" /> Add New Line
+          </DialogTitle>
         </DialogHeader>
-        <Form>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={{ ...register }}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter ligne title" {...field} />
-                  </FormControl>
-                  <FormMessage>{errors.title?.message}</FormMessage>
-                </FormItem>
-              )}
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-blue-200">Title<span className="text-red-400">*</span></Label>
+            <Input 
+              id="title" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              placeholder="Enter line title"
+              className="bg-blue-950/40 border-blue-400/20 text-white placeholder:text-blue-400/50 focus:border-blue-400"
             />
-            <FormField
-              control={{ ...register }}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Enter ligne description" {...field} />
-                  </FormControl>
-                  <FormMessage>{errors.description?.message}</FormMessage>
-                </FormItem>
-              )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="article" className="text-blue-200">Article Description<span className="text-red-400">*</span></Label>
+            <Textarea 
+              id="article" 
+              value={article} 
+              onChange={(e) => setArticle(e.target.value)} 
+              placeholder="Enter article description"
+              rows={3}
+              className="bg-blue-950/40 border-blue-400/20 text-white placeholder:text-blue-400/50 focus:border-blue-400"
             />
-            <FormField
-              control={{ ...register }}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter amount" {...field} />
-                  </FormControl>
-                  <FormMessage>{errors.amount?.message}</FormMessage>
-                </FormItem>
-              )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="prix" className="text-blue-200">Price (€)<span className="text-red-400">*</span></Label>
+            <Input 
+              id="prix" 
+              type="number" 
+              value={prix} 
+              onChange={(e) => setPrix(Number(e.target.value))} 
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              className="bg-blue-950/40 border-blue-400/20 text-white placeholder:text-blue-400/50 focus:border-blue-400"
             />
-            <FormField
-              control={{ ...register }}
-              name="article"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Article</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter article" {...field} />
-                  </FormControl>
-                  <FormMessage>{errors.article?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Ligne'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+          </div>
+        </div>
+        <DialogFooter className="gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="border-blue-400/30 text-blue-300 hover:text-white hover:bg-blue-700/50"
+          >
+            <Ban className="h-4 w-4 mr-2" /> Cancel
+          </Button>
+          <Button 
+            onClick={handleCreateLigne} 
+            disabled={isSubmitting}
+            className={`bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 ${isSubmitting ? 'opacity-70' : ''}`}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Creating...
+              </div>
+            ) : (
+              <>
+                <Plus className="h-4 w-4 mr-2" /> Create Line
+              </>
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default CreateLigneDialog;

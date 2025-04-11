@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
-import { Step } from '@/models/circuit';
 import {
   Dialog,
   DialogContent,
@@ -35,7 +34,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface EditCircuitDetailDialogProps {
-  circuitDetail: Step;
+  circuitDetail: CircuitDetail;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
@@ -61,11 +60,12 @@ export default function EditCircuitDetailDialog({
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
-      await circuitService.updateStep(circuitDetail.id, {
+      await circuitService.updateCircuitDetail(circuitDetail.id, {
         ...circuitDetail,
         title: values.title,
         descriptif: values.descriptif || '',
         orderIndex: values.orderIndex,
+        // Removed responsibleRoleId as it's no longer needed
       });
       
       toast.success('Circuit step updated successfully');
@@ -91,7 +91,7 @@ export default function EditCircuitDetailDialog({
 
         <div className="border rounded-md p-3 bg-muted/50 mb-4">
           <div className="text-sm font-medium">Step Key</div>
-          <div className="font-mono text-sm">{circuitDetail.stepKey}</div>
+          <div className="font-mono text-sm">{circuitDetail.circuitDetailKey}</div>
         </div>
 
         <Form {...form}>

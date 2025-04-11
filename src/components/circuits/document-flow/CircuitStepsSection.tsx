@@ -4,11 +4,11 @@ import { GitBranch, MoveRight, AlertCircle, Check, ArrowRightCircle } from 'luci
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CircuitStepCard } from './CircuitStepCard';
-import { DocumentHistory, Step } from '@/models/circuit';
+import { DocumentCircuitHistory } from '@/models/documentCircuit';
 
 interface CircuitStepsSectionProps {
-  steps: Step[];
-  history: DocumentHistory[];
+  circuitDetails: any[];
+  circuitHistory: DocumentCircuitHistory[];
   currentStepId: number | undefined | null;
   isSimpleUser: boolean;
   onMoveClick: () => void;
@@ -16,8 +16,8 @@ interface CircuitStepsSectionProps {
 }
 
 export const CircuitStepsSection = ({
-  steps,
-  history,
+  circuitDetails,
+  circuitHistory,
   currentStepId,
   isSimpleUser,
   onMoveClick,
@@ -25,7 +25,7 @@ export const CircuitStepsSection = ({
 }: CircuitStepsSectionProps) => {
   const [showHelp, setShowHelp] = useState(false);
   
-  if (!steps || steps.length === 0) {
+  if (!circuitDetails || circuitDetails.length === 0) {
     return (
       <Alert variant="destructive" className="mb-4">
         <AlertCircle className="h-4 w-4" />
@@ -86,16 +86,16 @@ export const CircuitStepsSection = ({
       
       <div className="overflow-x-auto">
         <div className="flex space-x-4 pb-4 min-w-full">
-          {steps?.map((step) => {
-            const historyForStep = history?.filter(h => h.stepId === step.id) || [];
+          {circuitDetails?.map((detail) => {
+            const historyForStep = circuitHistory?.filter(h => h.circuitDetailId === detail.id) || [];
             
             return (
               <div 
-                key={step.id} 
+                key={detail.id} 
                 className="w-80 flex-shrink-0"
               >
                 <CircuitStepCard 
-                  step={step}
+                  detail={detail}
                   currentStepId={currentStepId}
                   historyForStep={historyForStep}
                   isSimpleUser={isSimpleUser}

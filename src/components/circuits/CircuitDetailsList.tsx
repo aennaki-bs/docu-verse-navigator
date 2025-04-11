@@ -17,10 +17,9 @@ import { Badge } from '@/components/ui/badge';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import EditCircuitDetailDialog from './EditCircuitDetailDialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Step } from '@/models/circuit';
 
 interface CircuitDetailsListProps {
-  circuitDetails: Step[];
+  circuitDetails: CircuitDetail[];
   onUpdate: () => void;
 }
 
@@ -30,11 +29,11 @@ export default function CircuitDetailsList({
 }: CircuitDetailsListProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedDetail, setSelectedDetail] = useState<Step | null>(null);
+  const [selectedDetail, setSelectedDetail] = useState<CircuitDetail | null>(null);
   const { user } = useAuth();
   const isSimpleUser = user?.role === 'SimpleUser';
 
-  const handleEdit = (detail: Step) => {
+  const handleEdit = (detail: CircuitDetail) => {
     if (isSimpleUser) {
       toast.error('You do not have permission to edit circuit steps');
       return;
@@ -43,7 +42,7 @@ export default function CircuitDetailsList({
     setEditDialogOpen(true);
   };
 
-  const handleDelete = (detail: Step) => {
+  const handleDelete = (detail: CircuitDetail) => {
     if (isSimpleUser) {
       toast.error('You do not have permission to delete circuit steps');
       return;
@@ -56,7 +55,7 @@ export default function CircuitDetailsList({
     if (!selectedDetail) return;
     
     try {
-      await circuitService.deleteStep(selectedDetail.id);
+      await circuitService.deleteCircuitDetail(selectedDetail.id);
       toast.success("Circuit step deleted successfully");
       onUpdate();
     } catch (error) {
@@ -103,7 +102,7 @@ export default function CircuitDetailsList({
                 <Badge variant="outline">{detail.orderIndex + 1}</Badge>
               </TableCell>
               <TableCell className="font-mono text-xs">
-                {detail.stepKey}
+                {detail.circuitDetailKey}
               </TableCell>
               <TableCell>{detail.title}</TableCell>
               <TableCell className="max-w-xs truncate">

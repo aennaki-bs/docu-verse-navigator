@@ -7,7 +7,6 @@ import { Loader2, CheckCircle, XCircle, Clock } from 'lucide-react';
 import circuitService from '@/services/circuitService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DocumentHistory } from '@/models/circuit';
 
 interface CircuitHistoryTimelineProps {
   documentId: number;
@@ -30,32 +29,6 @@ export default function CircuitHistoryTimeline({ documentId }: CircuitHistoryTim
     ) : (
       <XCircle className="h-5 w-5 text-red-500" />
     );
-  };
-
-  // Function to get step title from history item, handling legacy fields
-  const getStepTitle = (item: DocumentHistory) => {
-    // First try the new schema fields
-    if (item.step?.title) return item.step.title;
-    
-    // Then try the legacy fields in order of preference
-    if (item.circuitDetailTitle) return item.circuitDetailTitle;
-    if (item.circuitDetail?.title) return item.circuitDetail.title;
-    
-    return 'Unknown Step';
-  };
-  
-  // Function to get user name from history item, handling legacy fields
-  const getProcessedBy = (item: DocumentHistory) => {
-    // First try the new schema fields
-    if (item.processedBy) {
-      const user = item.processedBy;
-      return `${user.firstName} ${user.lastName}`;
-    }
-    
-    // Then try the legacy field
-    if (item.userName) return item.userName;
-    
-    return 'Unknown User';
   };
 
   if (isLoading) {
@@ -106,7 +79,7 @@ export default function CircuitHistoryTimeline({ documentId }: CircuitHistoryTim
                 {/* Content */}
                 <div className="ml-4 flex-1">
                   <div className="flex items-center text-sm font-medium text-gray-900">
-                    <span>{getStepTitle(item)}</span>
+                    <span>{item.circuitDetailTitle || item.circuitDetail?.title || 'Unknown Step'}</span>
                     <span className="mx-2 text-gray-500">•</span>
                     <span className="flex items-center text-gray-500">
                       <Clock className="mr-1 h-3 w-3" />
@@ -115,11 +88,11 @@ export default function CircuitHistoryTimeline({ documentId }: CircuitHistoryTim
                   </div>
                   
                   <div className="mt-1 text-sm text-gray-700">
-                    Processed by: <span className="font-medium">{getProcessedBy(item)}</span>
+                    Processed by: <span className="font-medium">{item.processedBy || item.userName || 'Unknown'}</span>
                   </div>
                   
                   <div className="mt-2 rounded-md bg-gray-50 p-3 text-sm text-gray-700">
-                    {item.comments || 'No comments'}
+                    {item.comments}
                   </div>
                   
                   <div className="mt-1">
