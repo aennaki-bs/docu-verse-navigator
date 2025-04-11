@@ -5,8 +5,7 @@ import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
 import { Circuit, Step } from '@/models/circuit';
 
-// Define a separate interface for the form data without extending Circuit
-// to avoid type conflicts with the steps property
+// Define a separate interface for the form data
 interface CircuitFormData {
   circuitKey: string;
   title: string;

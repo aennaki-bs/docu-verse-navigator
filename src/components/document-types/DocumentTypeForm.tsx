@@ -17,13 +17,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  useForm,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DocumentType } from '@/models/document';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm as useHookForm } from 'react-hook-form';
 
 const formSchema = z.object({
   typeName: z.string().min(1, "Type name is required"),
@@ -50,7 +50,7 @@ export function DocumentTypeForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isNew = !documentType;
 
-  const form = useForm<FormValues>({
+  const form = useHookForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       typeName: documentType?.typeName || '',

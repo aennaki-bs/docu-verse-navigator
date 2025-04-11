@@ -18,8 +18,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  useForm,
 } from '@/components/ui/form';
+import { useForm as useHookForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { z } from 'zod';
@@ -48,7 +48,7 @@ export function CreateLigneDialog({
 }: CreateLigneDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<FormValues>({
+  const form = useHookForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',

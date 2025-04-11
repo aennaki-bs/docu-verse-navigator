@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -21,69 +22,16 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import CreateDocumentDialog from '@/components/document/dialogs/CreateDocumentDialog';
 import EditDocumentDialog from '@/components/document/dialogs/EditDocumentDialog';
-import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
+import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog';
 import { DocumentLoadingState } from '@/components/document/DocumentLoadingState';
 import { DocumentEmptyState } from '@/components/document/DocumentEmptyState';
-import { useDocumentsData } from './hooks/useDocumentsData';
-
-const testData = [
-  {
-    id: 1,
-    documentKey: 'DOC-001',
-    title: 'Test Document 1',
-    content: 'This is a test document.',
-    docDate: '2023-01-01',
-    status: 0,
-    documentAlias: 'Test 1',
-    isCircuitCompleted: false,
-    documentType: {
-      id: 1,
-      typeName: 'Test Type',
-    },
-    createdBy: {
-      id: 1,
-      username: 'testuser',
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com',
-      role: 'Admin',
-    },
-    createdAt: '2023-01-01',
-    updatedAt: '2023-01-01',
-    createdByUserId: 1,
-  },
-  {
-    id: 2,
-    documentKey: 'DOC-002',
-    title: 'Test Document 2',
-    content: 'This is another test document.',
-    docDate: '2023-02-01',
-    status: 1,
-    documentAlias: 'Test 2',
-    isCircuitCompleted: false,
-    documentType: {
-      id: 2,
-      typeName: 'Another Type',
-    },
-    createdBy: {
-      id: 1,
-      username: 'testuser',
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com',
-      role: 'Admin',
-    },
-    createdAt: '2023-02-01',
-    updatedAt: '2023-02-01',
-    createdByUserId: 1,
-  },
-];
+import { useDocumentsData } from '@/pages/documents/hooks/useDocumentsData';
 
 export default function Documents() {
   const { user } = useAuth();
   const isSimpleUser = user?.role === 'SimpleUser';
   const [searchQuery, setSearchQuery] = useState('');
-	const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);

@@ -15,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
+import { DeleteConfirmDialog } from '@/components/ui/confirm-dialog';
 
 interface SousLignesListProps {
   ligne: Ligne;
@@ -231,7 +231,6 @@ export default function SousLignesList({ ligne, onUpdate }: SousLignesListProps)
         onConfirm={deleteSousLigne}
         title="Delete Sous-Ligne"
         description="Are you sure you want to delete this sous-ligne? This action cannot be undone."
-        onCancel={cancelDelete}
       />
     </div>
   );

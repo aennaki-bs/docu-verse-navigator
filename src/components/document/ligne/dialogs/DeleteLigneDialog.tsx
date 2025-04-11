@@ -1,17 +1,19 @@
 
 import { useState } from 'react';
-import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Ligne } from '@/models/document';
 import { toast } from 'sonner';
 import ligneService from '@/services/ligneService';
+import { Ligne } from '@/models/document';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 export interface DeleteLigneDialogProps {
   ligne: Ligne;
@@ -20,20 +22,19 @@ export interface DeleteLigneDialogProps {
   onSuccess?: () => void;
 }
 
-export const DeleteLigneDialog = ({
+export function DeleteLigneDialog({
   ligne,
   isOpen,
   onOpenChange,
-  onSuccess
-}: DeleteLigneDialogProps) => {
+  onSuccess,
+}: DeleteLigneDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   const handleDelete = async () => {
     setIsDeleting(true);
-    
     try {
       await ligneService.deleteLigne(ligne.id);
-      toast.success(`Line deleted successfully`);
+      toast.success('Line deleted successfully');
       onOpenChange(false);
       if (onSuccess) onSuccess();
     } catch (error) {
@@ -43,40 +44,30 @@ export const DeleteLigneDialog = ({
       setIsDeleting(false);
     }
   };
-  
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete Line</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete this line? This action cannot be undone.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="py-4">
-          <p><strong>Line ID:</strong> {ligne.ligneKey}</p>
-          <p><strong>Title:</strong> {ligne.title}</p>
-          <p><strong>Amount:</strong> {ligne.prix}</p>
-        </div>
-        
-        <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={() => onOpenChange(false)}
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Line</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete "{ligne.title}"? This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              handleDelete();
+            }}
             disabled={isDeleting}
-          >
-            Cancel
-          </Button>
-          <Button 
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={isDeleting}
+            className="bg-red-600 hover:bg-red-700 text-white"
           >
             {isDeleting ? 'Deleting...' : 'Delete'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
-};
+}
