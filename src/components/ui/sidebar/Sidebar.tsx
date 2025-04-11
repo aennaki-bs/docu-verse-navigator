@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "./SidebarProvider";
@@ -103,6 +104,3 @@ export const Sidebar = React.forwardRef<
 );
 
 Sidebar.displayName = "Sidebar";
-
-// Import for the usage in this file
-import { SIDEBAR_WIDTH_MOBILE } from "./types";

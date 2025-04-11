@@ -50,7 +50,7 @@ export const SidebarMenuButton = React.forwardRef<
   const { open } = useSidebar();
   const Comp = asChild ? React.Fragment : "button";
   const child = asChild ? React.Children.only(props.children) : null;
-  const childProps = asChild ? React.Children.only(props.children)?.props : {};
+  const childProps = asChild && child && React.isValidElement(child) ? child.props : {};
 
   // If the sidebar is collapsed and we're rendering a button, add a tooltip.
   if (!open && !asChild) {
@@ -92,7 +92,7 @@ export const SidebarMenuButton = React.forwardRef<
               className
             )
       }
-      {...(asChild ? { ...childProps } : { ...props })}
+      {...(asChild ? childProps : props)}
     >
       {asChild ? child : props.children}
     </Comp>

@@ -13,7 +13,7 @@ import {
   type SidebarProviderProps
 } from "./types";
 
-// Change to create a new context rather than importing from types
+// Create a new context
 const SidebarContext = React.createContext<SidebarContextType | null>(null);
 
 export function useSidebar() {
@@ -90,7 +90,7 @@ export const SidebarProvider = React.forwardRef<
     // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed";
 
-    const contextValue = React.useMemo<SidebarContext>(
+    const contextValue: SidebarContextType = React.useMemo(
       () => ({
         state,
         open,
