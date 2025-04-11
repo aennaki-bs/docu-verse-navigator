@@ -23,30 +23,30 @@ import {
 
 interface DocumentTypeTableProps {
   types: DocumentType[];
-  selectedTypes: number[];
-  onSelectType: (id: number, checked: boolean) => void;
-  onSelectAll: (checked: boolean) => void;
-  onDeleteType: (id: number) => void;
   onEditType: (type: DocumentType) => void;
-  onSort: (field: string) => void;
-  sortField: string | null;
-  sortDirection: 'asc' | 'desc';
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
+  onDeleteType: (type: DocumentType) => void;
+  selectedTypes?: number[];
+  onSelectType?: (id: number, checked: boolean) => void;
+  onSelectAll?: (checked: boolean) => void;
+  onSort?: (field: string) => void;
+  sortField?: string | null;
+  sortDirection?: 'asc' | 'desc';
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
 const DocumentTypeTable: React.FC<DocumentTypeTableProps> = ({
   types,
-  selectedTypes,
-  onSelectType,
-  onSelectAll,
-  onDeleteType,
   onEditType,
-  onSort,
-  sortField,
-  sortDirection,
-  searchQuery,
-  onSearchChange
+  onDeleteType,
+  selectedTypes = [],
+  onSelectType = () => {},
+  onSelectAll = () => {},
+  onSort = () => {},
+  sortField = null,
+  sortDirection = 'asc',
+  searchQuery = '',
+  onSearchChange = () => {}
 }) => {
   const areAllEligibleSelected = types.length > 0 && 
     types.filter(type => type.documentCounter === 0).length === selectedTypes.length;
@@ -202,7 +202,7 @@ const DocumentTypeTable: React.FC<DocumentTypeTableProps> = ({
                               className={`h-7 w-7 text-red-400 hover:text-red-300 hover:bg-red-900/20 ${
                                 type.documentCounter! > 0 ? 'opacity-50 cursor-not-allowed' : ''
                               }`}
-                              onClick={() => type.documentCounter! === 0 && onDeleteType(type.id!)}
+                              onClick={() => type.documentCounter! === 0 && onDeleteType(type)}
                               disabled={type.documentCounter! > 0}
                             >
                               <Trash className="h-3.5 w-3.5" />

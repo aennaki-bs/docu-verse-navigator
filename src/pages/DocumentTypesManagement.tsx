@@ -78,12 +78,12 @@ export default function DocumentTypesManagement() {
         <CardContent className="pt-6">
           {documentTypes.length > 0 ? (
             <DocumentTypeTable
-              documentTypes={documentTypes}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
+              types={documentTypes}
+              onEditType={handleEdit}
+              onDeleteType={handleDelete}
             />
           ) : (
-            <EmptyState onAddNew={handleAddNew} />
+            <EmptyState onAddType={handleAddNew} />
           )}
         </CardContent>
       </Card>
@@ -101,7 +101,7 @@ export default function DocumentTypesManagement() {
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={confirmDelete}
-        typeName={typeToDelete?.typeName || ''}
+        isBulk={false}
       />
     </div>
   );

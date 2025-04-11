@@ -15,6 +15,7 @@ interface DeleteConfirmDialogProps {
   onConfirm: () => void;
   isBulk?: boolean;
   count?: number;
+  typeName?: string;
 }
 
 const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({ 
@@ -22,7 +23,8 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
   onOpenChange, 
   onConfirm,
   isBulk = false,
-  count = 0
+  count = 0,
+  typeName = ''
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -34,7 +36,9 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
           <DialogDescription className="text-base py-3">
             {isBulk 
               ? `Are you sure you want to delete ${count} document type${count !== 1 ? 's' : ''}? This action cannot be undone.`
-              : 'Are you sure you want to delete this document type? This action cannot be undone.'}
+              : typeName 
+                ? `Are you sure you want to delete the document type "${typeName}"? This action cannot be undone.`
+                : 'Are you sure you want to delete this document type? This action cannot be undone.'}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-between">
