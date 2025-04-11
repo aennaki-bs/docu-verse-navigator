@@ -95,7 +95,7 @@ export default function EditCircuitDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="border rounded-md p-3 bg-muted/50 mb-4">
-              <div className="text-sm font-medium">Circuit Key</div>
+              <div className="text-sm font-medium">Circuit Code</div>
               <div className="font-mono text-sm">{circuit.circuitKey}</div>
             </div>
             

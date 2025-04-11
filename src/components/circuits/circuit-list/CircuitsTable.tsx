@@ -30,7 +30,7 @@ export function CircuitsTable({
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent border-blue-900/30">
-            <TableHead className="text-blue-300">Circuit Key</TableHead>
+            <TableHead className="text-blue-300">Circuit Code</TableHead>
             <TableHead className="text-blue-300">Title</TableHead>
             <TableHead className="text-blue-300">Description</TableHead>
             <TableHead className="text-blue-300">Status</TableHead>
