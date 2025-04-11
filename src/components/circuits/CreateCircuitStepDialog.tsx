@@ -1,7 +1,9 @@
+
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
 import {
@@ -23,52 +25,77 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
   descriptif: z.string().optional(),
+  orderIndex: z.coerce.number().int().nonnegative(),
+  isFinalStep: z.boolean().default(false),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface CreateCircuitDialogProps {
+interface CreateCircuitStepDialogProps {
+  circuitId: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }
 
-export default function CreateCircuitDialog({
+export default function CreateCircuitStepDialog({
+  circuitId,
   open,
   onOpenChange,
   onSuccess,
-}: CreateCircuitDialogProps) {
+}: CreateCircuitStepDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch existing steps to determine next order index
+  const { data: steps } = useQuery({
+    queryKey: ['circuit-steps', circuitId],
+    queryFn: () => circuitService.getStepsByCircuitId(circuitId),
+    enabled: open,
+  });
+
+  // Calculate the next order index
+  const nextOrderIndex = steps && steps.length > 0 
+    ? Math.max(...steps.map(d => d.orderIndex)) + 1 
+    : 0;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
       descriptif: '',
+      orderIndex: nextOrderIndex || 0,
+      isFinalStep: false
+    },
+    values: {
+      title: '',
+      descriptif: '',
+      orderIndex: nextOrderIndex || 0,
+      isFinalStep: false
     },
   });
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
-      await circuitService.createCircuit({
+      await circuitService.createStep({
+        circuitId: circuitId,
         title: values.title,
         descriptif: values.descriptif || '',
-        isActive: true,
-        hasOrderedFlow: true,
-        allowBacktrack: false,
+        orderIndex: values.orderIndex,
+        isFinalStep: values.isFinalStep,
       });
       
-      toast.success('Circuit created successfully');
+      form.reset();
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      console.error('Error creating circuit:', error);
-      toast.error('Failed to create circuit');
+      toast.error('Failed to create circuit step');
+      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -78,9 +105,9 @@ export default function CreateCircuitDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New Circuit</DialogTitle>
+          <DialogTitle>Add Circuit Step</DialogTitle>
           <DialogDescription>
-            Add a new circuit to the system
+            Create a new step for this circuit
           </DialogDescription>
         </DialogHeader>
 
@@ -93,7 +120,7 @@ export default function CreateCircuitDialog({
                 <FormItem>
                   <FormLabel>Title *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter circuit title" {...field} />
+                    <Input placeholder="Enter step title" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -108,12 +135,47 @@ export default function CreateCircuitDialog({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter circuit description"
+                      placeholder="Enter step description"
                       {...field}
                       value={field.value || ''}
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="orderIndex"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Order</FormLabel>
+                  <FormControl>
+                    <Input type="number" min="0" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="isFinalStep"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Final Step</FormLabel>
+                    <FormDescription className="text-xs">
+                      Mark this as the final step in the circuit
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -128,7 +190,7 @@ export default function CreateCircuitDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Circuit'}
+                {isSubmitting ? 'Creating...' : 'Create Step'}
               </Button>
             </DialogFooter>
           </form>

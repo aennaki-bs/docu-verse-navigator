@@ -1,4 +1,6 @@
 
+import { User, Role } from './types';
+
 // Circuit types matching the new schema
 export interface Circuit {
   id: number;
@@ -9,6 +11,23 @@ export interface Circuit {
   hasOrderedFlow: boolean;
   allowBacktrack: boolean;
   crdCounter: number;
+  createdAt?: string;
+  updatedAt?: string;
+  circuitDetails?: CircuitDetail[];
+}
+
+export interface CircuitDetail {
+  id: number;
+  circuitDetailKey: string;
+  circuitId: number;
+  circuit?: Circuit;
+  title: string;
+  descriptif?: string;
+  orderIndex: number;
+  responsibleRoleId?: number;
+  responsibleRole?: Role;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Step {
@@ -64,6 +83,14 @@ export interface DocumentHistory {
   processedAt: string;
   comments?: string;
   isApproved: boolean;
+  // Legacy properties for backward compatibility
+  circuitDetailId?: number;
+  circuitDetailTitle?: string;
+  userName?: string;
+  circuitDetail?: {
+    title: string;
+    orderIndex: number;
+  };
 }
 
 export interface DocumentStatus {
@@ -80,6 +107,7 @@ export interface DocumentStatus {
 export interface AssignCircuitRequest {
   documentId: number;
   circuitId: number;
+  comments?: string;
 }
 
 export interface ProcessCircuitRequest {

@@ -21,6 +21,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -40,7 +41,7 @@ interface ProcessCircuitStepDialogProps {
   documentId: number;
   documentTitle: string;
   currentStep: string; // Title of the current step
-  currentStepId: number;
+  currentStepId: number; // Added required prop
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
@@ -145,7 +146,7 @@ export default function ProcessCircuitStepDialog({
                             <RadioGroupItem value={action.id.toString()} id={`action-${action.id}`} />
                             <Label htmlFor={`action-${action.id}`} className="flex-1">{action.title}</Label>
                           </div>
-                        ))}
+                        )) || <div>No actions available</div>}
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />

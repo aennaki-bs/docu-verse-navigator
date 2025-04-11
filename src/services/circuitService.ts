@@ -1,8 +1,8 @@
 
 import api from './api';
 import { 
-  Circuit, Step, Status, Action, StepAction, 
-  DocumentHistory, DocumentStatus, DocumentCircuitHistoryDto,
+  Circuit, Step, Status, Action, StepAction, DocumentHistory, 
+  DocumentStatus, DocumentCircuitHistoryDto, CircuitDetail,
   AssignCircuitRequest, ProcessCircuitRequest, MoveDocumentStepRequest
 } from '@/models/circuit';
 
@@ -34,6 +34,26 @@ const circuitService = {
     await api.delete(`/Circuit/${id}`);
   },
 
+  // Circuit Details endpoints (for backward compatibility)
+  getCircuitDetailsByCircuitId: async (circuitId: number): Promise<CircuitDetail[]> => {
+    if (circuitId === 0 || !circuitId) return [];
+    const response = await api.get(`/CircuitDetail/by-circuit/${circuitId}`);
+    return response.data;
+  },
+
+  createCircuitDetail: async (circuitDetail: Partial<CircuitDetail>): Promise<CircuitDetail> => {
+    const response = await api.post('/CircuitDetail', circuitDetail);
+    return response.data;
+  },
+
+  updateCircuitDetail: async (id: number, circuitDetail: CircuitDetail): Promise<void> => {
+    await api.put(`/CircuitDetail/${id}`, circuitDetail);
+  },
+
+  deleteCircuitDetail: async (id: number): Promise<void> => {
+    await api.delete(`/CircuitDetail/${id}`);
+  },
+
   // Step endpoints (formerly CircuitDetail)
   getAllSteps: async (): Promise<Step[]> => {
     const response = await api.get('/Step');
@@ -51,7 +71,7 @@ const circuitService = {
     return response.data;
   },
 
-  createStep: async (step: Omit<Step, 'id' | 'stepKey'>): Promise<Step> => {
+  createStep: async (step: Partial<Step>): Promise<Step> => {
     const response = await api.post('/Step', step);
     return response.data;
   },

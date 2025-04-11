@@ -1,166 +1,163 @@
-
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
+import { Circuit } from '@/models/circuit';
 
-interface CircuitFormData {
-  // Basic circuit info
-  title: string;
-  descriptif: string;
-  isActive: boolean;
-  hasOrderedFlow: boolean;
-  
-  // Circuit steps
-  steps: CircuitStepData[];
-}
-
-interface CircuitStepData {
-  title: string;
-  descriptif: string;
-  orderIndex: number;
-}
-
-interface CircuitFormContextType {
+interface CircuitFormContextProps {
+  formData: Circuit;
   currentStep: number;
-  formData: CircuitFormData;
-  setCircuitData: (data: Partial<CircuitFormData>) => void;
-  addStep: (step: CircuitStepData) => void;
-  updateStep: (index: number, step: Partial<CircuitStepData>) => void;
-  removeStep: (index: number) => void;
+  isSubmitting: boolean;
+  formError: string | null;
+  setCircuitData: (data: Partial<Circuit>) => void;
   nextStep: () => void;
   prevStep: () => void;
-  resetForm: () => void;
-  isSubmitting: boolean;
+  addStep: (step: any) => void;
+  updateStep: (index: number, step: any) => void;
+  removeStep: (index: number) => void;
   submitForm: () => Promise<boolean>;
 }
 
-const initialFormData: CircuitFormData = {
-  title: '',
-  descriptif: '',
-  isActive: true,
-  hasOrderedFlow: true,
-  steps: []
-};
+const CircuitFormContext = createContext<CircuitFormContextProps | undefined>(undefined);
 
-const CircuitFormContext = createContext<CircuitFormContextType>({
-  currentStep: 1,
-  formData: initialFormData,
-  setCircuitData: () => {},
-  addStep: () => {},
-  updateStep: () => {},
-  removeStep: () => {},
-  nextStep: () => {},
-  prevStep: () => {},
-  resetForm: () => {},
-  isSubmitting: false,
-  submitForm: async () => false,
-});
+interface CircuitFormProviderProps {
+  children: React.ReactNode;
+}
 
-export const useCircuitForm = () => useContext(CircuitFormContext);
-
-export const CircuitFormProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CircuitFormProvider: React.FC<CircuitFormProviderProps> = ({ children }) => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<CircuitFormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Circuit>({
+    id: 0,
+    circuitKey: '',
+    title: '',
+    descriptif: '',
+    isActive: true,
+    hasOrderedFlow: true,
+    allowBacktrack: false,
+    crdCounter: 0,
+    steps: [],
+  });
 
-  const setCircuitData = (data: Partial<CircuitFormData>) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-  };
+  const setCircuitData = useCallback((data: Partial<Circuit>) => {
+    setFormData(prev => ({ ...prev, ...data }));
+  }, []);
 
-  const addStep = (step: CircuitStepData) => {
-    setFormData((prev) => ({
+  const nextStep = useCallback(() => {
+    setCurrentStep(prev => Math.min(prev + 1, 5));
+  }, []);
+
+  const prevStep = useCallback(() => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+  }, []);
+
+  const addStep = useCallback((step: any) => {
+    setFormData(prev => ({
       ...prev,
       steps: [...prev.steps, step],
     }));
-  };
+  }, []);
 
-  const updateStep = (index: number, step: Partial<CircuitStepData>) => {
-    setFormData((prev) => ({
-      ...prev,
-      steps: prev.steps.map((s, i) => (i === index ? { ...s, ...step } : s)),
-    }));
-  };
+  const updateStep = useCallback((index: number, step: any) => {
+    setFormData(prev => {
+      const newSteps = [...prev.steps];
+      newSteps[index] = step;
+      return { ...prev, steps: newSteps };
+    });
+  }, []);
 
-  const removeStep = (index: number) => {
-    setFormData((prev) => ({
+  const removeStep = useCallback((index: number) => {
+    setFormData(prev => ({
       ...prev,
       steps: prev.steps.filter((_, i) => i !== index),
     }));
-  };
+  }, []);
 
-  const nextStep = () => {
-    setCurrentStep((prev) => prev + 1);
-  };
-
-  const prevStep = () => {
-    setCurrentStep((prev) => Math.max(1, prev - 1));
-  };
-
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setCurrentStep(1);
-    setFormData(initialFormData);
-  };
+    setFormData({
+      id: 0,
+      circuitKey: '',
+      title: '',
+      descriptif: '',
+      isActive: true,
+      hasOrderedFlow: true,
+      allowBacktrack: false,
+      crdCounter: 0,
+      steps: [],
+    });
+  }, []);
 
-  const submitForm = async (): Promise<boolean> => {
+  const submitCircuit = async () => {
     setIsSubmitting(true);
+    setFormError(null);
+
     try {
-      // Create the circuit first
-      const createdCircuit = await circuitService.createCircuit({
+      // First create the circuit
+      const newCircuit = await circuitService.createCircuit({
         title: formData.title,
-        descriptif: formData.descriptif,
+        descriptif: formData.descriptif || '',
         isActive: formData.isActive,
         hasOrderedFlow: formData.hasOrderedFlow,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        allowBacktrack: formData.allowBacktrack,
+        // Remove createdAt as it's generated by the backend
       });
-      
-      // Add steps if there are any
-      if (formData.steps.length > 0) {
-        const stepPromises = formData.steps.map(step => 
-          circuitService.createCircuitDetail({
-            circuitId: createdCircuit.id,
-            title: step.title,
-            descriptif: step.descriptif,
-            orderIndex: step.orderIndex,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          })
+
+      // Then create the steps if any
+      if (formData.steps && formData.steps.length > 0) {
+        await Promise.all(
+          formData.steps.map((step, index) =>
+            circuitService.createStep({
+              circuitId: newCircuit.id,
+              title: step.title,
+              descriptif: step.descriptif || '',
+              orderIndex: index,
+              isFinalStep: index === formData.steps.length - 1,
+            })
+          )
         );
-        
-        await Promise.all(stepPromises);
-        toast.success('Circuit and steps created successfully');
-      } else {
-        toast.success('Circuit created successfully');
       }
-      
+
+      toast.success(`Circuit "${formData.title}" created successfully`);
       resetForm();
-      return true;
+      navigate('/circuits');
     } catch (error) {
-      console.error('Failed to create circuit:', error);
+      console.error('Error creating circuit:', error);
+      setFormError('Failed to create circuit. Please try again.');
       toast.error('Failed to create circuit');
-      return false;
     } finally {
       setIsSubmitting(false);
     }
+    return true;
+  };
+
+  const value = {
+    formData,
+    currentStep,
+    isSubmitting,
+    formError,
+    setCircuitData,
+    nextStep,
+    prevStep,
+    addStep,
+    updateStep,
+    removeStep,
+    submitForm: submitCircuit,
   };
 
   return (
-    <CircuitFormContext.Provider
-      value={{
-        currentStep,
-        formData,
-        setCircuitData,
-        addStep,
-        updateStep,
-        removeStep,
-        nextStep,
-        prevStep,
-        resetForm,
-        isSubmitting,
-        submitForm,
-      }}
-    >
+    <CircuitFormContext.Provider value={value}>
       {children}
     </CircuitFormContext.Provider>
   );
+};
+
+export const useCircuitForm = () => {
+  const context = useContext(CircuitFormContext);
+  if (context === undefined) {
+    throw new Error('useCircuitForm must be used within a CircuitFormProvider');
+  }
+  return context;
 };

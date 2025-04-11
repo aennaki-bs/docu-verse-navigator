@@ -1,3 +1,7 @@
+
+import { Circuit, Step } from './circuit';
+import { User } from './types';
+
 // Updating just the document interface to match the new schema
 export interface Document {
   id: number;
@@ -19,11 +23,17 @@ export interface Document {
   createdAt: string;
   updatedAt: string;
   lignesCount?: number;
+  // Legacy properties still in use by components
+  currentCircuitDetailId?: number;
 }
 
 export interface DocumentType {
   id: number;
   typeName: string;
+  // Legacy properties still in use by components
+  typeKey?: string;
+  typeAttr?: string;
+  documentCounter?: number;
 }
 
 export interface CreateDocumentRequest {
@@ -54,6 +64,10 @@ export interface Ligne {
   createdAt: string;
   updatedAt: string;
   sousLignesCount?: number;
+  // Legacy properties still in use by components
+  ligneKey?: string;
+  article?: string;
+  prix?: number;
 }
 
 export interface CreateLigneRequest {
@@ -62,6 +76,8 @@ export interface CreateLigneRequest {
   description?: string;
   amount: number;
   orderIndex?: number;
+  // Legacy properties still in use by components
+  article?: string;
 }
 
 export interface UpdateLigneRequest {
@@ -69,6 +85,8 @@ export interface UpdateLigneRequest {
   description?: string;
   amount: number;
   orderIndex?: number;
+  // Legacy properties still in use by components
+  article?: string;
 }
 
 export interface SousLigne {
@@ -80,6 +98,9 @@ export interface SousLigne {
   orderIndex: number;
   createdAt: string;
   updatedAt: string;
+  // Legacy properties still in use by components
+  sousLigneKey?: string;
+  attribute?: string;
 }
 
 export interface CreateSousLigneRequest {
@@ -88,6 +109,8 @@ export interface CreateSousLigneRequest {
   description?: string;
   amount: number;
   orderIndex?: number;
+  // Legacy properties still in use by components
+  attribute?: string;
 }
 
 export interface UpdateSousLigneRequest {
@@ -95,4 +118,6 @@ export interface UpdateSousLigneRequest {
   description?: string;
   amount: number;
   orderIndex?: number;
+  // Legacy properties still in use by components
+  attribute?: string;
 }
