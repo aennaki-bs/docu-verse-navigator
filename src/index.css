@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -65,9 +66,10 @@
     --ring: 0 72.2% 50.6%;
   }
 
-  /* Custom scrollbar for the registration form */
+  /* Improved custom scrollbar for the registration form */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-track {
@@ -82,6 +84,16 @@
   
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #2563eb;
+  }
+
+  /* Hide scrollbar for body on the registration page */
+  body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  body::-webkit-scrollbar {
+    display: none;
   }
 }
 

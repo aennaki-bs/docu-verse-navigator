@@ -13,7 +13,7 @@ import { MultiStepFormProvider, useMultiStepForm } from '@/context/form';
 // Step indicator component
 const StepIndicator = ({ currentStep }: { currentStep: number }) => {
   return (
-    <div className="flex justify-center mb-8">
+    <div className="flex justify-center mb-6">
       {[1, 2, 3, 4].map((step) => (
         <div key={step} className="flex items-center">
           <div
@@ -29,7 +29,7 @@ const StepIndicator = ({ currentStep }: { currentStep: number }) => {
           </div>
           {step < 4 && (
             <div
-              className={`h-1.5 w-12 rounded-full transition-all ${
+              className={`h-1.5 w-16 rounded-full transition-all ${
                 step < currentStep ? 'bg-blue-600' : 'bg-gray-700'
               }`}
             ></div>
@@ -64,13 +64,13 @@ const RightSideContent = ({ currentStep }: { currentStep: number }) => {
           Create Your Account <br></br>and
           Join Our Business Platform
         </h1>
-        <p className="text-lg text-gray-300 mb-8">
+        <p className="text-lg text-gray-300 mb-10">
           Create your account to access all features and start managing your business
         </p>
         
         <div className="space-y-6">
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-green-500/20 p-2 rounded-full">
+          <div className="flex items-center space-x-4 bg-[#1c2128]/50 p-4 rounded-lg border border-blue-900/30">
+            <div className="bg-green-500/20 p-3 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -81,8 +81,8 @@ const RightSideContent = ({ currentStep }: { currentStep: number }) => {
             </div>
           </div>
           
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-blue-500/20 p-2 rounded-full">
+          <div className="flex items-center space-x-4 bg-[#1c2128]/50 p-4 rounded-lg border border-blue-900/30">
+            <div className="bg-blue-500/20 p-3 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
@@ -93,8 +93,8 @@ const RightSideContent = ({ currentStep }: { currentStep: number }) => {
             </div>
           </div>
           
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-purple-500/20 p-2 rounded-full">
+          <div className="flex items-center space-x-4 bg-[#1c2128]/50 p-4 rounded-lg border border-blue-900/30">
+            <div className="bg-purple-500/20 p-3 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
@@ -282,7 +282,7 @@ const RegisterForm = () => {
         <div className="w-full max-w-xl py-8">
           {/* <div className="text-center mb-8">
             <DocuVerseLogo className="mx-auto h-14 w-auto" />
-            <h2 className="mt-6 text-3xl font-bold text-white">
+            <h2 className="mt-4 text-3xl font-bold text-white">
               Create an account
             </h2>
             <p className="mt-2 text-sm text-gray-400">
@@ -291,18 +291,18 @@ const RegisterForm = () => {
           </div> */}
           
           <Card className="border-gray-800 bg-gradient-to-b from-[#161b22] to-[#0d1117] shadow-2xl">
-            <CardHeader className="space-y-1 pb-2 border-b border-gray-800">
+            <CardHeader className="space-y-1 pb-2 px-8 pt-6 border-b border-gray-800">
               <StepIndicator currentStep={currentStep} />
               <StepTitle currentStep={currentStep} />
             </CardHeader>
             
-            <ScrollArea className="h-[55vh]">
-              <CardContent className="pt-6 px-5 md:px-7">
+            <ScrollArea className="h-[56vh]">
+              <CardContent className="pt-8 px-8">
                 {renderStep()}
               </CardContent>
             </ScrollArea>
             
-            <CardFooter className="flex flex-col space-y-4 pt-4 pb-5 border-t border-gray-800">
+            <CardFooter className="flex flex-col space-y-4 pt-6 pb-6 px-8 border-t border-gray-800">
               <div className="text-center text-sm text-gray-400">
                 Already have an account?{' '}
                 <Link
@@ -325,8 +325,8 @@ const RegisterForm = () => {
             backgroundImage: "url('data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%232d3748' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E')"
           }}
         ></div>
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-12">
-          <div className="text-center max-w-lg">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-16">
+          <div className="text-center max-w-xl">
             <RightSideContent currentStep={currentStep} />
           </div>
         </div>
