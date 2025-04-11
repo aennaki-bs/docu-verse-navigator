@@ -61,6 +61,7 @@ const RightSideContent = ({ currentStep }: { currentStep: number }) => {
     return (
       <>
         <h1 className="text-4xl font-bold text-white mb-4">
+          Create Your Account <br></br>and
           Join Our Business Platform
         </h1>
         <p className="text-lg text-gray-300 mb-8">
@@ -279,7 +280,7 @@ const RegisterForm = () => {
       {/* Left side - Registration form */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 bg-[#0d1117] h-screen">
         <div className="w-full max-w-xl py-8">
-          <div className="text-center mb-8">
+          {/* <div className="text-center mb-8">
             <DocuVerseLogo className="mx-auto h-14 w-auto" />
             <h2 className="mt-6 text-3xl font-bold text-white">
               Create an account
@@ -287,7 +288,7 @@ const RegisterForm = () => {
             <p className="mt-2 text-sm text-gray-400">
               Join DocuVerse to manage your documents
             </p>
-          </div>
+          </div> */}
           
           <Card className="border-gray-800 bg-gradient-to-b from-[#161b22] to-[#0d1117] shadow-2xl">
             <CardHeader className="space-y-1 pb-2 border-b border-gray-800">
