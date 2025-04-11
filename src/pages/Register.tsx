@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import StepOneUserInfo from '@/components/register/StepOneUserInfo';
 import StepTwoEmailPassword from '@/components/register/StepTwoEmailPassword';
@@ -273,10 +275,10 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
       {/* Left side - Registration form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 bg-[#0d1117] overflow-auto max-h-screen">
-        <div className="w-full max-w-md py-8">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 bg-[#0d1117] h-screen">
+        <div className="w-full max-w-xl py-8">
           <div className="text-center mb-8">
             <DocuVerseLogo className="mx-auto h-14 w-auto" />
             <h2 className="mt-6 text-3xl font-bold text-white">
@@ -293,9 +295,11 @@ const RegisterForm = () => {
               <StepTitle currentStep={currentStep} />
             </CardHeader>
             
-            <CardContent className="pt-6 px-5 md:px-7 max-h-[65vh] overflow-y-auto custom-scrollbar">
-              {renderStep()}
-            </CardContent>
+            <ScrollArea className="h-[55vh]">
+              <CardContent className="pt-6 px-5 md:px-7">
+                {renderStep()}
+              </CardContent>
+            </ScrollArea>
             
             <CardFooter className="flex flex-col space-y-4 pt-4 pb-5 border-t border-gray-800">
               <div className="text-center text-sm text-gray-400">
