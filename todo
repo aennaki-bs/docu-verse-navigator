@@ -1,0 +1,18 @@
+TODO:
+    Signup:
+        ☐ in signup add option to add a type of user (company , personal)
+        ☐ if user is company, add a field to add company name, company IRC, company address, company phone number, company email, company website...
+        ☐ if user is personal, add a field to add personal name, personal address, personal phone number, personal email, personal website...
+        ☐ make the fill of the password and confirm password in the therth step with fill the sucret key ,
+        ☐ make him know that the password of the entery of the aplication and it separated of other accounts
+    Layout:
+        ☐ make the layout of the app more beautiful and more user friendly and responsive
+        ☐ seidebar upgrade
+        ☐ topbar upgrade
+        ☐ main upgrade - be fixed size just the content should be scrollable
+    Profile:
+        ☐ upgrade ui of the profile page
+    
+    ☐ make the ui of all pages compatible and uniform
+    ☐ make the ui of the app more beautiful and more user friendly and responsive
+
