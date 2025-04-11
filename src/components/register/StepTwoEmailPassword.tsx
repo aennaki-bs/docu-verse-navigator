@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useMultiStepForm } from '@/context/MultiStepFormContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -12,6 +12,32 @@ import { validateEmailPasswordStep } from './utils/validation';
 const StepTwoEmailPassword = () => {
   const { formData, setFormData, prevStep, nextStep, validateEmail, validateUsername, stepValidation } = useMultiStepForm();
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
+  
+  // Calculate password strength
+  const calculatePasswordStrength = useCallback((password: string): number => {
+    if (!password) return 0;
+    
+    let strength = 0;
+    
+    // Length check
+    if (password.length >= 8) strength += 1;
+    
+    // Contains lowercase
+    if (/[a-z]/.test(password)) strength += 1;
+    
+    // Contains uppercase
+    if (/[A-Z]/.test(password)) strength += 1;
+    
+    // Contains number
+    if (/[0-9]/.test(password)) strength += 1;
+    
+    // Contains special character
+    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+    
+    return strength;
+  }, []);
+
+  const passwordStrength = calculatePasswordStrength(formData.password);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -82,6 +108,7 @@ const StepTwoEmailPassword = () => {
           confirmPassword={formData.confirmPassword}
           onChange={handleChange}
           localErrors={localErrors}
+          passwordStrength={passwordStrength}
         />
       </div>
 
