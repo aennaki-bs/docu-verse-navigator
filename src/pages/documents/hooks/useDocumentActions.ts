@@ -4,11 +4,10 @@ import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'sonner';
 import documentService from '@/services/documentService';
 import { Document } from '@/models/document';
-import { confirm } from '@/components/ui/confirm-dialog';
 
 export function useDocumentActions(
   navigate: NavigateFunction,
-  refetchDocuments: () => void
+  refetch: () => void
 ) {
   const handleCreateDocument = useCallback(() => {
     navigate('/documents/create');
@@ -22,15 +21,15 @@ export function useDocumentActions(
     try {
       await documentService.deleteDocument(document.id);
       toast.success(`Document "${document.title}" deleted successfully`);
-      refetchDocuments();
+      refetch();
     } catch (error) {
       console.error('Error deleting document:', error);
       toast.error('Failed to delete document');
     }
-  }, [refetchDocuments]);
+  }, [refetch]);
 
   const handleViewDocumentFlow = useCallback((id: number) => {
-    navigate(`/document-flow/${id}`);
+    navigate(`/documents/${id}/flow`);
   }, [navigate]);
 
   return {

@@ -1,4 +1,3 @@
-
 import { Edit, Trash2, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Document, DocumentType } from '@/models/document';
@@ -14,6 +13,7 @@ import {
 import { DocumentColumn } from '@/components/document/DocumentColumn';
 import AddToCircuitButton from '@/components/circuits/AddToCircuitButton';
 import { ArrowDown, ArrowUp } from 'lucide-react';
+import { RefetchOptions } from '@tanstack/react-query';
 
 interface DocumentsTableColumnsProps {
   handleEditDocument: (id: number) => void;

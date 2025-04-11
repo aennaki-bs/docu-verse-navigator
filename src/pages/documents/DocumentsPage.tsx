@@ -18,9 +18,9 @@ const DocumentsPage = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { searchQuery, setSearchQuery } = useDocumentsFilter();
-  const { documents, isLoading, refetchDocuments } = useDocumentsData();
+  const { documents, isLoading, refetch } = useDocumentsData();
   const { handleCreateDocument, handleEditDocument, handleDeleteDocument, handleViewDocumentFlow } = 
-    useDocumentActions(navigate, refetchDocuments);
+    useDocumentActions(navigate, refetch);
   
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -35,7 +35,7 @@ const DocumentsPage = () => {
     handleEditDocument,
     handleViewDocumentFlow,
     openDeleteDialog,
-    refetchDocuments
+    refetchDocuments: refetch
   });
 
   return (
