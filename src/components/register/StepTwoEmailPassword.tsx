@@ -4,11 +4,11 @@ import { useMultiStepForm } from '@/context/MultiStepFormContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { toast } from 'sonner';
 
 const StepTwoEmailPassword = () => {
-  const { formData, setFormData, validateEmail, nextStep, prevStep, stepValidation } = useMultiStepForm();
+  const { formData, setFormData, validateEmail, validateUsername, nextStep, prevStep, stepValidation } = useMultiStepForm();
   const [showPassword, setShowPassword] = useState(false);
   const [localErrors, setLocalErrors] = React.useState<Record<string, string>>({});
   const [passwordStrength, setPasswordStrength] = useState<number>(0);
@@ -55,6 +55,15 @@ const StepTwoEmailPassword = () => {
   const validateStep = () => {
     const errors: Record<string, string> = {};
     
+    // Username validation
+    if (!formData.username.trim()) {
+      errors.username = 'Username is required';
+    } else if (formData.username.length < 3) {
+      errors.username = 'Username must be at least 3 characters';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      errors.username = 'Username can only contain letters, numbers, and underscores';
+    }
+    
     if (!formData.email) {
       errors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -85,15 +94,42 @@ const StepTwoEmailPassword = () => {
       return;
     }
     
-    // Validate email with API
-    const isValid = await validateEmail();
-    if (isValid) {
+    // Validate username and email with API
+    const isUsernameValid = await validateUsername();
+    if (!isUsernameValid) return;
+    
+    const isEmailValid = await validateEmail();
+    if (isEmailValid) {
       nextStep();
     }
   };
 
   return (
     <div className="space-y-4">
+      {/* Username field */}
+      <div className="space-y-1">
+        <Label htmlFor="username">Username</Label>
+        <div className="relative">
+          <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            id="username"
+            name="username"
+            placeholder="Choose a unique username"
+            className={`pl-10 ${
+              localErrors.username || stepValidation.errors.username ? 'border-red-500' : ''
+            }`}
+            value={formData.username}
+            onChange={handleChange}
+          />
+        </div>
+        {localErrors.username && (
+          <p className="text-sm text-red-500">{localErrors.username}</p>
+        )}
+        {stepValidation.errors.username && (
+          <p className="text-sm text-red-500">{stepValidation.errors.username}</p>
+        )}
+      </div>
+      
       <div className="space-y-1">
         <Label htmlFor="email">Email</Label>
         <div className="relative">

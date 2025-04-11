@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { User, Building2, Briefcase, Phone, MapPin, Globe, Mail, CreditCard } from 'lucide-react';
+import { Building2, User, Briefcase, Phone, MapPin, Globe, Mail, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 
 const StepOneUserInfo = () => {
-  const { formData, setFormData, validateUsername, nextStep, stepValidation } = useMultiStepForm();
+  const { formData, setFormData, nextStep } = useMultiStepForm();
   const [localErrors, setLocalErrors] = React.useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,15 +23,6 @@ const StepOneUserInfo = () => {
 
   const validateStep = () => {
     const errors: Record<string, string> = {};
-    
-    // Validate common fields
-    if (!formData.username.trim()) {
-      errors.username = 'Username is required';
-    } else if (formData.username.length < 3) {
-      errors.username = 'Username must be at least 3 characters';
-    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
-      errors.username = 'Username can only contain letters, numbers, and underscores';
-    }
     
     if (formData.userType === 'personal') {
       // Personal user validation
@@ -85,17 +76,13 @@ const StepOneUserInfo = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validateStep()) {
       toast.error("Please correct all errors before proceeding");
       return;
     }
     
-    // Validate username with API
-    const isValid = await validateUsername();
-    if (isValid) {
-      nextStep();
-    }
+    nextStep();
   };
 
   return (
@@ -120,30 +107,6 @@ const StepOneUserInfo = () => {
             <Label htmlFor="company" className="cursor-pointer font-medium">Company</Label>
           </div>
         </RadioGroup>
-      </div>
-      
-      {/* Username Field - Common for both types */}
-      <div className="space-y-1">
-        <Label htmlFor="username">Username</Label>
-        <div className="relative">
-          <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            id="username"
-            name="username"
-            placeholder="Username"
-            className={`pl-10 ${
-              localErrors.username || stepValidation.errors.username ? 'border-red-500' : ''
-            }`}
-            value={formData.username}
-            onChange={handleChange}
-          />
-        </div>
-        {localErrors.username && (
-          <p className="text-sm text-red-500">{localErrors.username}</p>
-        )}
-        {stepValidation.errors.username && (
-          <p className="text-sm text-red-500">{stepValidation.errors.username}</p>
-        )}
       </div>
       
       {/* Personal User Fields */}
@@ -366,9 +329,8 @@ const StepOneUserInfo = () => {
         type="button"
         className="w-full bg-docuBlue hover:bg-docuBlue-700"
         onClick={handleNext}
-        disabled={stepValidation.isLoading}
       >
-        {stepValidation.isLoading ? 'Checking...' : 'Next'}
+        Next
       </Button>
     </div>
   );
