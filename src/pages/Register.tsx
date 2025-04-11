@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -7,7 +6,7 @@ import StepOneUserInfo from '@/components/register/StepOneUserInfo';
 import StepTwoEmailPassword from '@/components/register/StepTwoEmailPassword';
 import StepThreeAdminKey from '@/components/register/StepThreeAdminKey';
 import StepFourSummary from '@/components/register/StepFourSummary';
-import { MultiStepFormProvider, useMultiStepForm } from '@/context/MultiStepFormContext';
+import { MultiStepFormProvider, useMultiStepForm } from '@/context/form';
 
 // Step indicator component
 const StepIndicator = ({ currentStep }: { currentStep: number }) => {

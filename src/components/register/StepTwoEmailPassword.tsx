@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import { useMultiStepForm } from '@/context/MultiStepFormContext';
+import { useMultiStepForm } from '@/context/form';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ArrowRight, ChevronLeft } from 'lucide-react';

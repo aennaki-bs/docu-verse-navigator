@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useMultiStepForm } from '@/context/MultiStepFormContext';
+import { useMultiStepForm } from '@/context/form';
 import { Button } from '@/components/ui/button';
 import { 
   Card,
