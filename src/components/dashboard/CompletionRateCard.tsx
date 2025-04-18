@@ -5,13 +5,13 @@ export function CompletionRateCard() {
   return (
     <Card className="bg-[#0f1642] border-blue-900/30">
       <CardContent className="p-6">
-        <div className="space-y-4">
+        <div className="space-y-2">
           <div>
             <h3 className="font-medium text-white">Completion Rate</h3>
             <p className="text-xs text-blue-300/80">From all documents</p>
           </div>
           
-          <div className="flex justify-center py-4">
+          <div className="flex justify-center py-6">
             <div className="relative h-32 w-32 flex items-center justify-center">
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <circle 

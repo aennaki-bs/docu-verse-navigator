@@ -16,7 +16,7 @@ export function ActivityScoreCard({ user }: ActivityScoreCardProps) {
             <p className="text-xs text-blue-300/80">{user?.lastName}'s Team</p>
           </div>
           
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center pt-2">
             <div>
               <p className="text-sm text-blue-300">Active Users</p>
               <p className="text-2xl font-bold text-white">12</p>

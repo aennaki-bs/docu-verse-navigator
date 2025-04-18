@@ -1,3 +1,4 @@
+
 import { Outlet } from "react-router-dom";
 import { MainNavbar } from "@/components/navigation/MainNavbar";
 import { SidebarNav } from "@/components/navigation/SidebarNav";
@@ -15,52 +16,48 @@ export function Layout() {
 
   return (
     <SidebarProvider>
-      {/* Full-screen background image with overlay */}
-      <div
-        className="min-h-screen  flex flex-col bg-background text-foreground w-full h-full relative overflow-hidden"
-        style={{
-          backgroundImage:
-            "url('https://www.tigernix.com/wp-content/uploads/2024/01/why-singapore-needs-automation-erp-tigernix-singapore.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        {/* Background overlay */}
-        {/* <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-[#070b28]/80' : 'bg-slate-100/80'} z-0`}></div> */}
+      <div className="min-h-screen flex w-full bg-background text-foreground relative overflow-hidden">
+        {/* Background image with overlay */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "url('https://www.tigernix.com/wp-content/uploads/2024/01/why-singapore-needs-automation-erp-tigernix-singapore.jpg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          {/* Background overlay */}
+          <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-[#070b28]/90' : 'bg-slate-100/80'} z-0`}></div>
+        </div>
 
-        {/* Navigation bar - fixed position */}
-        <div className="h-[calc(100vh-4rem)] z-20 w-2/12">
+        {/* Sidebar */}
+        <div className="h-screen z-20 min-w-[250px] w-[250px] relative">
           <SidebarNav />
         </div>
-        {/* Main content area with sidebar */}
-        <div className=" pt-16 w-full h-full">
-          {/* Sidebar */}
 
-          <div
-            className={`fixed inset-x-0 top-0 z-50 ${
-              isMobile ? "bg-background" : "bg-background/90"
-            } backdrop-blur-lg border-b border-border w-10/12 h-1`}
-          >
+        {/* Main content area */}
+        <div className="flex-1 flex flex-col h-screen relative z-10">
+          {/* Navigation bar - fixed position */}
+          <div className={`sticky top-0 z-50 ${isMobile ? "bg-background" : "bg-background/90"} backdrop-blur-lg border-b border-border`}>
             <MainNavbar />
           </div>
 
-          {/* Main content - with proper margin to account for sidebar */}
-          <main className="flex-1 transition-all duration-200  w-full h-full">
-            <div className=" w-full h-full ">
-              <div className="flex justify-between items-center">
+          {/* Main content - with proper padding and scrolling */}
+          <main className="flex-1 overflow-auto p-6">
+            <div className="container mx-auto">
+              <div className="flex justify-between items-center mb-4">
                 <SidebarTrigger className="md:hidden" />
               </div>
+              
+              {/* Content container with background */}
               <div
-                className={`${
-                  theme === "dark" ? "bg-[#111633]/95" : "bg-white/95"
-                } w-full h-full border border-border rounded-xl shadow-lg`}
+                className={`${theme === "dark" ? "bg-[#111633]/95" : "bg-white/95"} 
+                  rounded-xl shadow-lg border border-border overflow-hidden`}
               >
-                <div className="w-full h-full">
-                  <Outlet />
-                  {/* <h1>hello</h1> */}
-                </div>
+                <Outlet />
               </div>
             </div>
           </main>

@@ -15,9 +15,20 @@ export function SidebarNav() {
   };
 
   return (
-    <div className="h-full w-full bg-[#0a1033]/95 backdrop-blur-lg border-r border-blue-900/30 overflow-y-auto">
-      <div className="px-4 py-2">
-        <p className="text-xs font-medium text-blue-400/80 px-2 py-2">MAIN NAVIGATION</p>
+    <div className="h-full w-full bg-[#0a1033]/95 backdrop-blur-lg border-r border-blue-900/30 overflow-y-auto flex flex-col">
+      {/* Logo section */}
+      <div className="p-4 border-b border-blue-900/30">
+        <Link to="/dashboard" className="flex items-center gap-2">
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 w-8 h-8 rounded flex items-center justify-center text-white font-bold">
+            D
+          </div>
+          <span className="text-xl font-semibold bg-gradient-to-r from-blue-200 to-blue-400 text-transparent bg-clip-text">DocuVerse</span>
+        </Link>
+      </div>
+      
+      {/* Navigation links */}
+      <div className="px-4 py-6 flex-1">
+        <p className="text-xs font-medium text-blue-400/80 px-2 mb-3">MAIN NAVIGATION</p>
         <ul className="space-y-1">
           {/* Dashboard */}
           <li>
@@ -115,6 +126,11 @@ export function SidebarNav() {
             </li>
           )}
         </ul>
+      </div>
+      
+      {/* Version info at bottom */}
+      <div className="p-4 text-xs text-blue-400/60 border-t border-blue-900/30">
+        <p>DocuVerse v1.0</p>
       </div>
     </div>
   );
