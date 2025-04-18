@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { 
   Edit, Trash2, ChevronDown, ChevronUp, DollarSign,
@@ -77,11 +78,11 @@ const LigneItem = ({
                 </div>
                 <div className="flex items-center text-blue-300/60">
                   <Tag className="h-3.5 w-3.5 mr-1.5" />
-                  {ligne.category || 'No Category'}
+                  {"No Category"}
                 </div>
                 <div className="flex items-center text-blue-300/60">
                   <FileText className="h-3.5 w-3.5 mr-1.5" />
-                  {ligne.status}
+                  {"Pending"}
                 </div>
               </div>
             </div>
