@@ -15,7 +15,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from 'sonner';
 import { ArrowLeft, ArrowRight, FileText, Check, Save } from 'lucide-react';
-import { documentService, subTypeService } from '@/services/documents';
+import documentService from '@/services/documentService';
 import { DocumentType, CreateDocumentRequest, SubType } from '@/models/document';
 import { DatePickerInput } from '@/components/document/DatePickerInput';
 
@@ -43,8 +43,8 @@ export default function CreateDocument() {
     const fetchDocumentTypes = async () => {
       try {
         setIsLoading(true);
-        // Fix: Use documentTypeService instead of documentService for fetching types
-        const types = await documentService.documentTypeService.getAllDocumentTypes();
+        // Use the direct method from the document service
+        const types = await documentService.getAllDocumentTypes();
         setDocumentTypes(types);
       } catch (error) {
         console.error('Failed to fetch document types:', error);
@@ -69,10 +69,10 @@ export default function CreateDocument() {
         const formattedDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
         console.log("Fetching subtypes for date:", formattedDate);
         // If we have a date, fetch subtypes valid for this date
-        fetchedSubtypes = await subTypeService.getSubTypesForDate(typeId, formattedDate);
+        fetchedSubtypes = await documentService.getSubTypesForDate(typeId, formattedDate);
       } else {
         // Otherwise, fetch all subtypes for the document type
-        fetchedSubtypes = await subTypeService.getSubTypesByDocumentTypeId(typeId);
+        fetchedSubtypes = await documentService.getSubTypesByDocumentTypeId(typeId);
       }
       
       console.log("Fetched subtypes:", fetchedSubtypes);
