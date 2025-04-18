@@ -1,4 +1,3 @@
-
 import { ArrowUpDown } from 'lucide-react';
 import { Document } from '@/models/document';
 import DocumentsTableRow from './DocumentsTableRow';
@@ -68,7 +67,7 @@ export default function DocumentsTable({
             )}
           </TableHead>
           <TableHead className="text-blue-300 w-52">
-            {renderSortableHeader('Document Key', 'documentKey', <TagIcon />)}
+            {renderSortableHeader('Document Code', 'documentKey', <TagIcon />)}
           </TableHead>
           <TableHead className="text-blue-300">
             {renderSortableHeader('Title', 'title', <FileTextIcon />)}
@@ -77,7 +76,7 @@ export default function DocumentsTable({
             {renderSortableHeader('Type', 'documentType', <FilterIcon />)}
           </TableHead>
           <TableHead className="text-blue-300">
-            {renderSortableHeader('Created Date', 'createdAt', <CalendarDaysIcon />)}
+            {renderSortableHeader('Document Date', 'createdAt', <CalendarDaysIcon />)}
           </TableHead>
           <TableHead className="text-blue-300">
             {renderSortableHeader('Created By', 'createdBy', <AvatarIcon />)}
