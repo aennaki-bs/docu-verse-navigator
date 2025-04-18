@@ -106,9 +106,9 @@ export const CircuitStepsSection = ({
         onMoveClick={onMoveClick}
       />
       
-      <div className="p-4">
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-600/20 scrollbar-track-blue-900/10 pb-1">
-          <div className="flex space-x-4 min-w-fit">
+      <div className="p-4 overflow-hidden">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-600/20 scrollbar-track-blue-900/10 -mx-4 px-4">
+          <div className="inline-flex space-x-4 pb-4 min-w-full">
             {circuitDetails?.map((detail) => {
               const historyForStep = circuitHistory?.filter(h => h.circuitDetailId === detail.id) || [];
               const isOver = draggedOverStepId === detail.id;
@@ -117,7 +117,7 @@ export const CircuitStepsSection = ({
               return (
                 <div 
                   key={detail.id} 
-                  className={`w-56 sm:w-60 flex-shrink-0 transition-all duration-300 ${isOver ? 'scale-105 transform' : ''}`}
+                  className={`w-[280px] flex-none transition-all duration-300 ${isOver ? 'scale-105 transform' : ''}`}
                   onDragOver={(e) => handleDragOver(e, detail.id)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, detail.id)}

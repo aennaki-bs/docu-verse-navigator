@@ -11,12 +11,16 @@ export function WorkflowStatusSection({ workflowStatus }: WorkflowStatusSectionP
   if (!workflowStatus) return null;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <DocumentStatusCard workflowStatus={workflowStatus} />
-      <StepRequirementsCard 
-        statuses={workflowStatus.statuses} 
-        workflowStatus={workflowStatus}
-      />
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
+      <div className="w-full lg:col-span-1">
+        <DocumentStatusCard workflowStatus={workflowStatus} />
+      </div>
+      <div className="w-full lg:col-span-1">
+        <StepRequirementsCard 
+          statuses={workflowStatus.statuses} 
+          workflowStatus={workflowStatus}
+        />
+      </div>
     </div>
   );
 }
