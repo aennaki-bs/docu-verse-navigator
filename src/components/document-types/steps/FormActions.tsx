@@ -49,7 +49,11 @@ export const FormActions = ({
         type="button"
         onClick={isLastStep ? onSubmit : onNext}
         disabled={isNextDisabled || isValidating}
-        className="h-7 text-xs bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white"
+        className={`h-7 text-xs ${
+          isNextDisabled 
+            ? 'bg-blue-800/50 text-gray-400' 
+            : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white'
+        }`}
         size="sm"
       >
         {isValidating ? (

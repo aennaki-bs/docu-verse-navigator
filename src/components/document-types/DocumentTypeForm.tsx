@@ -1,13 +1,14 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ArrowLeft, Check } from 'lucide-react';
-import { Form } from '@/components/ui/form';
+import { ArrowLeft } from 'lucide-react';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
 import documentService from '@/services/documentService';
 import { DocumentType } from '@/models/document';
 import { TypeNameStep } from './steps/TypeNameStep';
-import { TypeDetailsStep } from './steps/TypeDetailsStep';
 import { StepIndicator } from './steps/StepIndicator';
 import { FormActions } from './steps/FormActions';
 import { TypeAliasStep } from './steps/TypeAliasStep';
@@ -35,6 +36,7 @@ export const DocumentTypeForm = ({
   const [step, setStep] = useState(1);
   const [isTypeNameValid, setIsTypeNameValid] = useState<boolean | null>(null);
   const [isValidating, setIsValidating] = useState(false);
+  const [nameValidationDone, setNameValidationDone] = useState(false);
 
   const form = useForm<z.infer<typeof typeSchema>>({
     resolver: zodResolver(typeSchema),
@@ -54,25 +56,34 @@ export const DocumentTypeForm = ({
       });
       
       if (isEditMode) {
-        setStep(3);
+        setStep(4);
       }
     }
   }, [documentType, isEditMode, form]);
 
   const validateTypeName = async (typeName: string) => {
     if (isEditMode && typeName === documentType?.typeName) {
+      setIsTypeNameValid(true);
+      setNameValidationDone(true);
       return true;
     }
     
-    if (typeName.length < 2) return false;
+    if (typeName.length < 2) {
+      setIsTypeNameValid(false);
+      setNameValidationDone(true);
+      return false;
+    }
     
     setIsValidating(true);
     try {
       const exists = await documentService.validateTypeName(typeName);
       setIsTypeNameValid(!exists);
+      setNameValidationDone(true);
       return !exists;
     } catch (error) {
       console.error('Error validating type name:', error);
+      setIsTypeNameValid(false);
+      setNameValidationDone(true);
       return false;
     } finally {
       setIsValidating(false);
@@ -94,6 +105,8 @@ export const DocumentTypeForm = ({
       }
     } else if (step === 2) {
       setStep(3);
+    } else if (step === 3) {
+      setStep(4);
     }
   };
 
@@ -131,8 +144,17 @@ export const DocumentTypeForm = ({
     }
   };
 
+  // Check if Next button should be disabled for current step
+  const isNextDisabled = () => {
+    if (step === 1) {
+      const typeName = form.getValues("typeName");
+      return !typeName || typeName.length < 2 || (isTypeNameValid === false && nameValidationDone);
+    }
+    return false;
+  };
+
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="w-full h-full flex flex-col items-center justify-center">
       <div className="space-y-4 w-full max-w-md">
         {step === 1 && !isEditMode && (
           <div className="flex items-center text-blue-400 text-sm mb-2 cursor-pointer" onClick={handleCancel}>
@@ -141,7 +163,7 @@ export const DocumentTypeForm = ({
           </div>
         )}
         
-        {!isEditMode && <StepIndicator currentStep={step} totalSteps={3} />}
+        {!isEditMode && <StepIndicator currentStep={step} totalSteps={4} />}
 
         <div className="mb-3">
           <h3 className="text-lg font-medium text-white">
@@ -150,8 +172,10 @@ export const DocumentTypeForm = ({
               : step === 1 
                 ? 'Type Name' 
                 : step === 2
-                  ? 'Type Details'
-                  : 'Review'}
+                  ? 'Type Description'
+                  : step === 3
+                    ? 'Type Code'
+                    : 'Review'}
           </h3>
           <p className="text-xs text-blue-300 mt-1">
             {isEditMode 
@@ -159,8 +183,10 @@ export const DocumentTypeForm = ({
               : step === 1 
                 ? 'Create a unique name for this document type' 
                 : step === 2
-                  ? 'Add additional attributes for this document type'
-                  : 'Review your document type before creating it'}
+                  ? 'Add a description for this document type (optional)'
+                  : step === 3
+                    ? 'Add a code for this document type (optional)'
+                    : 'Review your document type before creating it'}
           </p>
         </div>
 
@@ -171,30 +197,51 @@ export const DocumentTypeForm = ({
                 control={form.control}
                 isTypeNameValid={isTypeNameValid}
                 isValidating={isValidating}
-                onTypeNameChange={() => setIsTypeNameValid(null)}
+                onTypeNameChange={() => {
+                  setIsTypeNameValid(null);
+                  setNameValidationDone(false);
+                }}
               />
             )}
 
             {step === 2 && (
-              <>
-                <TypeAliasStep control={form.control} />
-                <TypeDetailsStep control={form.control} />
-              </>
+              <FormField
+                control={form.control}
+                name="typeAttr"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-blue-100">Description (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="Enter description (optional)" 
+                        className="min-h-[100px] text-xs bg-[#0A0E2E] border-blue-900/40 focus:border-blue-500"
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs text-blue-300/70">
+                      Additional description for this document type
+                    </FormDescription>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
             )}
 
-            {step === 3 && <ReviewStep />}
+            {step === 3 && <TypeAliasStep control={form.control} />}
+
+            {step === 4 && <ReviewStep />}
           </form>
         </Form>
 
         <FormActions
           step={step}
-          totalSteps={3}
+          totalSteps={4}
           isEditMode={isEditMode}
           onNext={nextStep}
           onPrev={prevStep}
           onSubmit={form.handleSubmit(onSubmit)}
           onCancel={handleCancel}
-          isNextDisabled={!form.getValues("typeName") || form.getValues("typeName").length < 2}
+          isNextDisabled={isNextDisabled()}
           isValidating={isValidating}
         />
       </div>

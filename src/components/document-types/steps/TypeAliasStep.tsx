@@ -14,16 +14,16 @@ export const TypeAliasStep = ({ control }: TypeAliasStepProps) => {
       name="typeAlias"
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-xs text-blue-100">Type Alias (Optional)</FormLabel>
+          <FormLabel className="text-xs text-blue-100">Type Code (Optional)</FormLabel>
           <FormControl>
             <Input 
               {...field} 
-              placeholder="Enter type alias" 
+              placeholder="Enter type code" 
               className="h-8 text-xs bg-[#0A0E2E] border-blue-900/40 focus:border-blue-500"
             />
           </FormControl>
           <FormDescription className="text-xs text-blue-300/70">
-            A short identifier for this document type
+            A short identifier code for this document type
           </FormDescription>
           <FormMessage className="text-xs" />
         </FormItem>

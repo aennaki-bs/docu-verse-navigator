@@ -2,7 +2,6 @@
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Info } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 
 export const ReviewStep = () => {
   const { getValues } = useFormContext();
@@ -27,19 +26,17 @@ export const ReviewStep = () => {
                   </div>
                 </div>
 
-                {formValues.typeAlias && (
-                  <div className="space-y-1">
-                    <div className="text-xs font-medium text-blue-300">Type Alias</div>
-                    <div className="text-white text-xs bg-[#131d5a]/70 p-1.5 rounded-md border border-blue-900/20">
-                      {formValues.typeAlias}
-                    </div>
-                  </div>
-                )}
-                
                 <div className="space-y-1">
                   <div className="text-xs font-medium text-blue-300">Description</div>
                   <div className="text-gray-300 text-xs whitespace-pre-wrap bg-[#131d5a]/70 p-1.5 rounded-md border border-blue-900/20 min-h-[40px]">
                     {formValues.typeAttr || 'No description provided'}
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-blue-300">Type Code</div>
+                  <div className="text-white text-xs bg-[#131d5a]/70 p-1.5 rounded-md border border-blue-900/20">
+                    {formValues.typeAlias || 'No code provided'}
                   </div>
                 </div>
               </div>
