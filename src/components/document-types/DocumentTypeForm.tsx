@@ -154,7 +154,7 @@ export const DocumentTypeForm = ({
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center">
+    <div className="w-full min-h-screen flex items-center justify-center p-4">
       <div className="space-y-4 w-full max-w-md">
         {step === 1 && !isEditMode && (
           <div className="flex items-center text-blue-400 text-sm mb-2 cursor-pointer" onClick={handleCancel}>

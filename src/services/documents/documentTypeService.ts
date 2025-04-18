@@ -1,4 +1,3 @@
-
 import api from '../api';
 import { DocumentType } from '../../models/document';
 
@@ -56,6 +55,16 @@ const documentTypeService = {
       await Promise.all(ids.map(id => api.delete(`/Documents/Types/${id}`)));
     } catch (error) {
       console.error('Error deleting multiple document types:', error);
+      throw error;
+    }
+  },
+
+  validateTypeKey: async (typeKey: string): Promise<boolean> => {
+    try {
+      const response = await api.post('/Documents/valide-typeKey', { typeKey });
+      return response.data === "True";
+    } catch (error) {
+      console.error('Error validating type key:', error);
       throw error;
     }
   },
