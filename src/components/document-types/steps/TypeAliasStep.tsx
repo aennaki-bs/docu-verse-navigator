@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Control } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,11 @@ export const TypeAliasStep = ({ control }: TypeAliasStepProps) => {
   const [isTypeKeyValid, setIsTypeKeyValid] = useState<boolean | null>(null);
 
   const validateTypeKey = async (value: string) => {
-    if (!value || value.length < 2 || value.length > 3) {
+    if (!value || value.length < 2) {
+      return true; // It's optional, so empty value is valid
+    }
+    
+    if (value.length > 3) {
       setIsTypeKeyValid(false);
       return false;
     }
@@ -49,7 +53,7 @@ export const TypeAliasStep = ({ control }: TypeAliasStepProps) => {
         },
         validate: validateTypeKey
       }}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <FormItem>
           <FormLabel className="text-xs text-blue-100">Type Code (Optional)</FormLabel>
           <div className="relative">
@@ -76,6 +80,9 @@ export const TypeAliasStep = ({ control }: TypeAliasStepProps) => {
           </div>
           {isTypeKeyValid === false && !isValidating && (
             <FormMessage className="text-xs">This type code already exists</FormMessage>
+          )}
+          {fieldState.error && (
+            <FormMessage className="text-xs">{fieldState.error.message}</FormMessage>
           )}
           <FormDescription className="text-xs text-blue-300/70">
             Enter a unique 2-3 character code for this document type

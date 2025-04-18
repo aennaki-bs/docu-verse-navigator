@@ -29,17 +29,17 @@ export const FormActions = ({
   const isLastStep = step === totalSteps;
 
   return (
-    <div className="flex justify-between gap-2 mt-4">
+    <div className="flex justify-between gap-2 mt-6">
       <Button
         type="button"
         variant="outline"
         onClick={isFirstStep ? onCancel : onPrev}
-        className="h-7 text-xs bg-transparent border-blue-800/50 hover:bg-blue-900/30 text-gray-300"
+        className="h-8 text-xs bg-transparent border-blue-800/50 hover:bg-blue-900/30 text-gray-300"
         size="sm"
       >
         {isFirstStep ? 'Cancel' : (
           <>
-            <ArrowLeft className="mr-1 h-2.5 w-2.5" />
+            <ArrowLeft className="mr-1 h-3 w-3" />
             Back
           </>
         )}
@@ -49,21 +49,21 @@ export const FormActions = ({
         type="button"
         onClick={isLastStep ? onSubmit : onNext}
         disabled={isNextDisabled || isValidating}
-        className={`h-7 text-xs ${
-          isNextDisabled 
-            ? 'bg-blue-800/50 text-gray-400' 
+        className={`h-8 text-xs ${
+          isNextDisabled || isValidating
+            ? 'bg-blue-800/50 text-gray-400 cursor-not-allowed' 
             : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white'
         }`}
         size="sm"
       >
         {isValidating ? (
           <>
-            <Loader2 className="mr-1 h-2.5 w-2.5 animate-spin" />
+            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
             Validating...
           </>
         ) : isLastStep ? (
           <>
-            <Save className="mr-1 h-2.5 w-2.5" />
+            <Save className="mr-1 h-3 w-3" />
             {isEditMode ? 'Update Type' : 'Create Type'}
           </>
         ) : (

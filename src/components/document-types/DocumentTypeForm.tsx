@@ -13,6 +13,7 @@ import { StepIndicator } from './steps/StepIndicator';
 import { FormActions } from './steps/FormActions';
 import { TypeAliasStep } from './steps/TypeAliasStep';
 import { ReviewStep } from './steps/ReviewStep';
+import { TypeDetailsStep } from './steps/TypeDetailsStep';
 
 const typeSchema = z.object({
   typeName: z.string().min(2, "Type name must be at least 2 characters."),
@@ -155,7 +156,7 @@ export const DocumentTypeForm = ({
 
   return (
     <div className="w-full min-h-screen flex items-center justify-center p-4">
-      <div className="space-y-4 w-full max-w-md">
+      <div className="glass-card p-6 rounded-xl shadow-lg space-y-4 w-full max-w-md">
         {step === 1 && !isEditMode && (
           <div className="flex items-center text-blue-400 text-sm mb-2 cursor-pointer" onClick={handleCancel}>
             <ArrowLeft className="h-3.5 w-3.5 mr-1" />
@@ -165,14 +166,14 @@ export const DocumentTypeForm = ({
         
         {!isEditMode && <StepIndicator currentStep={step} totalSteps={4} />}
 
-        <div className="mb-3">
+        <div className="mb-4">
           <h3 className="text-lg font-medium text-white">
             {isEditMode 
               ? 'Edit Document Type' 
               : step === 1 
                 ? 'Type Name' 
                 : step === 2
-                  ? 'Type Description'
+                  ? 'Description'
                   : step === 3
                     ? 'Type Code'
                     : 'Review'}
@@ -205,31 +206,19 @@ export const DocumentTypeForm = ({
             )}
 
             {step === 2 && (
-              <FormField
-                control={form.control}
-                name="typeAttr"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs text-blue-100">Description (Optional)</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        {...field} 
-                        placeholder="Enter description (optional)" 
-                        className="min-h-[100px] text-xs bg-[#0A0E2E] border-blue-900/40 focus:border-blue-500"
-                      />
-                    </FormControl>
-                    <FormDescription className="text-xs text-blue-300/70">
-                      Additional description for this document type
-                    </FormDescription>
-                    <FormMessage className="text-xs" />
-                  </FormItem>
-                )}
-              />
+              <TypeDetailsStep control={form.control} />
             )}
 
             {step === 3 && <TypeAliasStep control={form.control} />}
 
-            {step === 4 && <ReviewStep />}
+            {step === 4 && (
+              <ReviewStep 
+                typeName={form.getValues("typeName")} 
+                typeAttr={form.getValues("typeAttr")} 
+                typeAlias={form.getValues("typeAlias")} 
+                isEditMode={isEditMode}
+              />
+            )}
           </form>
         </Form>
 
