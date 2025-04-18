@@ -35,7 +35,13 @@ const subTypeService = {
 
   getSubTypesForDate: async (documentTypeId: number, date: string): Promise<SubType[]> => {
     try {
-      const response = await api.get(`/SubType/for-date/${documentTypeId}/${date}`);
+      // Format the date if needed (make sure it's in YYYY-MM-DD format)
+      const formattedDate = date.includes('T') ? date.split('T')[0] : date;
+      
+      // Use encodeURIComponent to properly encode the date in the URL
+      const encodedDate = encodeURIComponent(formattedDate);
+      
+      const response = await api.get(`/SubType/for-date/${documentTypeId}/${encodedDate}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching subtypes for date ${date}:`, error);

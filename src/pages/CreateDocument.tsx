@@ -15,7 +15,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from 'sonner';
 import { ArrowLeft, ArrowRight, FileText, Check, Save } from 'lucide-react';
-import documentService from '@/services/documentService';
+import { documentService, subTypeService } from '@/services/documents';
 import { DocumentType, CreateDocumentRequest, SubType } from '@/models/document';
 import { DatePickerInput } from '@/components/document/DatePickerInput';
 
@@ -57,32 +57,37 @@ export default function CreateDocument() {
   }, []);
 
   // Function to fetch subtypes based on the selected document type
-  const fetchSubtypes = async (typeId: number, date: string | null = null) => {
+  const fetchSubtypes = async (typeId: number, dateStr: string | null = null) => {
     if (!typeId) return;
     
     try {
       setIsLoadingSubtypes(true);
       let fetchedSubtypes: SubType[];
       
-      if (date) {
+      if (dateStr) {
+        // Format the date to YYYY-MM-DD format
+        const formattedDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+        console.log("Fetching subtypes for date:", formattedDate);
         // If we have a date, fetch subtypes valid for this date
-        fetchedSubtypes = await documentService.getSubTypesForDate(typeId, date);
+        fetchedSubtypes = await subTypeService.getSubTypesForDate(typeId, formattedDate);
       } else {
         // Otherwise, fetch all subtypes for the document type
-        fetchedSubtypes = await documentService.getSubTypesByDocumentTypeId(typeId);
+        fetchedSubtypes = await subTypeService.getSubTypesByDocumentTypeId(typeId);
       }
       
-      setSubtypes(fetchedSubtypes);
+      console.log("Fetched subtypes:", fetchedSubtypes);
+      setSubtypes(fetchedSubtypes || []);
       
       // Filter active subtypes
-      const validSubtypes = date 
-        ? fetchedSubtypes.filter(st => 
+      const validSubtypes = dateStr 
+        ? (fetchedSubtypes || []).filter(st => 
             st.isActive && 
-            new Date(date) >= new Date(st.startDate) && 
-            new Date(date) <= new Date(st.endDate)
+            new Date(dateStr) >= new Date(st.startDate) && 
+            new Date(dateStr) <= new Date(st.endDate)
           )
-        : fetchedSubtypes.filter(st => st.isActive);
-        
+        : (fetchedSubtypes || []).filter(st => st.isActive);
+      
+      console.log("Valid subtypes for the selected date:", validSubtypes);  
       setAvailableSubtypes(validSubtypes);
       
       // If the currently selected subtype is no longer valid, clear it
@@ -92,6 +97,8 @@ export default function CreateDocument() {
     } catch (error) {
       console.error('Failed to fetch subtypes:', error);
       toast.error('Failed to load subtypes');
+      setSubtypes([]);
+      setAvailableSubtypes([]);
     } finally {
       setIsLoadingSubtypes(false);
     }
@@ -100,7 +107,14 @@ export default function CreateDocument() {
   // Effect to fetch subtypes when document type changes
   useEffect(() => {
     if (selectedTypeId) {
-      fetchSubtypes(selectedTypeId, docDate);
+      // Reset selected subtype when type changes
+      setSelectedSubTypeId(null);
+      // Fetch all subtypes for this document type initially
+      fetchSubtypes(selectedTypeId);
+      // If we also have a date, fetch subtypes valid for this date
+      if (docDate) {
+        fetchSubtypes(selectedTypeId, docDate);
+      }
     } else {
       setSubtypes([]);
       setAvailableSubtypes([]);
@@ -113,26 +127,6 @@ export default function CreateDocument() {
       fetchSubtypes(selectedTypeId, docDate);
     }
   }, [docDate]);
-
-  const handleLogout = () => {
-    if (useAuth().logout) {
-      useAuth().logout(navigate);
-    }
-  };
-
-  const getInitials = () => {
-    return `${user?.firstName?.[0] || ''}${user?.lastName?.[0] || ''}`;
-  };
-
-  const handleNextStep = () => {
-    if (validateCurrentStep()) {
-      setStep(prevStep => prevStep + 1);
-    }
-  };
-
-  const handlePrevStep = () => {
-    setStep(prevStep => prevStep - 1);
-  };
 
   const validateCurrentStep = () => {
     switch (step) {
@@ -184,6 +178,16 @@ export default function CreateDocument() {
     }
   };
 
+  const handleNextStep = () => {
+    if (validateCurrentStep()) {
+      setStep(prevStep => prevStep + 1);
+    }
+  };
+
+  const handlePrevStep = () => {
+    setStep(prevStep => prevStep - 1);
+  };
+
   const handleSubmit = async () => {
     if (!validateCurrentStep()) return;
 
@@ -218,6 +222,7 @@ export default function CreateDocument() {
   const handleDateChange = (newDate: Date | undefined) => {
     if (newDate) {
       const dateString = newDate.toISOString().split('T')[0];
+      console.log("Selected date changed to:", dateString);
       setDocDate(dateString);
       setDateError('');
       
