@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Document, Ligne } from '@/models/document';
 import LigneItem from './LigneItem';
@@ -51,7 +50,7 @@ const LignesListWrapper = ({
         />
       ) : (
         <>
-          <div className="max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-800/50 scrollbar-track-blue-950/30">
+          <div className="max-h-[70vh] overflow-y-auto">
             <div className="p-4 space-y-3">
               {lignes.map((ligne) => (
                 <LigneItem 

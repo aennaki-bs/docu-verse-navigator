@@ -2,14 +2,13 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, CreditCard, MapPin, Phone } from 'lucide-react';
+import { User, CreditCard, Phone, CheckCircle2 } from 'lucide-react';
 
 interface PersonalUserFieldsProps {
   formData: {
     firstName: string;
     lastName: string;
     cin?: string;
-    personalAddress?: string;
     personalPhone?: string;
   };
   localErrors: Record<string, string>;
@@ -21,6 +20,11 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
   localErrors,
   handleChange
 }) => {
+  // Helper function to determine if a field is valid
+  const isFieldValid = (fieldName: string, value?: string) => {
+    return value && value.trim().length > 0 && !localErrors[fieldName];
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* First Name */}
@@ -32,10 +36,16 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
             id="firstName"
             name="firstName"
             placeholder="First Name"
-            className={`pl-10 ${localErrors.firstName ? 'border-red-500' : ''}`}
+            className={`pl-10 pr-10 ${
+              formData.firstName && localErrors.firstName ? 'border-red-500' : 
+              isFieldValid('firstName', formData.firstName) ? 'border-green-500' : ''
+            }`}
             value={formData.firstName}
             onChange={handleChange}
           />
+          {isFieldValid('firstName', formData.firstName) && (
+            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+          )}
         </div>
         {localErrors.firstName && (
           <p className="text-xs text-red-500">{localErrors.firstName}</p>
@@ -51,70 +61,69 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
             id="lastName"
             name="lastName"
             placeholder="Last Name"
-            className={`pl-10 ${localErrors.lastName ? 'border-red-500' : ''}`}
+            className={`pl-10 pr-10 ${
+              formData.lastName && localErrors.lastName ? 'border-red-500' : 
+              isFieldValid('lastName', formData.lastName) ? 'border-green-500' : ''
+            }`}
             value={formData.lastName}
             onChange={handleChange}
           />
+          {isFieldValid('lastName', formData.lastName) && (
+            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+          )}
         </div>
         {localErrors.lastName && (
           <p className="text-xs text-red-500">{localErrors.lastName}</p>
         )}
       </div>
       
-      {/* CIN */}
+      {/* CIN (Optional) */}
       <div className="space-y-1">
-        <Label htmlFor="cin">CIN (ID Number)</Label>
+        <Label htmlFor="cin">CIN (ID Number) - Optional</Label>
         <div className="relative">
           <CreditCard className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             id="cin"
             name="cin"
-            placeholder="National ID Number"
-            className={`pl-10 ${localErrors.cin ? 'border-red-500' : ''}`}
+            placeholder="National ID Number (Optional)"
+            className={`pl-10 pr-10 ${
+              formData.cin && localErrors.cin ? 'border-red-500' : 
+              isFieldValid('cin', formData.cin) ? 'border-green-500' : ''
+            }`}
             value={formData.cin || ''}
             onChange={handleChange}
           />
+          {isFieldValid('cin', formData.cin) && (
+            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+          )}
         </div>
         {localErrors.cin && (
           <p className="text-xs text-red-500">{localErrors.cin}</p>
         )}
       </div>
       
-      {/* Phone Number */}
+      {/* Phone Number (Optional) */}
       <div className="space-y-1">
-        <Label htmlFor="personalPhone">Phone Number</Label>
+        <Label htmlFor="personalPhone">Phone Number - Optional</Label>
         <div className="relative">
           <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             id="personalPhone"
             name="personalPhone"
-            placeholder="Your Phone Number"
-            className={`pl-10 ${localErrors.personalPhone ? 'border-red-500' : ''}`}
+            placeholder="Your Phone Number (Optional)"
+            className={`pl-10 pr-10 ${
+              formData.personalPhone && localErrors.personalPhone ? 'border-red-500' : 
+              isFieldValid('personalPhone', formData.personalPhone) ? 'border-green-500' : ''
+            }`}
             value={formData.personalPhone || ''}
             onChange={handleChange}
           />
+          {isFieldValid('personalPhone', formData.personalPhone) && (
+            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+          )}
         </div>
         {localErrors.personalPhone && (
           <p className="text-xs text-red-500">{localErrors.personalPhone}</p>
-        )}
-      </div>
-      
-      {/* Personal Address - Full Width */}
-      <div className="space-y-1 col-span-1 md:col-span-2">
-        <Label htmlFor="personalAddress">Address</Label>
-        <div className="relative">
-          <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            id="personalAddress"
-            name="personalAddress"
-            placeholder="Your Address"
-            className={`pl-10 ${localErrors.personalAddress ? 'border-red-500' : ''}`}
-            value={formData.personalAddress || ''}
-            onChange={handleChange}
-          />
-        </div>
-        {localErrors.personalAddress && (
-          <p className="text-xs text-red-500">{localErrors.personalAddress}</p>
         )}
       </div>
     </div>

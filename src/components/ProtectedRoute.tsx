@@ -19,7 +19,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const location = useLocation();
   
   // UI development mode - allow navigation to all routes regardless of authentication
-  const allowAllAccess = true; // Set to true to bypass authentication checks
+  const allowAllAccess = false; // Changed to false to enforce proper authentication
 
   useEffect(() => {
     console.log('ProtectedRoute - Auth state:', { 
@@ -57,16 +57,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // Check if SimpleUser is trying to access management features
   if (requiresManagement && userRole === 'SimpleUser') {
-    toast.error('Simple users cannot make management changes', {
-      description: 'You can view information but cannot modify content'
-    });
-    
-    // If it's a circuit page, allow viewing but return to dashboard for other management pages
-    if (location.pathname === '/circuits') {
-      // Allow viewing but restrictions will be applied in the component
+    // For document-types route, SimpleUsers should have view-only access
+    if (location.pathname === '/document-types') {
+      // Allow SimpleUsers to view document types
       return children ? <>{children}</> : <Outlet />;
     }
     
+    // For circuits page, allow viewing but apply restrictions in the component
+    if (location.pathname === '/circuits') {
+      return children ? <>{children}</> : <Outlet />;
+    }
+    
+    toast.error('Simple users cannot make management changes', {
+      description: 'You can view information but cannot modify content'
+    });
     return <Navigate to="/dashboard" replace />;
   }
 

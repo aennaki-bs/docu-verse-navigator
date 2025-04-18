@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -8,7 +7,7 @@ import { Eye, EyeOff, Lock, User, WifiOff, ShieldAlert } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { checkApiConnection } from '@/services/api';
+import { checkApiConnection } from '@/services/api/connectionCheck';
 
 const Login = () => {
   const [emailOrUsername, setEmailOrUsername] = useState('');
@@ -184,7 +183,7 @@ const Login = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-                    Password
+                    Account Password
                   </label>
                   <Link to="/forgot-password" className="text-sm font-medium text-blue-400 hover:text-blue-300">
                     Forgot password?

@@ -1,4 +1,6 @@
 
+import { Dispatch, SetStateAction } from 'react';
+
 export interface FormData {
   userType: 'personal' | 'company';
   firstName: string;
@@ -25,6 +27,8 @@ export interface StepValidation {
   isLoading: boolean;
   errors: Record<string, string>;
 }
+
+export type SetStepValidation = Dispatch<SetStateAction<StepValidation>>;
 
 export interface MultiStepFormContextType {
   currentStep: number;

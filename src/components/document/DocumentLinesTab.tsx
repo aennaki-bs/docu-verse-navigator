@@ -1,9 +1,10 @@
-
-import { FileText, Layers, Plus } from 'lucide-react';
+import { FileText, Layers, Plus, Search } from 'lucide-react';
 import { Document, Ligne } from '@/models/document';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import LignesList from '@/components/document/LignesList';
+import { motion } from 'framer-motion';
 
 interface DocumentLinesTabProps {
   document: Document;
@@ -21,36 +22,57 @@ const DocumentLinesTab = ({
   setIsCreateDialogOpen
 }: DocumentLinesTabProps) => {
   return (
-    <div className="bg-[#0a1033] rounded-lg overflow-hidden border border-blue-900/30 shadow-lg p-5 space-y-6">
-      <div className="flex justify-between items-center bg-blue-900/30 p-4 rounded-lg">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-800/50 rounded-full p-2">
-            <Layers className="h-6 w-6 text-blue-300" />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-6"
+    >
+      {/* Header Card */}
+      <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 rounded-xl border border-blue-500/20 shadow-lg overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg p-2.5 shadow-inner">
+                <Layers className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-1">Document Lines</h2>
+                <p className="text-blue-200/80">Manage and organize your document lines efficiently</p>
+              </div>
+            </div>
+            <Badge 
+              className="bg-blue-500/10 text-blue-300 border border-blue-500/30 py-2 px-4 text-sm font-medium"
+            >
+              <FileText className="h-4 w-4 mr-2" /> {lignes.length} Lines
+            </Badge>
           </div>
-          <h2 className="text-xl font-bold text-white">Document Lines</h2>
         </div>
-        
-        <Badge className="bg-blue-800/50 text-blue-200 border border-blue-500/30 py-1.5 px-4">
-          <FileText className="h-4 w-4 mr-2" /> {lignes.length} Lines
-        </Badge>
       </div>
 
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <h3 className="text-lg font-medium text-white">Manage Document Lines</h3>
+      {/* Actions Bar */}
+      <div className="flex items-center justify-between gap-4 bg-blue-950/30 rounded-lg p-4 border border-blue-900/30">
+        <div className="relative flex-1 max-w-md">
+          <Input
+            type="text"
+            placeholder="Search lines..."
+            className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/30"
+          />
+          <Search className="h-4 w-4 text-white/40 absolute left-3 top-1/2 transform -translate-y-1/2" />
         </div>
         
         {canManageDocuments && (
           <Button 
             onClick={() => setIsCreateDialogOpen(true)} 
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20 border border-blue-400/20"
           >
             <Plus className="h-4 w-4 mr-2" /> Add New Line
           </Button>
         )}
       </div>
 
-      <div>
+      {/* Lines List */}
+      <div className="rounded-xl overflow-hidden bg-gradient-to-b from-blue-950/30 to-indigo-950/30 border border-blue-900/30 shadow-xl">
         <LignesList
           document={document}
           lignes={lignes}
@@ -59,7 +81,7 @@ const DocumentLinesTab = ({
           setIsCreateDialogOpen={setIsCreateDialogOpen}
         />
       </div>
-    </div>
+    </motion.div>
   );
 };
 

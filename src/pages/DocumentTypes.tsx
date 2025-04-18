@@ -15,7 +15,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Tooltip,
@@ -37,6 +36,9 @@ const DocumentTypes = () => {
   const [typeKey, setTypeKey] = useState('');
   const [typeAttr, setTypeAttr] = useState('');
 
+  // Determine if user is a simple user for conditional rendering
+  const isSimpleUser = user?.role === 'SimpleUser';
+
   useEffect(() => {
     fetchTypes();
   }, []);
@@ -54,7 +56,12 @@ const DocumentTypes = () => {
     }
   };
 
+  // Only allow non-simple users to delete types
   const openDeleteDialog = (type: DocumentType) => {
+    if (isSimpleUser) {
+      toast.error('Simple users cannot delete document types');
+      return;
+    }
     setTypeToDelete(type);
     setDeleteDialogOpen(true);
   };
@@ -75,7 +82,12 @@ const DocumentTypes = () => {
     }
   };
 
+  // Only allow non-simple users to edit types
   const openEditDialog = (type: DocumentType) => {
+    if (isSimpleUser) {
+      toast.error('Simple users cannot edit document types');
+      return;
+    }
     setTypeToEdit(type);
     setTypeName(type.typeName || '');
     setTypeKey(type.typeKey || '');
@@ -93,7 +105,6 @@ const DocumentTypes = () => {
           typeAttr
         };
         
-        // Check if the service has an updateDocumentType method, if not add it
         await documentService.updateDocumentType(typeToEdit.id, updatedType);
         toast.success('Document type updated successfully');
         fetchTypes();
@@ -118,12 +129,14 @@ const DocumentTypes = () => {
               Browse and manage document classification
             </p>
           </div>
-          <Button 
-            onClick={() => navigate('/document-types-management')} 
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            Management View <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          {!isSimpleUser && (
+            <Button 
+              onClick={() => navigate('/document-types-management')} 
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Management View <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -148,50 +161,52 @@ const DocumentTypes = () => {
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-lg text-white">{type.typeName || 'Unnamed Type'}</CardTitle>
-                  <div className="flex items-center space-x-1">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
-                            onClick={() => openEditDialog(type)}
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Edit document type</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                  {!isSimpleUser && (
+                    <div className="flex items-center space-x-1">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
+                              onClick={() => openEditDialog(type)}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Edit document type</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
 
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={`h-8 w-8 ${
-                              type.documentCounter && type.documentCounter > 0
-                                ? 'text-gray-500 cursor-not-allowed'
-                                : 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
-                            }`}
-                            onClick={() => type.documentCounter === 0 && openDeleteDialog(type)}
-                            disabled={type.documentCounter !== undefined && type.documentCounter > 0}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {type.documentCounter && type.documentCounter > 0
-                            ? "Cannot delete types with documents"
-                            : "Delete document type"}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={`h-8 w-8 ${
+                                type.documentCounter && type.documentCounter > 0
+                                  ? 'text-gray-500 cursor-not-allowed'
+                                  : 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
+                              }`}
+                              onClick={() => type.documentCounter === 0 && openDeleteDialog(type)}
+                              disabled={type.documentCounter !== undefined && type.documentCounter > 0}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {type.documentCounter && type.documentCounter > 0
+                              ? "Cannot delete types with documents"
+                              : "Delete document type"}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
@@ -223,12 +238,14 @@ const DocumentTypes = () => {
               <Layers className="h-12 w-12 text-blue-500/50 mb-4" />
               <h3 className="text-xl font-medium text-blue-300 mb-2">No document types found</h3>
               <p className="text-blue-400 mb-4">Create document types to better organize your documents</p>
-              <Button 
-                onClick={() => navigate('/document-types-management')} 
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Create Document Type
-              </Button>
+              {!isSimpleUser && (
+                <Button 
+                  onClick={() => navigate('/document-types-management')} 
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Create Document Type
+                </Button>
+              )}
             </div>
           )}
         </div>

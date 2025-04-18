@@ -23,19 +23,29 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { Check, ArrowRightToLine, X } from 'lucide-react';
+import { ActionDto } from '@/models/documentCircuit';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const formSchema = z.object({
+  actionId: z.string().min(1, { message: 'Action is required' }),
   comments: z.string().min(3, { message: 'Comments must be at least 3 characters' }),
-  isApproved: z.boolean(),
+  isApproved: z.boolean().default(true),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface ProcessCircuitStepDialogProps {
+export interface ProcessCircuitStepDialogProps {
   documentId: number;
   documentTitle: string;
-  currentStep: string; // Title of the current step
+  currentStep: string;
+  availableActions: ActionDto[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
@@ -45,6 +55,7 @@ export default function ProcessCircuitStepDialog({
   documentId,
   documentTitle,
   currentStep,
+  availableActions,
   open,
   onOpenChange,
   onSuccess,
@@ -54,6 +65,7 @@ export default function ProcessCircuitStepDialog({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      actionId: '',
       comments: '',
       isApproved: true,
     },
@@ -62,26 +74,23 @@ export default function ProcessCircuitStepDialog({
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
-      await circuitService.processCircuitStep({
+      await circuitService.performAction({
         documentId,
+        actionId: parseInt(values.actionId),
         comments: values.comments,
         isApproved: values.isApproved,
       });
       
-      toast.success(`Document ${values.isApproved ? 'approved' : 'rejected'} successfully`);
+      toast.success('Document step processed successfully');
       form.reset();
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      toast.error('Failed to process document');
-      console.error(error);
+      console.error('Error processing document step:', error);
+      toast.error('Failed to process document step');
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleApproveOrReject = (isApproved: boolean) => {
-    form.setValue('isApproved', isApproved);
   };
 
   return (
@@ -90,13 +99,41 @@ export default function ProcessCircuitStepDialog({
         <DialogHeader>
           <DialogTitle>Process Document Step</DialogTitle>
           <DialogDescription>
-            Document: {documentTitle}<br/>
-            Current Step: {currentStep}
+            <p>Document: {documentTitle}</p>
+            <p>Current Step: {currentStep}</p>
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="actionId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Action</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an action to perform" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableActions.map((action) => (
+                        <SelectItem key={action.actionId} value={action.actionId.toString()}>
+                          {action.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="comments"
@@ -105,7 +142,7 @@ export default function ProcessCircuitStepDialog({
                   <FormLabel>Comments</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Add your comments or feedback"
+                      placeholder="Add your comments about this step"
                       {...field}
                       rows={4}
                     />
@@ -115,49 +152,30 @@ export default function ProcessCircuitStepDialog({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="isApproved"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex space-x-2 justify-center pt-4">
-                    <Button
-                      type="button"
-                      className={`${field.value ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'} flex-1`}
-                      onClick={() => handleApproveOrReject(true)}
-                    >
-                      <CheckCircle className="mr-2 h-4 w-4" /> Approve
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      className={`${!field.value ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'} flex-1`}
-                      onClick={() => handleApproveOrReject(false)}
-                    >
-                      <XCircle className="mr-2 h-4 w-4" /> Reject
-                    </Button>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
+            <DialogFooter className="flex justify-between">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                <X className="mr-2 h-4 w-4" /> Cancel
               </Button>
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
-                className={form.watch('isApproved') ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
-              >
-                {isSubmitting ? 'Processing...' : form.watch('isApproved') ? 'Approve & Submit' : 'Reject & Submit'}
-              </Button>
+              <div className="space-x-2">
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => form.setValue('isApproved', true)}
+                >
+                  {isSubmitting ? 'Processing...' : (
+                    <>
+                      <Check className="mr-2 h-4 w-4" /> 
+                      Approve
+                    </>
+                  )}
+                </Button>
+              </div>
             </DialogFooter>
           </form>
         </Form>

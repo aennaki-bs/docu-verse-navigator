@@ -1,5 +1,6 @@
 
 import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -42,10 +43,18 @@ export function CircuitsTable({
           {circuits.map((circuit) => (
             <TableRow 
               key={circuit.id} 
-              className="border-blue-900/30 hover:bg-blue-900/20 transition-colors"
+              className="border-blue-900/30 hover:bg-blue-900/20 transition-colors cursor-pointer"
             >
-              <TableCell className="font-medium text-blue-100">{circuit.circuitKey}</TableCell>
-              <TableCell className="text-blue-100">{circuit.title}</TableCell>
+              <TableCell className="font-medium text-blue-100">
+                <Link to={`/circuits/${circuit.id}/steps`} className="hover:underline">
+                  {circuit.circuitKey}
+                </Link>
+              </TableCell>
+              <TableCell className="text-blue-100">
+                <Link to={`/circuits/${circuit.id}/steps`} className="hover:underline">
+                  {circuit.title}
+                </Link>
+              </TableCell>
               <TableCell className="max-w-xs truncate text-blue-200/70">
                 {circuit.descriptif || 'No description'}
               </TableCell>

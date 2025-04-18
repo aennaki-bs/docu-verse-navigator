@@ -7,9 +7,10 @@ interface Circuit {
   crdCounter: number;
   isActive: boolean;
   hasOrderedFlow: boolean;
-  createdAt: string;
-  updatedAt: string;
-  circuitDetails?: CircuitDetail[];
+  allowBacktrack?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  steps?: CircuitDetail[];
 }
 
 interface CircuitDetail {
@@ -20,6 +21,12 @@ interface CircuitDetail {
   descriptif?: string;
   orderIndex: number;
   responsibleRoleId?: number;
+  responsibleRole?: {
+    id: number;
+    name: string;
+    isAdmin?: boolean;
+  };
+  isFinalStep?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -38,7 +45,7 @@ interface ProcessCircuitRequest {
 
 interface MoveDocumentStepRequest {
   documentId: number;
-  circuitDetailId: number;
+  circuitDetailId?: number;
 }
 
 interface DocumentCircuitHistoryDto {

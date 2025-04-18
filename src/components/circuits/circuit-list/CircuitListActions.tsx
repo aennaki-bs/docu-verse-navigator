@@ -1,8 +1,13 @@
 
-import { Edit, Trash2, FileText, Info } from 'lucide-react';
-import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { MoreHorizontal, Eye, Edit, Trash2 } from 'lucide-react';
 
 interface CircuitListActionsProps {
   circuit: Circuit;
@@ -12,76 +17,84 @@ interface CircuitListActionsProps {
   onViewDetails: (circuit: Circuit) => void;
 }
 
-export function CircuitListActions({ 
+export function CircuitListActions({
   circuit,
   isSimpleUser,
   onEdit,
   onDelete,
   onViewDetails
 }: CircuitListActionsProps) {
-  const handleEdit = () => {
-    if (isSimpleUser) {
-      toast.error('You do not have permission to edit circuits');
-      return;
-    }
-    onEdit(circuit);
-  };
-
-  const handleDelete = () => {
-    if (isSimpleUser) {
-      toast.error('You do not have permission to delete circuits');
-      return;
-    }
-    onDelete(circuit);
-  };
-
   return (
-    <div className="flex justify-end gap-1">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost" 
-            size="icon"
-            className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
-            onClick={() => onViewDetails(circuit)}
-          >
-            {isSimpleUser ? <Info className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>View details</TooltipContent>
-      </Tooltip>
+    <>
+      <Link to={`/circuits/${circuit.id}/steps`}>
+        <Button 
+          variant="ghost" 
+          size="sm"
+          className="text-blue-400 hover:text-blue-600 hover:bg-blue-100/10"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+      </Link>
       
       {!isSimpleUser && (
         <>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
-                onClick={handleEdit}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Edit circuit</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/30"
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Delete circuit</TooltipContent>
-          </Tooltip>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onEdit(circuit)}
+            className="text-blue-400 hover:text-blue-600 hover:bg-blue-100/10"
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(circuit)}
+            className="text-red-400 hover:text-red-600 hover:bg-red-100/10"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </>
       )}
-    </div>
+      
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-blue-400 hover:text-blue-600 hover:bg-blue-100/10"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-40 bg-blue-950 border-blue-800">
+          <DropdownMenuItem 
+            className="cursor-pointer text-blue-300 hover:text-blue-100 focus:bg-blue-800 focus:text-blue-100"
+            onClick={() => onViewDetails(circuit)}
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            View Details
+          </DropdownMenuItem>
+          {!isSimpleUser && (
+            <>
+              <DropdownMenuItem 
+                className="cursor-pointer text-blue-300 hover:text-blue-100 focus:bg-blue-800 focus:text-blue-100"
+                onClick={() => onEdit(circuit)}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer text-red-400 hover:text-red-300 focus:bg-red-900/40 focus:text-red-200"
+                onClick={() => onDelete(circuit)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
   );
 }

@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { 
-  Edit, Trash2, ChevronDown, ChevronUp, DollarSign
+  Edit, Trash2, ChevronDown, ChevronUp, DollarSign,
+  FileText, Clock, Tag
 } from 'lucide-react';
 import { Ligne, Document } from '@/models/document';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import SousLignesList from '../SousLignesList';
 import { motion, AnimatePresence } from 'framer-motion';
+import { format } from 'date-fns';
 
 interface LigneItemProps {
   ligne: Ligne;
@@ -29,92 +30,138 @@ const LigneItem = ({
   onEdit,
   onDelete
 }: LigneItemProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const isExpanded = expandedLigneId === ligne.id;
+
   return (
     <motion.div 
-      key={ligne.id}
+      layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="rounded-lg border border-white/10 overflow-hidden shadow-md bg-gradient-to-br from-gray-900/90 to-blue-900/60 hover:shadow-lg transition-all duration-200"
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.2 }}
+      className="group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <div 
-        className={`p-4 cursor-pointer transition-colors duration-200 flex items-center justify-between group hover:bg-blue-900/20 ${
-          expandedLigneId === ligne.id ? 'bg-blue-900/20' : ''
-        }`}
-        onClick={() => toggleLigneExpansion(ligne.id)}
-      >
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-medium text-white">{ligne.title}</h3>
-            <Badge variant="outline" className="font-mono text-xs border-blue-500/30 bg-blue-900/30 text-blue-300">
-              {ligne.ligneKey}
-            </Badge>
-          </div>
-          <p className="text-sm text-blue-200 mt-1 line-clamp-1">{ligne.article}</p>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="flex items-center px-3 py-1.5 rounded-full bg-green-900/20 text-green-300 border border-green-500/30">
-            <DollarSign className="h-3.5 w-3.5 mr-1" />
-            {ligne.prix.toFixed(2)}
-          </div>
-          
-          <div className="flex items-center gap-1">
-            {canManageDocuments && (
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(ligne);
-                  }}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-900/30"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(ligne);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+      <div className={`
+        relative overflow-hidden rounded-lg border transition-all duration-200
+        ${isExpanded 
+          ? 'bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border-blue-500/30' 
+          : 'bg-gradient-to-br from-gray-900/40 to-blue-900/20 border-white/5 hover:border-blue-500/20'
+        }
+      `}>
+        <div 
+          onClick={() => toggleLigneExpansion(ligne.id)}
+          className="cursor-pointer p-4"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="text-lg font-semibold text-white truncate">
+                  {ligne.title}
+                </h3>
+                <Badge variant="outline" className="bg-blue-900/30 border-blue-500/30 text-blue-300 font-mono">
+                  {ligne.ligneKey}
+                </Badge>
               </div>
-            )}
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-400">
-              {expandedLigneId === ligne.id ? 
-                <ChevronUp className="h-5 w-5" /> : 
-                <ChevronDown className="h-5 w-5" />
-              }
-            </Button>
+              
+              <p className="text-sm text-blue-200/80 line-clamp-2 mb-3">
+                {ligne.article}
+              </p>
+
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center text-blue-300/60">
+                  <Clock className="h-3.5 w-3.5 mr-1.5" />
+                  {format(new Date(ligne.createdAt), 'MMM d, yyyy')}
+                </div>
+                <div className="flex items-center text-blue-300/60">
+                  <Tag className="h-3.5 w-3.5 mr-1.5" />
+                  {ligne.category || 'No Category'}
+                </div>
+                <div className="flex items-center text-blue-300/60">
+                  <FileText className="h-3.5 w-3.5 mr-1.5" />
+                  {ligne.status}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="px-4 py-2 rounded-full bg-green-900/20 border border-green-500/20">
+                <div className="flex items-center text-green-400 font-medium">
+                  <DollarSign className="h-4 w-4 mr-1" />
+                  {ligne.prix.toFixed(2)}
+                </div>
+              </div>
+
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isHovered || isExpanded ? 1 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center gap-1"
+              >
+                {canManageDocuments && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(ligne);
+                      }}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-900/30"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(ligne);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+                
+                <div className={`
+                  flex items-center justify-center h-8 w-8 rounded-md transition-colors duration-200
+                  ${isExpanded ? 'bg-blue-900/40 text-blue-300' : 'text-blue-400'}
+                `}>
+                  {isExpanded ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </div>
+              </motion.div>
+            </div>
           </div>
         </div>
+
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Separator className="bg-blue-500/20" />
+              <div className="p-4 bg-gradient-to-br from-blue-950/50 to-indigo-950/40">
+                <SousLignesList 
+                  document={document}
+                  ligne={ligne}
+                  canManageDocuments={canManageDocuments}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-      
-      <AnimatePresence>
-        {expandedLigneId === ligne.id && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Separator className="bg-white/10" />
-            <div className="p-4 bg-gradient-to-br from-blue-950/50 to-indigo-950/40">
-              <SousLignesList 
-                document={document}
-                ligne={ligne}
-                canManageDocuments={canManageDocuments}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 };

@@ -40,23 +40,30 @@ export default function StepOneTitle() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Circuit Title *</FormLabel>
+              <FormLabel className="text-gray-200">Circuit Title *</FormLabel>
               <FormControl>
-                <Input placeholder="Enter circuit title" {...field} />
+                <Input 
+                  placeholder="Enter circuit title" 
+                  {...field}
+                  className="bg-gray-900 border-gray-800 text-white placeholder:text-gray-500 focus:border-blue-600"
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-red-400" />
             </FormItem>
           )}
         />
 
         <div className="flex justify-end pt-4">
-          <Button type="submit">
+          <Button 
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
             Next Step <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

@@ -1,8 +1,7 @@
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import StepOneUserInfo from '@/components/register/StepOneUserInfo';
 import StepTwoEmailPassword from '@/components/register/StepTwoEmailPassword';
 import StepThreeAdminKey from '@/components/register/StepThreeAdminKey';
@@ -14,17 +13,6 @@ import RightSideContent from './RightSideContent';
 
 const RegisterForm: React.FC = () => {
   const { currentStep } = useMultiStepForm();
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  
-  // Reset scroll position when step changes
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollArea) {
-        scrollArea.scrollTop = 0;
-      }
-    }
-  }, [currentStep]);
 
   const renderStep = () => {
     switch (currentStep) {
@@ -44,7 +32,7 @@ const RegisterForm: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
       {/* Left side - Registration form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 bg-[#0d1117] h-screen overflow-hidden">
+      <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-4 md:p-8 bg-[#0d1117]">
         <div className="w-full max-w-2xl py-8">
           <Card className="border-gray-800 bg-gradient-to-b from-[#161b22] to-[#0d1117] shadow-2xl">
             <CardHeader className="space-y-1 pb-2 px-8 pt-6 border-b border-gray-800">
@@ -52,27 +40,21 @@ const RegisterForm: React.FC = () => {
               <StepTitle currentStep={currentStep} />
             </CardHeader>
             
-            <ScrollArea 
-              ref={scrollAreaRef} 
-              className="h-[56vh]"
-            >
-              <CardContent className="pt-8 px-8">
-                {renderStep()}
-              </CardContent>
-            </ScrollArea>
-            
-            <CardFooter className="flex flex-col space-y-4 pt-6 pb-6 px-8 border-t border-gray-800">
-              <div className="text-center text-sm text-gray-400">
-                Already have an account?{' '}
-                <Link
-                  to="/login"
-                  className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  Sign in
-                </Link>
-              </div>
-            </CardFooter>
+            <CardContent className="pt-8 px-8">
+              {renderStep()}
+            </CardContent>
           </Card>
+        </div>
+        
+        {/* Sign in link moved outside the card */}
+        <div className="mt-4 text-sm text-gray-400">
+          Already have an account?{' '}
+          <Link
+            to="/login"
+            className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            Sign in
+          </Link>
         </div>
       </div>
       

@@ -79,7 +79,7 @@ export default function CircuitHistoryTimeline({ documentId }: CircuitHistoryTim
                 {/* Content */}
                 <div className="ml-4 flex-1">
                   <div className="flex items-center text-sm font-medium text-gray-900">
-                    <span>{item.circuitDetailTitle || item.circuitDetail?.title || 'Unknown Step'}</span>
+                    <span>{item.stepTitle || (item.circuitDetail ? item.circuitDetail.title : 'Unknown Step')}</span>
                     <span className="mx-2 text-gray-500">•</span>
                     <span className="flex items-center text-gray-500">
                       <Clock className="mr-1 h-3 w-3" />

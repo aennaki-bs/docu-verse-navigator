@@ -4,33 +4,22 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
+import { useDocumentMovement } from '@/hooks/useDocumentMovement';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { ArrowRightFromLine, Loader2 } from 'lucide-react';
+import { Form } from '@/components/ui/form';
+
+// Import our new components
+import { StepSelector } from './move-document/StepSelector';
+import { DialogFooterButtons } from './move-document/DialogFooterButtons';
+import { ErrorMessage } from './move-document/ErrorMessage';
+import { LoadingState } from './move-document/LoadingState';
 
 const formSchema = z.object({
   circuitDetailId: z.string().min(1, { message: 'Please select a step' }),
@@ -57,8 +46,10 @@ export default function MoveDocumentStepDialog({
   onOpenChange,
   onSuccess,
 }: MoveDocumentStepDialogProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { isMoving, moveDocument } = useDocumentMovement({
+    onMoveSuccess: onSuccess
+  });
 
   // Fetch circuit details
   const { data: circuitDetails, isLoading } = useQuery({
@@ -75,30 +66,29 @@ export default function MoveDocumentStepDialog({
   });
 
   const onSubmit = async (values: FormValues) => {
-    setIsSubmitting(true);
     setError(null);
     
     try {
-      console.log("Moving document to step:", {
+      const targetStepId = parseInt(values.circuitDetailId);
+      const currentStep = circuitDetails?.find(step => step.id === currentStepId);
+      const targetStep = circuitDetails?.find(step => step.id === targetStepId);
+      
+      const success = await moveDocument({
         documentId,
-        circuitDetailId: parseInt(values.circuitDetailId)
+        currentStepId,
+        targetStepId,
+        currentStep,
+        targetStep,
+        comments: `Moved document from dialog to step #${targetStepId}`
       });
       
-      await circuitService.moveDocumentToStep({
-        documentId,
-        circuitDetailId: parseInt(values.circuitDetailId),
-      });
-      
-      toast.success('Document moved to new step successfully');
-      onOpenChange(false);
-      onSuccess();
+      if (success) {
+        onOpenChange(false);
+      }
     } catch (error: any) {
       console.error("Error moving document:", error);
       const errorMessage = error?.response?.data || 'Failed to move document to new step';
-      toast.error(errorMessage);
       setError(errorMessage);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -113,72 +103,22 @@ export default function MoveDocumentStepDialog({
         </DialogHeader>
 
         {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          </div>
+          <LoadingState />
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {error && (
-                <div className="p-3 rounded bg-red-900/20 border border-red-900/30 text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
+              <ErrorMessage error={error} />
               
-              <FormField
+              <StepSelector 
                 control={form.control}
-                name="circuitDetailId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Select Step</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="bg-[#111633] border-blue-900/30 text-white">
-                          <SelectValue placeholder="Select a step" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-[#111633] border-blue-900/30 text-white">
-                        {circuitDetails?.map((detail) => (
-                          <SelectItem 
-                            key={detail.id} 
-                            value={detail.id.toString()}
-                            disabled={detail.id === currentStepId}
-                          >
-                            {detail.orderIndex + 1}. {detail.title}
-                            {detail.id === currentStepId ? ' (Current)' : ''}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                circuitDetails={circuitDetails}
+                currentStepId={currentStepId}
               />
 
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                  disabled={isSubmitting}
-                  className="border-blue-900/30 text-white hover:bg-blue-900/20"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  {isSubmitting ? 
-                    <>Moving... <Loader2 className="ml-2 h-4 w-4 animate-spin" /></> : 
-                    <>Move Document <ArrowRightFromLine className="ml-2 h-4 w-4" /></>
-                  }
-                </Button>
-              </DialogFooter>
+              <DialogFooterButtons 
+                isMoving={isMoving}
+                onCancel={() => onOpenChange(false)}
+              />
             </form>
           </Form>
         )}

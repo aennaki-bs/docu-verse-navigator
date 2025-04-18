@@ -60,7 +60,7 @@ export default function CircuitsPage() {
         </div>
         <div className="relative flex-1 max-w-xl w-full">
           <Input
-            placeholder="Search by key, title or description..."
+            placeholder="Search by Code, title or description..."
             className="bg-[#0a1033]/80 border-blue-800/50 text-blue-100 pl-4 pr-10 focus:border-blue-500 focus:ring-blue-500/30"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

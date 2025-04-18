@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { useMultiStepForm } from '@/context/form';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Card,
   CardContent,
@@ -39,205 +39,209 @@ const StepFourSummary = () => {
         <p className="text-sm text-gray-400">Please verify all information before submitting</p>
       </div>
 
-      {/* Account Type */}
-      <Card className="border border-blue-900/30 bg-gradient-to-b from-[#161b22]/80 to-[#1c2128]/80 shadow-lg hover:shadow-blue-900/10 transition-all">
-        <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-blue-900/20">
-          <div className="flex items-center gap-2">
-            <div className="bg-blue-600/20 p-2 rounded-full">
-              {formData.userType === 'personal' ? 
-                <User className="h-4 w-4 text-blue-400" /> : 
-                <Building2 className="h-4 w-4 text-blue-400" />
-              }
-            </div>
-            <CardTitle className="text-sm font-medium">Account Type</CardTitle>
-          </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 w-8 p-0 hover:bg-blue-900/20" 
-            onClick={() => goToStep(1)}
-          >
-            <FileEdit className="h-4 w-4 text-blue-400" />
-          </Button>
-        </CardHeader>
-        <CardContent className="py-3 px-4">
-          <p className="text-sm capitalize font-medium">{formData.userType}</p>
-        </CardContent>
-      </Card>
+      <ScrollArea className="h-[calc(100vh-400px)] pr-4">
+        <div className="space-y-6">
+          {/* Account Type Card */}
+          <Card className="border border-blue-900/30 bg-gradient-to-b from-[#161b22]/80 to-[#1c2128]/80 shadow-lg hover:shadow-blue-900/10 transition-all">
+            <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-blue-900/20">
+              <div className="flex items-center gap-2">
+                <div className="bg-blue-600/20 p-2 rounded-full">
+                  {formData.userType === 'personal' ? 
+                    <User className="h-4 w-4 text-blue-400" /> : 
+                    <Building2 className="h-4 w-4 text-blue-400" />
+                  }
+                </div>
+                <CardTitle className="text-sm font-medium">Account Type</CardTitle>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0 hover:bg-blue-900/20" 
+                onClick={() => goToStep(1)}
+              >
+                <FileEdit className="h-4 w-4 text-blue-400" />
+              </Button>
+            </CardHeader>
+            <CardContent className="py-3 px-4">
+              <p className="text-sm capitalize font-medium">{formData.userType}</p>
+            </CardContent>
+          </Card>
 
-      {/* Personal Information */}
-      <Card className="border border-blue-900/30 bg-gradient-to-b from-[#161b22]/80 to-[#1c2128]/80 shadow-lg hover:shadow-blue-900/10 transition-all">
-        <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-blue-900/20">
-          <div className="flex items-center gap-2">
-            <div className="bg-purple-600/20 p-2 rounded-full">
-              <User className="h-4 w-4 text-purple-400" />
-            </div>
-            <CardTitle className="text-sm font-medium">Personal Information</CardTitle>
-          </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 w-8 p-0 hover:bg-blue-900/20" 
-            onClick={() => goToStep(1)}
-          >
-            <FileEdit className="h-4 w-4 text-blue-400" />
-          </Button>
-        </CardHeader>
-        <CardContent className="py-3 px-4">
-          {formData.userType === 'personal' ? (
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <User className="h-3 w-3" /> First Name
-                </p>
-                <p className="text-sm font-medium">{formData.firstName || 'Not provided'}</p>
+          {/* Personal Information Card */}
+          <Card className="border border-blue-900/30 bg-gradient-to-b from-[#161b22]/80 to-[#1c2128]/80 shadow-lg hover:shadow-blue-900/10 transition-all">
+            <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-blue-900/20">
+              <div className="flex items-center gap-2">
+                <div className="bg-purple-600/20 p-2 rounded-full">
+                  <User className="h-4 w-4 text-purple-400" />
+                </div>
+                <CardTitle className="text-sm font-medium">Personal Information</CardTitle>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <User className="h-3 w-3" /> Last Name
-                </p>
-                <p className="text-sm font-medium">{formData.lastName || 'Not provided'}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <CreditCard className="h-3 w-3" /> ID
-                </p>
-                <p className="text-sm font-medium">{formData.cin || 'Not provided'}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <Phone className="h-3 w-3" /> Phone
-                </p>
-                <p className="text-sm font-medium">{formData.personalPhone || 'Not provided'}</p>
-              </div>
-              <div className="col-span-2 space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <MapPin className="h-3 w-3" /> Address
-                </p>
-                <p className="text-sm font-medium">{formData.personalAddress || 'Not provided'}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-2 space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <Building2 className="h-3 w-3" /> Company Name
-                </p>
-                <p className="text-sm font-medium">{formData.companyName || 'Not provided'}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <User className="h-3 w-3" /> First Name
-                </p>
-                <p className="text-sm font-medium">{formData.firstName || 'Not provided'}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <User className="h-3 w-3" /> Last Name
-                </p>
-                <p className="text-sm font-medium">{formData.lastName || 'Not provided'}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <CreditCard className="h-3 w-3" /> Company IRC
-                </p>
-                <p className="text-sm font-medium">{formData.companyIRC || 'Not provided'}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <Phone className="h-3 w-3" /> Company Phone
-                </p>
-                <p className="text-sm font-medium">{formData.companyPhone || 'Not provided'}</p>
-              </div>
-              <div className="col-span-2 space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <MapPin className="h-3 w-3" /> Company Address
-                </p>
-                <p className="text-sm font-medium">{formData.companyAddress || 'Not provided'}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <AtSign className="h-3 w-3" /> Company Email
-                </p>
-                <p className="text-sm font-medium">{formData.companyEmail || 'Not provided'}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <ExternalLink className="h-3 w-3" /> Company Website
-                </p>
-                <p className="text-sm font-medium">{formData.companyWebsite || 'Not provided'}</p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0 hover:bg-blue-900/20" 
+                onClick={() => goToStep(1)}
+              >
+                <FileEdit className="h-4 w-4 text-blue-400" />
+              </Button>
+            </CardHeader>
+            <CardContent className="py-3 px-4">
+              {formData.userType === 'personal' ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <User className="h-3 w-3" /> First Name
+                    </p>
+                    <p className="text-sm font-medium">{formData.firstName || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <User className="h-3 w-3" /> Last Name
+                    </p>
+                    <p className="text-sm font-medium">{formData.lastName || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <CreditCard className="h-3 w-3" /> ID
+                    </p>
+                    <p className="text-sm font-medium">{formData.cin || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <Phone className="h-3 w-3" /> Phone
+                    </p>
+                    <p className="text-sm font-medium">{formData.personalPhone || 'Not provided'}</p>
+                  </div>
+                  <div className="col-span-2 space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <MapPin className="h-3 w-3" /> Address
+                    </p>
+                    <p className="text-sm font-medium">{formData.personalAddress || 'Not provided'}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2 space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <Building2 className="h-3 w-3" /> Company Name
+                    </p>
+                    <p className="text-sm font-medium">{formData.companyName || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <User className="h-3 w-3" /> First Name
+                    </p>
+                    <p className="text-sm font-medium">{formData.firstName || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <User className="h-3 w-3" /> Last Name
+                    </p>
+                    <p className="text-sm font-medium">{formData.lastName || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <CreditCard className="h-3 w-3" /> Company IRC
+                    </p>
+                    <p className="text-sm font-medium">{formData.companyIRC || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <Phone className="h-3 w-3" /> Company Phone
+                    </p>
+                    <p className="text-sm font-medium">{formData.companyPhone || 'Not provided'}</p>
+                  </div>
+                  <div className="col-span-2 space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <MapPin className="h-3 w-3" /> Company Address
+                    </p>
+                    <p className="text-sm font-medium">{formData.companyAddress || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <AtSign className="h-3 w-3" /> Company Email
+                    </p>
+                    <p className="text-sm font-medium">{formData.companyEmail || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <ExternalLink className="h-3 w-3" /> Company Website
+                    </p>
+                    <p className="text-sm font-medium">{formData.companyWebsite || 'Not provided'}</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-      {/* Account Credentials */}
-      <Card className="border border-blue-900/30 bg-gradient-to-b from-[#161b22]/80 to-[#1c2128]/80 shadow-lg hover:shadow-blue-900/10 transition-all">
-        <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-blue-900/20">
-          <div className="flex items-center gap-2">
-            <div className="bg-green-600/20 p-2 rounded-full">
-              <Lock className="h-4 w-4 text-green-400" />
-            </div>
-            <CardTitle className="text-sm font-medium">Account Credentials</CardTitle>
-          </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 w-8 p-0 hover:bg-blue-900/20" 
-            onClick={() => goToStep(2)}
-          >
-            <FileEdit className="h-4 w-4 text-blue-400" />
-          </Button>
-        </CardHeader>
-        <CardContent className="py-3 px-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <p className="text-xs text-gray-400 flex items-center gap-1">
-                <User className="h-3 w-3" /> Username
-              </p>
-              <p className="text-sm font-medium">{formData.username}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs text-gray-400 flex items-center gap-1">
-                <AtSign className="h-3 w-3" /> Email
-              </p>
-              <p className="text-sm font-medium">{formData.email}</p>
-            </div>
-            <div className="col-span-2 space-y-1">
-              <p className="text-xs text-gray-400 flex items-center gap-1">
-                <Lock className="h-3 w-3" /> Password
-              </p>
-              <p className="text-sm font-medium">••••••••••</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          {/* Account Credentials Card */}
+          <Card className="border border-blue-900/30 bg-gradient-to-b from-[#161b22]/80 to-[#1c2128]/80 shadow-lg hover:shadow-blue-900/10 transition-all">
+            <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-blue-900/20">
+              <div className="flex items-center gap-2">
+                <div className="bg-green-600/20 p-2 rounded-full">
+                  <Lock className="h-4 w-4 text-green-400" />
+                </div>
+                <CardTitle className="text-sm font-medium">Account Credentials</CardTitle>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0 hover:bg-blue-900/20" 
+                onClick={() => goToStep(2)}
+              >
+                <FileEdit className="h-4 w-4 text-blue-400" />
+              </Button>
+            </CardHeader>
+            <CardContent className="py-3 px-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-400 flex items-center gap-1">
+                    <User className="h-3 w-3" /> Username
+                  </p>
+                  <p className="text-sm font-medium">{formData.username}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-400 flex items-center gap-1">
+                    <AtSign className="h-3 w-3" /> Email
+                  </p>
+                  <p className="text-sm font-medium">{formData.email}</p>
+                </div>
+                <div className="col-span-2 space-y-1">
+                  <p className="text-xs text-gray-400 flex items-center gap-1">
+                    <Lock className="h-3 w-3" /> Password
+                  </p>
+                  <p className="text-sm font-medium">••••••••••</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Admin Access */}
-      <Card className="border border-blue-900/30 bg-gradient-to-b from-[#161b22]/80 to-[#1c2128]/80 shadow-lg hover:shadow-blue-900/10 transition-all">
-        <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-blue-900/20">
-          <div className="flex items-center gap-2">
-            <div className="bg-amber-600/20 p-2 rounded-full">
-              <Shield className="h-4 w-4 text-amber-400" />
-            </div>
-            <CardTitle className="text-sm font-medium">Admin Access</CardTitle>
-          </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 w-8 p-0 hover:bg-blue-900/20" 
-            onClick={() => goToStep(3)}
-          >
-            <FileEdit className="h-4 w-4 text-blue-400" />
-          </Button>
-        </CardHeader>
-        <CardContent className="py-3 px-4">
-          <p className="text-sm font-medium">
-            {formData.adminSecretKey ? 'Admin access key provided' : 'No admin access'}
-          </p>
-        </CardContent>
-      </Card>
+          {/* Admin Access Card */}
+          <Card className="border border-blue-900/30 bg-gradient-to-b from-[#161b22]/80 to-[#1c2128]/80 shadow-lg hover:shadow-blue-900/10 transition-all">
+            <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-blue-900/20">
+              <div className="flex items-center gap-2">
+                <div className="bg-amber-600/20 p-2 rounded-full">
+                  <Shield className="h-4 w-4 text-amber-400" />
+                </div>
+                <CardTitle className="text-sm font-medium">Admin Access</CardTitle>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0 hover:bg-blue-900/20" 
+                onClick={() => goToStep(3)}
+              >
+                <FileEdit className="h-4 w-4 text-blue-400" />
+              </Button>
+            </CardHeader>
+            <CardContent className="py-3 px-4">
+              <p className="text-sm font-medium">
+                {formData.adminSecretKey ? 'Admin access key provided' : 'No admin access'}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </ScrollArea>
 
       <div className="flex gap-3 pt-4">
         <Button

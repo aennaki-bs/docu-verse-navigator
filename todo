@@ -16,3 +16,27 @@ TODO:
     ☐ make the ui of all pages compatible and uniform
     ☐ make the ui of the app more beautiful and more user friendly and responsive
 
+☐ hendle select 
+☐ handle spaces ui 
+☐ change key by number 
+☐ view by select all line 
+☐ add filter select
+☐ simple user can see parametring case
+☐ add all colum to add for user in register
+☐ add profile in sidbare
+☐ rederection
+☐ change view with one click - card or list 
+☐ spacing
+☐ attribute by comment
+☐ intevale de usage - by date
+☐ add table for line for the types and sublines in case
+☐ ---->stock the last namber
+☐ --dynamic count 
+☐ dont change the an active circuit
+document have status
+etap une operation deplace de status a autre status
+add typeLine where we can choose an intrerval of this type
+
+-- types and subtypes
+-- add alias for the types and subtypes
+-- at creation of the document chouse the type at first

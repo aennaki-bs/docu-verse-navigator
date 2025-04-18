@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -82,7 +81,7 @@ export function MainNavbar() {
                 </DropdownMenuItem>
                 
                 <DropdownMenuItem asChild>
-                  <Link to="/profile" className="flex items-center cursor-pointer w-full hover:bg-blue-800/30">
+                  <Link to="/settings" className="flex items-center cursor-pointer w-full hover:bg-blue-800/30">
                     <Settings className="mr-2 h-4 w-4" /> Settings
                   </Link>
                 </DropdownMenuItem>

@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
@@ -14,7 +14,6 @@ const Welcome = () => {
   const userEmail = location.state?.email || '';
 
   useEffect(() => {
-    // Show success toast when the page loads
     if (verified) {
       toast.success('Registration completed successfully!', {
         description: 'Welcome to DocuVerse!',
@@ -27,44 +26,40 @@ const Welcome = () => {
   };
 
   return (
-    <div className="auth-container animate-fade-in">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <DocuVerseLogo className="mx-auto h-14 w-auto" />
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            Welcome to DocuVerse
-          </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            {userEmail ? `You've successfully registered with ${userEmail}` : 'You\'ve successfully registered'}
-          </p>
-        </div>
-
-        <Card className="border-none shadow-xl animate-slide-up">
-          <CardHeader className="space-y-1">
-            <div className="mx-auto bg-green-100 rounded-full p-3 w-16 h-16 flex items-center justify-center">
-              <Check className="h-8 w-8 text-green-600" />
+    <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="w-full max-w-md text-center">
+        <DocuVerseLogo className="mx-auto mb-8 h-10 text-docuBlue" />
+        
+        <Card className="bg-[#121212] border-blue-900/30 shadow-xl">
+          <CardContent className="pt-8 pb-0 flex flex-col items-center">
+            <div className="bg-green-500/20 rounded-full p-4 mb-4">
+              <Check className="h-12 w-12 text-green-400" />
             </div>
-            <CardTitle className="text-xl font-semibold text-center mt-4">
+            
+            <h2 className="text-2xl font-bold text-white mb-2">
               Registration Complete
-            </CardTitle>
-            <CardDescription className="text-center">
+            </h2>
+            
+            <p className="text-blue-300 mb-4">
               Your account has been verified and is ready to use
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <p className="text-center text-sm">
-                Thank you for joining DocuVerse! You can now sign in to your account and start 
-                managing your documents securely.
+            </p>
+            
+            {userEmail && (
+              <p className="text-sm text-gray-400 mb-4">
+                You've successfully registered with {userEmail}
               </p>
-            </div>
+            )}
+            
+            <p className="text-sm text-gray-300 max-w-[300px] px-4">
+              Thank you for joining DocuVerse! You can now sign in to your 
+              account and start managing your documents securely.
+            </p>
           </CardContent>
-
-          <CardFooter className="flex flex-col space-y-4">
-            <Button
-              className="w-full bg-docuBlue hover:bg-docuBlue-700"
-              onClick={handleContinue}
+          
+          <CardFooter className="p-6 pt-0">
+            <Button 
+              onClick={handleContinue} 
+              className="w-full bg-docuBlue hover:bg-docuBlue-700 text-white"
             >
               Continue to Login
               <ArrowRight className="ml-2 h-4 w-4" />

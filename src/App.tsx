@@ -26,11 +26,16 @@ import ViewDocument from "./pages/ViewDocument";
 import EditDocument from "./pages/EditDocument";
 import DocumentLignesPage from "./pages/DocumentLignesPage";
 import CircuitsPage from "./pages/Circuits";
+import CircuitStepsPage from "./pages/CircuitStepsPage";
+import StepStatusesPage from "./pages/StepStatusesPage";
 import CreateCircuit from "./pages/CreateCircuit";
 import PendingApprovalsPage from "./pages/PendingApprovals";
 import UserManagement from "./pages/UserManagement";
 import DocumentFlowPage from "./pages/DocumentFlowPage";
 import { Layout } from './components/layout/Layout';
+import Settings from "./pages/Settings";
+import { SettingsProvider } from "./context/SettingsContext";
+import StepsManagement from "./pages/StepsManagement";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,61 +49,70 @@ const queryClient = new QueryClient({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/verify-email" element={<EmailVerification />} />
-            <Route path="/verify/:email" element={<EmailVerification />} />
-            <Route path="/welcome" element={<Welcome />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/update-password/:email" element={<UpdatePassword />} />
-            
-            {/* Protected routes with layout */}
-            <Route element={<ProtectedRoute />}>
-              <Route element={<Layout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminPage /></ProtectedRoute>} />
-                <Route path="/user-management" element={<ProtectedRoute requiredRole="Admin"><UserManagement /></ProtectedRoute>} />
-                
-                {/* Document routes */}
-                <Route path="/documents" element={<DocumentsPageWrapper />} />
-                
-                {/* Document Types Management routes */}
-                <Route path="/document-types" element={<ProtectedRoute requiresManagement><DocumentTypes /></ProtectedRoute>} />
-                <Route path="/document-types-management" element={<ProtectedRoute requiresManagement><DocumentTypesManagement /></ProtectedRoute>} />
-                <Route path="/documents/create" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><CreateDocument /></ProtectedRoute>} />
-                <Route path="/documents/:id" element={<ViewDocument />} />
-                <Route path="/documents/:id/edit" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><EditDocument /></ProtectedRoute>} />
-                <Route path="/documents/:id/flow" element={<DocumentFlowPage />} />
-                
-                {/* Document Lignes routes */}
-                <Route path="/documents/:id/lignes" element={<ProtectedRoute requiresManagement><DocumentLignesPage /></ProtectedRoute>} />
-                <Route path="/documents/:id/lignes/:ligneId" element={<ViewDocument />} />
-                
-                {/* Document SousLignes routes */}
-                <Route path="/documents/:id/lignes/:ligneId/souslignes" element={<ProtectedRoute requiresManagement><ViewDocument /></ProtectedRoute>} />
-                <Route path="/documents/:id/lignes/:ligneId/souslignes/:sousLigneId" element={<ViewDocument />} />
-                
-                {/* Circuit Management routes - SimpleUsers can view circuits but not manage them */}
-                <Route path="/circuits" element={<CircuitsPage />} />
-                <Route path="/create-circuit" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><CreateCircuit /></ProtectedRoute>} />
-                <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
+      <SettingsProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/verify-email" element={<EmailVerification />} />
+              <Route path="/verify/:email" element={<EmailVerification />} />
+              <Route path="/welcome" element={<Welcome />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/update-password/:email" element={<UpdatePassword />} />
+              
+              {/* Protected routes with layout */}
+              <Route element={<ProtectedRoute />}>
+                <Route element={<Layout />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminPage /></ProtectedRoute>} />
+                  <Route path="/user-management" element={<ProtectedRoute requiredRole="Admin"><UserManagement /></ProtectedRoute>} />
+                  
+                  {/* Document routes */}
+                  <Route path="/documents" element={<DocumentsPageWrapper />} />
+                  
+                  {/* Document Types Management routes */}
+                  <Route path="/document-types" element={<DocumentTypes />} />
+                  <Route path="/document-types-management" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><DocumentTypesManagement /></ProtectedRoute>} />
+                  <Route path="/documents/create" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><CreateDocument /></ProtectedRoute>} />
+                  <Route path="/documents/:id" element={<ViewDocument />} />
+                  <Route path="/documents/:id/edit" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><EditDocument /></ProtectedRoute>} />
+                  <Route path="/documents/:id/flow" element={<DocumentFlowPage />} />
+                  
+                  {/* Document Lignes routes */}
+                  <Route path="/documents/:id/lignes" element={<ProtectedRoute requiresManagement><DocumentLignesPage /></ProtectedRoute>} />
+                  <Route path="/documents/:id/lignes/:ligneId" element={<ViewDocument />} />
+                  
+                  {/* Document SousLignes routes */}
+                  <Route path="/documents/:id/lignes/:ligneId/souslignes" element={<ProtectedRoute requiresManagement><ViewDocument /></ProtectedRoute>} />
+                  <Route path="/documents/:id/lignes/:ligneId/souslignes/:sousLigneId" element={<ViewDocument />} />
+                  
+                  {/* Circuit Management routes */}
+                  <Route path="/circuits" element={<CircuitsPage />} />
+                  <Route path="/circuits/:circuitId/steps" element={<CircuitStepsPage />} />
+                  <Route path="/circuits/:circuitId/steps/:stepId/statuses" element={<StepStatusesPage />} />
+                  <Route path="/create-circuit" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><CreateCircuit /></ProtectedRoute>} />
+                  <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
+                  
+                  {/* Step Management route */}
+                  <Route path="/steps" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><StepsManagement /></ProtectedRoute>} />
+                  
+                  {/* Settings route */}
+                  <Route path="/settings" element={<Settings />} />
+                </Route>
               </Route>
-            </Route>
-            
-            {/* Catch-all route */}
-            {/* coment */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
+              
+              {/* Catch-all route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </SettingsProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

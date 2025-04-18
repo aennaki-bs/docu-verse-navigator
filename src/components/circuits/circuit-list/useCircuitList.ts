@@ -24,15 +24,18 @@ export function useCircuitList({ onApiError, searchQuery }: UseCircuitListProps)
   } = useQuery({
     queryKey: ['circuits'],
     queryFn: circuitService.getAllCircuits,
+    meta: {
+      onSettled: (data, err) => {
+        if (err) {
+          const errorMessage = err instanceof Error 
+            ? err.message 
+            : 'Failed to load circuits. Please try again later.';
+          console.error('Circuit list error:', err);
+          if (onApiError) onApiError(errorMessage);
+        }
+      }
+    }
   });
-
-  // Handle API error
-  if (isError && onApiError) {
-    const errorMessage = error instanceof Error 
-      ? error.message 
-      : 'Failed to load circuits. Please try again later.';
-    onApiError(errorMessage);
-  }
 
   // Filter circuits based on search query
   const filteredCircuits = useMemo(() => {
@@ -67,7 +70,10 @@ export function useCircuitList({ onApiError, searchQuery }: UseCircuitListProps)
     
     try {
       await circuitService.deleteCircuit(selectedCircuit.id);
+      // Close the dialog first before showing the success toast
+      setDeleteDialogOpen(false);
       toast.success("Circuit deleted successfully");
+      // Then refetch the updated list
       refetch();
     } catch (error) {
       const errorMessage = error instanceof Error 

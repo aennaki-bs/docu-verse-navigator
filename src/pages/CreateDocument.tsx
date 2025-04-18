@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
@@ -15,13 +14,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from 'sonner';
-import { ArrowLeft, ArrowRight, LogOut, UserCog, Save, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText, LogOut, UserCog, Save, Check } from 'lucide-react';
 import DocuVerseLogo from '@/components/DocuVerseLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import documentService from '@/services/documentService';
 import { DocumentType, CreateDocumentRequest } from '@/models/document';
+import { DatePickerInput } from '@/components/document/DatePickerInput';
 
-const CreateDocument = () => {
+export default function CreateDocument() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -132,23 +132,29 @@ const CreateDocument = () => {
     }
   };
 
+  const handleDateChange = (newDate: Date | undefined) => {
+    if (newDate) {
+      setDocDate(newDate.toISOString().split('T')[0]);
+    }
+  };
+
   const renderStepContent = () => {
     switch (step) {
       case 1:
         return (
           <div className="space-y-6">
             <div className="space-y-3">
-              <Label htmlFor="documentType" className="text-base font-medium">Document Type*</Label>
+              <Label htmlFor="documentType" className="text-sm font-medium text-gray-200">Document Type*</Label>
               <Select 
                 value={selectedTypeId?.toString() || ''} 
                 onValueChange={(value) => setSelectedTypeId(Number(value))}
               >
-                <SelectTrigger className="h-12 text-base">
+                <SelectTrigger className="h-12 text-base bg-gray-900 border-gray-800 text-white">
                   <SelectValue placeholder="Select document type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-gray-900 border-gray-800">
                   {documentTypes.map(type => (
-                    <SelectItem key={type.id} value={type.id!.toString()}>
+                    <SelectItem key={type.id} value={type.id!.toString()} className="text-gray-200">
                       {type.typeName} ({type.typeKey})
                     </SelectItem>
                   ))}
@@ -156,23 +162,27 @@ const CreateDocument = () => {
               </Select>
             </div>
             <div className="space-y-3">
-              <Label htmlFor="documentAlias" className="text-base font-medium">Document Alias (Optional)</Label>
+              <Label htmlFor="documentAlias" className="text-sm font-medium text-gray-200">Document Alias (Optional)</Label>
               <Input 
                 id="documentAlias" 
                 value={documentAlias} 
                 onChange={e => setDocumentAlias(e.target.value)}
                 placeholder="e.g., INV for Invoice"
                 maxLength={10}
-                className="h-12 text-base"
+                className="h-12 text-base bg-gray-900 border-gray-800 text-white placeholder:text-gray-500"
               />
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500">
                 Short code to include in document key (e.g., INV for Invoice)
               </p>
             </div>
             <div className="flex justify-between pt-6">
-              <Button variant="outline" size="lg" onClick={() => navigate('/documents')} className="px-6">Cancel</Button>
-              <Button size="lg" onClick={handleNextStep} className="px-6">
-                Next <ArrowRight className="ml-2 h-5 w-5" />
+              <Button variant="outline" className="border-gray-700 hover:bg-gray-800" onClick={() => navigate('/documents')}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Cancel
+              </Button>
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNextStep}>
+                Next Step
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -181,21 +191,23 @@ const CreateDocument = () => {
         return (
           <div className="space-y-6">
             <div className="space-y-3">
-              <Label htmlFor="title" className="text-base font-medium">Document Title*</Label>
+              <Label htmlFor="title" className="text-sm font-medium text-gray-200">Document Title*</Label>
               <Input 
                 id="title" 
                 value={title} 
                 onChange={e => setTitle(e.target.value)}
                 placeholder="Enter document title"
-                className="h-12 text-base"
+                className="h-12 text-base bg-gray-900 border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
             <div className="flex justify-between pt-6">
-              <Button variant="outline" size="lg" onClick={handlePrevStep} className="px-6">
-                <ArrowLeft className="mr-2 h-5 w-5" /> Back
+              <Button variant="outline" className="border-gray-700 hover:bg-gray-800" onClick={handlePrevStep}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
               </Button>
-              <Button size="lg" onClick={handleNextStep} className="px-6">
-                Next <ArrowRight className="ml-2 h-5 w-5" />
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNextStep}>
+                Next Step
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -204,21 +216,20 @@ const CreateDocument = () => {
         return (
           <div className="space-y-6">
             <div className="space-y-3">
-              <Label htmlFor="docDate" className="text-base font-medium">Document Date*</Label>
-              <Input 
-                id="docDate" 
-                type="date" 
-                value={docDate} 
-                onChange={e => setDocDate(e.target.value)}
-                className="h-12 text-base"
+              <Label htmlFor="docDate" className="text-sm font-medium text-gray-200">Document Date*</Label>
+              <DatePickerInput 
+                date={new Date(docDate)} 
+                onDateChange={handleDateChange}
               />
             </div>
             <div className="flex justify-between pt-6">
-              <Button variant="outline" size="lg" onClick={handlePrevStep} className="px-6">
-                <ArrowLeft className="mr-2 h-5 w-5" /> Back
+              <Button variant="outline" className="border-gray-700 hover:bg-gray-800" onClick={handlePrevStep}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
               </Button>
-              <Button size="lg" onClick={handleNextStep} className="px-6">
-                Next <ArrowRight className="ml-2 h-5 w-5" />
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNextStep}>
+                Next Step
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -227,22 +238,24 @@ const CreateDocument = () => {
         return (
           <div className="space-y-6">
             <div className="space-y-3">
-              <Label htmlFor="content" className="text-base font-medium">Document Content*</Label>
+              <Label htmlFor="content" className="text-sm font-medium text-gray-200">Document Content*</Label>
               <Textarea 
                 id="content" 
                 value={content} 
                 onChange={e => setContent(e.target.value)}
                 placeholder="Enter document content"
                 rows={8}
-                className="text-base resize-y"
+                className="text-base resize-y bg-gray-900 border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
             <div className="flex justify-between pt-6">
-              <Button variant="outline" size="lg" onClick={handlePrevStep} className="px-6">
-                <ArrowLeft className="mr-2 h-5 w-5" /> Back
+              <Button variant="outline" className="border-gray-700 hover:bg-gray-800" onClick={handlePrevStep}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
               </Button>
-              <Button size="lg" onClick={handleNextStep} className="px-6">
-                Review <Check className="ml-2 h-5 w-5" />
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNextStep}>
+                Review
+                <Check className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -251,44 +264,44 @@ const CreateDocument = () => {
         const selectedType = documentTypes.find(t => t.id === selectedTypeId);
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold">Document Summary</h3>
+            <h3 className="text-xl font-semibold text-white">Document Summary</h3>
             
             <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
               <div className="grid sm:grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Type</p>
-                  <p className="text-base font-medium">{selectedType?.typeName}</p>
+                  <p className="text-base font-medium text-white">{selectedType?.typeName}</p>
                 </div>
                 {documentAlias && (
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Alias</p>
-                    <p className="text-base font-medium">{documentAlias}</p>
+                    <p className="text-base font-medium text-white">{documentAlias}</p>
                   </div>
                 )}
                 <div>
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Title</p>
-                  <p className="text-base font-medium">{title}</p>
+                  <p className="text-base font-medium text-white">{title}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Date</p>
-                  <p className="text-base font-medium">{new Date(docDate).toLocaleDateString()}</p>
+                  <p className="text-base font-medium text-white">{new Date(docDate).toLocaleDateString()}</p>
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Content</p>
-                <p className="text-base whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-4 rounded-md">{content}</p>
+                <p className="text-base whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-4 rounded-md text-white">{content}</p>
               </div>
             </div>
 
             <div className="flex justify-between pt-6">
-              <Button variant="outline" size="lg" onClick={handlePrevStep} className="px-6">
-                <ArrowLeft className="mr-2 h-5 w-5" /> Edit
+              <Button variant="outline" className="border-gray-700 hover:bg-gray-800" onClick={handlePrevStep}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Edit
               </Button>
               <Button 
                 onClick={handleSubmit} 
                 disabled={isSubmitting}
-                size="lg"
-                className="bg-green-600 hover:bg-green-700 px-6"
+                className="bg-green-600 hover:bg-green-700"
               >
                 <Save className="mr-2 h-5 w-5" /> 
                 {isSubmitting ? 'Creating...' : 'Create Document'}
@@ -301,121 +314,72 @@ const CreateDocument = () => {
     }
   };
 
-  const getStepTitle = () => {
-    switch (step) {
-      case 1: return "Step 1: Select Document Type";
-      case 2: return "Step 2: Document Title";
-      case 3: return "Step 3: Document Date";
-      case 4: return "Step 4: Document Content";
-      case 5: return "Step 5: Review & Create";
-      default: return "Create Document";
-    }
+  // Step indicator component
+  const StepIndicator = ({ currentStep }: { currentStep: number }) => {
+    const steps = [
+      { number: 1, title: "Type" },
+      { number: 2, title: "Title" },
+      { number: 3, title: "Date" },
+      { number: 4, title: "Content" },
+      { number: 5, title: "Review" }
+    ];
+
+    return (
+      <div className="flex justify-center space-x-2 mb-8">
+        {steps.map((step) => (
+          <div key={step.number} className="flex items-center">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all
+                ${step.number === currentStep
+                  ? 'bg-blue-600 text-white ring-4 ring-blue-600/20'
+                  : step.number < currentStep
+                  ? 'bg-blue-600/20 text-blue-600 border-2 border-blue-600'
+                  : 'bg-gray-800 text-gray-400 border border-gray-700'
+              }`}
+            >
+              {step.number < currentStep ? '✓' : step.number}
+            </div>
+            {step.number < 5 && (
+              <div
+                className={`h-[2px] w-12 transition-colors
+                  ${step.number < currentStep ? 'bg-blue-600' : 'bg-gray-700'}`}
+              ></div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <Link to="/dashboard">
-              <DocuVerseLogo className="h-10 w-auto" />
-            </Link>
-            <h1 className="ml-4 text-xl font-semibold text-gray-900 dark:text-white">DocApp</h1>
+    <div className="p-6 space-y-6">
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <FileText className="h-6 w-6 text-blue-500" />
+          <h1 className="text-3xl font-semibold text-white">Create Document</h1>
+        </div>
+        <p className="text-gray-400">Create a new document in simple steps</p>
+      </div>
+
+      <Card className="w-full max-w-3xl mx-auto border-gray-800 bg-[#0d1117]">
+        <div className="p-6 space-y-6">
+          <StepIndicator currentStep={step} />
+          
+          <div className="border-b border-gray-800 pb-4">
+            <h2 className="text-xl font-semibold text-center text-white">
+              {step === 1 && "Select Document Type"}
+              {step === 2 && "Document Title"}
+              {step === 3 && "Document Date"}
+              {step === 4 && "Document Content"}
+              {step === 5 && "Review Document"}
+            </h2>
           </div>
-          <div className="flex items-center space-x-4">
-            {user && user.role === 'Admin' && (
-              <Link to="/admin">
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <UserCog className="h-4 w-4" />
-                  Admin Panel
-                </Button>
-              </Link>
-            )}
-            <Link to="/profile">
-              <div className="flex items-center space-x-3 cursor-pointer">
-                <Avatar className="h-9 w-9">
-                  {user?.profilePicture ? (
-                    <AvatarImage src={user.profilePicture} alt="Profile" />
-                  ) : (
-                    <AvatarFallback className="text-sm">{getInitials()}</AvatarFallback>
-                  )}
-                </Avatar>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {user?.firstName} {user?.lastName}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
-                </div>
-              </div>
-            </Link>
-            <Button variant="ghost" size="icon" onClick={handleLogout}>
-              <LogOut className="h-5 w-5" />
-            </Button>
+
+          <div className="space-y-6">
+            {renderStepContent()}
           </div>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Document</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">{getStepTitle()}</p>
-        </div>
-
-        {/* Progress Indicator */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <div key={s} className="flex flex-col items-center relative">
-                <div 
-                  className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    s < step ? "bg-green-500 text-white shadow-md" : 
-                    s === step ? "bg-blue-600 text-white shadow-md" : 
-                    "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-                  } transition-all duration-200`}
-                >
-                  {s < step ? <Check className="h-5 w-5" /> : s}
-                </div>
-                <p className={`mt-2 text-sm ${
-                  s === step ? "font-medium text-blue-600 dark:text-blue-400" :
-                  s < step ? "font-medium text-green-600 dark:text-green-400" :
-                  "text-gray-500 dark:text-gray-400"
-                }`}>
-                  {s === 1 ? "Type" : 
-                   s === 2 ? "Title" : 
-                   s === 3 ? "Date" : 
-                   s === 4 ? "Content" : "Review"}
-                </p>
-                {s < 5 && (
-                  <div className={`absolute top-6 left-12 h-1 w-[calc(100%-3rem)] ${
-                    s < step ? "bg-green-500" : "bg-gray-200 dark:bg-gray-700"
-                  }`}></div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <Card className="border-gray-200 dark:border-gray-700 shadow-lg">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl text-center">{getStepTitle()}</CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 pt-4">
-            {isLoading ? (
-              <div className="space-y-4 animate-pulse">
-                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
-              </div>
-            ) : (
-              renderStepContent()
-            )}
-          </CardContent>
-        </Card>
-      </main>
+      </Card>
     </div>
   );
-};
-
-export default CreateDocument;
+}

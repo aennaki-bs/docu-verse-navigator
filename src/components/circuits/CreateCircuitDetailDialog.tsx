@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { Plus, Save } from 'lucide-react';
 import circuitService from '@/services/circuitService';
 import {
   Dialog,
@@ -83,13 +84,14 @@ export default function CreateCircuitDetailDialog({
         title: values.title,
         descriptif: values.descriptif || '',
         orderIndex: values.orderIndex,
-        createdAt: new Date().toISOString(),  // Add required properties
-        updatedAt: new Date().toISOString(),  // Add required properties
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
       
       form.reset();
       onOpenChange(false);
       onSuccess();
+      toast.success('Circuit step created successfully');
     } catch (error) {
       toast.error('Failed to create circuit step');
       console.error(error);
@@ -100,26 +102,33 @@ export default function CreateCircuitDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Add Circuit Step</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[450px] bg-[#0f1642] border-blue-900/30 shadow-xl p-4 rounded-lg">
+        <DialogHeader className="space-y-1">
+          <DialogTitle className="text-lg flex items-center text-white">
+            <Plus className="h-4 w-4 mr-2 text-blue-400" />
+            Add Circuit Step
+          </DialogTitle>
+          <DialogDescription className="text-xs text-blue-300">
             Create a new step for this circuit
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 py-2">
             <FormField
               control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title *</FormLabel>
+                  <FormLabel className="text-sm text-blue-200">Title *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter step title" {...field} />
+                    <Input 
+                      placeholder="Enter step title" 
+                      {...field} 
+                      className="h-9 text-sm bg-[#0A0E2E] border-blue-900/40 focus:border-blue-500"
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -129,15 +138,16 @@ export default function CreateCircuitDetailDialog({
               name="descriptif"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel className="text-sm text-blue-200">Description</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Enter step description"
                       {...field}
                       value={field.value || ''}
+                      className="text-sm bg-[#0A0E2E] border-blue-900/40 focus:border-blue-500 min-h-[80px]"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -147,26 +157,45 @@ export default function CreateCircuitDetailDialog({
               name="orderIndex"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Order</FormLabel>
+                  <FormLabel className="text-sm text-blue-200">Order</FormLabel>
                   <FormControl>
-                    <Input type="number" min="0" {...field} />
+                    <Input 
+                      type="number" 
+                      min="0" 
+                      {...field} 
+                      className="h-9 text-sm bg-[#0A0E2E] border-blue-900/40 focus:border-blue-500"
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="pt-2 gap-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
+                className="h-8 text-xs bg-transparent border-blue-800/50 hover:bg-blue-900/30 text-gray-300"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Step'}
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="h-8 text-xs bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-1.5"></div>
+                    <span>Creating...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Save className="h-3.5 w-3.5 mr-1.5" /> Create Step
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </form>
