@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -243,6 +244,16 @@ export default function CreateDocument() {
     }
   };
 
+  // Handler for subtype selection
+  const handleSubTypeChange = (value: string) => {
+    // If "none" is selected, clear the subtype selection
+    if (value === "none") {
+      setSelectedSubTypeId(null);
+    } else {
+      setSelectedSubTypeId(Number(value));
+    }
+  };
+
   const renderStepContent = () => {
     switch (step) {
       case 1:
@@ -334,8 +345,8 @@ export default function CreateDocument() {
             <div className="space-y-3">
               <Label htmlFor="subType" className="text-sm font-medium text-gray-200">Document SubType</Label>
               <Select 
-                value={selectedSubTypeId?.toString() || ''} 
-                onValueChange={(id) => setSelectedSubTypeId(id ? Number(id) : null)}
+                value={selectedSubTypeId?.toString() || 'none'} 
+                onValueChange={handleSubTypeChange}
                 disabled={isLoadingSubtypes || availableSubtypes.length === 0}
               >
                 <SelectTrigger className="h-12 text-base bg-gray-900 border-gray-800 text-white">
@@ -348,7 +359,7 @@ export default function CreateDocument() {
                   } />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-900 border-gray-800">
-                  <SelectItem value="" className="text-gray-400">None</SelectItem>
+                  <SelectItem value="none" className="text-gray-400">None</SelectItem>
                   {availableSubtypes.map(subtype => (
                     <SelectItem key={subtype.id} value={subtype.id.toString()} className="text-gray-200">
                       {subtype.name} ({new Date(subtype.startDate).toLocaleDateString()} - {new Date(subtype.endDate).toLocaleDateString()})
