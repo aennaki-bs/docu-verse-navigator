@@ -1,5 +1,5 @@
 
-import { documentService, documentTypeService, ligneService, sousLigneService } from './documents';
+import { documentService, documentTypeService, ligneService, sousLigneService, subTypeService } from './documents';
 
 // Re-export all services as properties of a single object for backward compatibility
 const combinedDocumentService = {
@@ -19,6 +19,15 @@ const combinedDocumentService = {
   validateTypeName: documentTypeService.validateTypeName,
   deleteDocumentType: documentTypeService.deleteDocumentType,
   deleteMultipleDocumentTypes: documentTypeService.deleteMultipleDocumentTypes,
+
+  // SubType methods
+  getAllSubTypes: subTypeService.getAllSubTypes,
+  getSubTypeById: subTypeService.getSubTypeById,
+  getSubTypesByDocumentTypeId: subTypeService.getSubTypesByDocumentTypeId,
+  getSubTypesForDate: subTypeService.getSubTypesForDate,
+  createSubType: subTypeService.createSubType,
+  updateSubType: subTypeService.updateSubType,
+  deleteSubType: subTypeService.deleteSubType,
 
   // Ligne methods
   getAllLignes: ligneService.getAllLignes,

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -14,11 +15,10 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from 'sonner';
-import { ArrowLeft, ArrowRight, FileText, LogOut, UserCog, Save, Check } from 'lucide-react';
-import DocuVerseLogo from '@/components/DocuVerseLogo';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ArrowLeft, ArrowRight, FileText, Check, Save } from 'lucide-react';
+import { Avatar } from '@/components/ui/avatar';
 import documentService from '@/services/documentService';
-import { DocumentType, CreateDocumentRequest } from '@/models/document';
+import { DocumentType, CreateDocumentRequest, SubType } from '@/models/document';
 import { DatePickerInput } from '@/components/document/DatePickerInput';
 
 export default function CreateDocument() {
@@ -26,15 +26,20 @@ export default function CreateDocument() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
+  const [subtypes, setSubtypes] = useState<SubType[]>([]);
+  const [availableSubtypes, setAvailableSubtypes] = useState<SubType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingSubtypes, setIsLoadingSubtypes] = useState(false);
   
   // Form data
   const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
+  const [selectedSubTypeId, setSelectedSubTypeId] = useState<number | null>(null);
   const [title, setTitle] = useState('');
   const [documentAlias, setDocumentAlias] = useState('');
   const [docDate, setDocDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [content, setContent] = useState('');
+  const [dateError, setDateError] = useState('');
 
   useEffect(() => {
     const fetchDocumentTypes = async () => {
@@ -52,6 +57,39 @@ export default function CreateDocument() {
 
     fetchDocumentTypes();
   }, []);
+
+  useEffect(() => {
+    const fetchSubtypes = async () => {
+      if (selectedTypeId) {
+        try {
+          setIsLoadingSubtypes(true);
+          const fetchedSubtypes = await documentService.getSubTypesByDocumentTypeId(selectedTypeId);
+          setSubtypes(fetchedSubtypes);
+          
+          if (docDate) {
+            const validSubtypes = fetchedSubtypes.filter(
+              st => new Date(docDate) >= new Date(st.startDate) && 
+                    new Date(docDate) <= new Date(st.endDate) &&
+                    st.isActive
+            );
+            setAvailableSubtypes(validSubtypes);
+          } else {
+            setAvailableSubtypes(fetchedSubtypes.filter(st => st.isActive));
+          }
+        } catch (error) {
+          console.error('Failed to fetch subtypes:', error);
+          toast.error('Failed to load subtypes');
+        } finally {
+          setIsLoadingSubtypes(false);
+        }
+      } else {
+        setSubtypes([]);
+        setAvailableSubtypes([]);
+      }
+    };
+
+    fetchSubtypes();
+  }, [selectedTypeId, docDate]);
 
   const handleLogout = () => {
     logout(navigate);
@@ -90,6 +128,25 @@ export default function CreateDocument() {
           toast.error('Please select a document date');
           return false;
         }
+        
+        if (selectedSubTypeId && availableSubtypes.length > 0) {
+          const selectedSubtype = availableSubtypes.find(st => st.id === selectedSubTypeId);
+          if (!selectedSubtype) {
+            toast.error('Selected subtype is not valid for the chosen date');
+            return false;
+          }
+          
+          const documentDate = new Date(docDate);
+          const startDate = new Date(selectedSubtype.startDate);
+          const endDate = new Date(selectedSubtype.endDate);
+          
+          if (documentDate < startDate || documentDate > endDate) {
+            setDateError(`Document date must be between ${startDate.toLocaleDateString()} and ${endDate.toLocaleDateString()}`);
+            return false;
+          }
+        }
+        
+        setDateError('');
         return true;
       case 4:
         if (!content.trim()) {
@@ -119,14 +176,15 @@ export default function CreateDocument() {
         typeId: selectedTypeId,
         documentAlias,
         docDate,
+        subTypeId: selectedSubTypeId || undefined,
       };
 
       const createdDocument = await documentService.createDocument(documentData);
       toast.success('Document created successfully');
       navigate(`/documents/${createdDocument.id}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create document:', error);
-      toast.error('Failed to create document');
+      toast.error(error?.response?.data || 'Failed to create document');
     } finally {
       setIsSubmitting(false);
     }
@@ -134,8 +192,32 @@ export default function CreateDocument() {
 
   const handleDateChange = (newDate: Date | undefined) => {
     if (newDate) {
-      setDocDate(newDate.toISOString().split('T')[0]);
+      const dateString = newDate.toISOString().split('T')[0];
+      setDocDate(dateString);
+      setDateError('');
+      
+      if (selectedTypeId && subtypes.length > 0) {
+        const validSubtypes = subtypes.filter(
+          st => newDate >= new Date(st.startDate) && 
+                newDate <= new Date(st.endDate) &&
+                st.isActive
+        );
+        setAvailableSubtypes(validSubtypes);
+        
+        if (selectedSubTypeId) {
+          const isStillValid = validSubtypes.some(st => st.id === selectedSubTypeId);
+          if (!isStillValid) {
+            setSelectedSubTypeId(null);
+            toast.warning('Selected subtype is no longer valid for the new date');
+          }
+        }
+      }
     }
+  };
+
+  const handleTypeChange = (typeId: string) => {
+    setSelectedTypeId(Number(typeId));
+    setSelectedSubTypeId(null); // Reset subtype when type changes
   };
 
   const renderStepContent = () => {
@@ -147,7 +229,7 @@ export default function CreateDocument() {
               <Label htmlFor="documentType" className="text-sm font-medium text-gray-200">Document Type*</Label>
               <Select 
                 value={selectedTypeId?.toString() || ''} 
-                onValueChange={(value) => setSelectedTypeId(Number(value))}
+                onValueChange={handleTypeChange}
               >
                 <SelectTrigger className="h-12 text-base bg-gray-900 border-gray-800 text-white">
                   <SelectValue placeholder="Select document type" />
@@ -221,7 +303,43 @@ export default function CreateDocument() {
                 date={new Date(docDate)} 
                 onDateChange={handleDateChange}
               />
+              {dateError && (
+                <p className="text-sm text-red-500">{dateError}</p>
+              )}
             </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="subType" className="text-sm font-medium text-gray-200">Document SubType</Label>
+              <Select 
+                value={selectedSubTypeId?.toString() || ''} 
+                onValueChange={(id) => setSelectedSubTypeId(Number(id))}
+                disabled={isLoadingSubtypes || availableSubtypes.length === 0}
+              >
+                <SelectTrigger className="h-12 text-base bg-gray-900 border-gray-800 text-white">
+                  <SelectValue placeholder={
+                    isLoadingSubtypes 
+                      ? "Loading subtypes..." 
+                      : availableSubtypes.length === 0 
+                        ? "No valid subtypes for selected date" 
+                        : "Select document subtype"
+                  } />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-800">
+                  <SelectItem value="" className="text-gray-400">None</SelectItem>
+                  {availableSubtypes.map(subtype => (
+                    <SelectItem key={subtype.id} value={subtype.id.toString()} className="text-gray-200">
+                      {subtype.name} ({new Date(subtype.startDate).toLocaleDateString()} - {new Date(subtype.endDate).toLocaleDateString()})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-gray-500">
+                {selectedSubTypeId 
+                  ? `Selected subtype valid from ${new Date(availableSubtypes.find(st => st.id === selectedSubTypeId)?.startDate || '').toLocaleDateString()} to ${new Date(availableSubtypes.find(st => st.id === selectedSubTypeId)?.endDate || '').toLocaleDateString()}`
+                  : "Optional: Select a subtype for this document"}
+              </p>
+            </div>
+            
             <div className="flex justify-between pt-6">
               <Button variant="outline" className="border-gray-700 hover:bg-gray-800" onClick={handlePrevStep}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -262,6 +380,7 @@ export default function CreateDocument() {
         );
       case 5:
         const selectedType = documentTypes.find(t => t.id === selectedTypeId);
+        const selectedSubType = subtypes.find(st => st.id === selectedSubTypeId);
         return (
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-white">Document Summary</h3>
@@ -276,6 +395,15 @@ export default function CreateDocument() {
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Alias</p>
                     <p className="text-base font-medium text-white">{documentAlias}</p>
+                  </div>
+                )}
+                {selectedSubType && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document SubType</p>
+                    <p className="text-base font-medium text-white">{selectedSubType.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Valid from {new Date(selectedSubType.startDate).toLocaleDateString()} to {new Date(selectedSubType.endDate).toLocaleDateString()}
+                    </p>
                   </div>
                 )}
                 <div>
@@ -319,13 +447,13 @@ export default function CreateDocument() {
     const steps = [
       { number: 1, title: "Type" },
       { number: 2, title: "Title" },
-      { number: 3, title: "Date" },
+      { number: 3, title: "Date & SubType" },
       { number: 4, title: "Content" },
       { number: 5, title: "Review" }
     ];
 
     return (
-      <div className="flex justify-center space-x-2 mb-8">
+      <div className="flex justify-center space-x-2 mb-8 overflow-x-auto">
         {steps.map((step) => (
           <div key={step.number} className="flex items-center">
             <div
@@ -369,7 +497,7 @@ export default function CreateDocument() {
             <h2 className="text-xl font-semibold text-center text-white">
               {step === 1 && "Select Document Type"}
               {step === 2 && "Document Title"}
-              {step === 3 && "Document Date"}
+              {step === 3 && "Document Date & SubType"}
               {step === 4 && "Document Content"}
               {step === 5 && "Review Document"}
             </h2>
