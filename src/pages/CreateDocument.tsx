@@ -43,7 +43,8 @@ export default function CreateDocument() {
     const fetchDocumentTypes = async () => {
       try {
         setIsLoading(true);
-        const types = await documentService.getAllDocumentTypes();
+        // Fix: Use documentTypeService instead of documentService for fetching types
+        const types = await documentService.documentTypeService.getAllDocumentTypes();
         setDocumentTypes(types);
       } catch (error) {
         console.error('Failed to fetch document types:', error);
@@ -56,7 +57,6 @@ export default function CreateDocument() {
     fetchDocumentTypes();
   }, []);
 
-  // Function to fetch subtypes based on the selected document type
   const fetchSubtypes = async (typeId: number, dateStr: string | null = null) => {
     if (!typeId) return;
     
@@ -104,7 +104,6 @@ export default function CreateDocument() {
     }
   };
 
-  // Effect to fetch subtypes when document type changes
   useEffect(() => {
     if (selectedTypeId) {
       // Reset selected subtype when type changes
