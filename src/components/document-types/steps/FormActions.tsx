@@ -4,6 +4,7 @@ import { ArrowLeft, Loader2, Save } from 'lucide-react';
 
 interface FormActionsProps {
   step: number;
+  totalSteps: number;
   isEditMode: boolean;
   onNext: () => void;
   onPrev: () => void;
@@ -15,6 +16,7 @@ interface FormActionsProps {
 
 export const FormActions = ({
   step,
+  totalSteps,
   isEditMode,
   onNext,
   onPrev,
@@ -24,7 +26,7 @@ export const FormActions = ({
   isValidating,
 }: FormActionsProps) => {
   const isFirstStep = step === 1;
-  const isLastStep = step === 2;
+  const isLastStep = step === totalSteps;
 
   return (
     <div className="flex justify-between gap-2 mt-4">
@@ -45,7 +47,7 @@ export const FormActions = ({
 
       <Button
         type="button"
-        onClick={isLastStep || isEditMode ? onSubmit : onNext}
+        onClick={isLastStep ? onSubmit : onNext}
         disabled={isNextDisabled || isValidating}
         className="h-7 text-xs bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white"
         size="sm"
@@ -55,7 +57,7 @@ export const FormActions = ({
             <Loader2 className="mr-1 h-2.5 w-2.5 animate-spin" />
             Validating...
           </>
-        ) : isLastStep || isEditMode ? (
+        ) : isLastStep ? (
           <>
             <Save className="mr-1 h-2.5 w-2.5" />
             {isEditMode ? 'Update Type' : 'Create Type'}
