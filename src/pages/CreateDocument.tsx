@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -16,13 +15,12 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from 'sonner';
 import { ArrowLeft, ArrowRight, FileText, Check, Save } from 'lucide-react';
-import { Avatar } from '@/components/ui/avatar';
 import documentService from '@/services/documentService';
 import { DocumentType, CreateDocumentRequest, SubType } from '@/models/document';
 import { DatePickerInput } from '@/components/document/DatePickerInput';
 
 export default function CreateDocument() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
@@ -58,41 +56,68 @@ export default function CreateDocument() {
     fetchDocumentTypes();
   }, []);
 
-  useEffect(() => {
-    const fetchSubtypes = async () => {
-      if (selectedTypeId) {
-        try {
-          setIsLoadingSubtypes(true);
-          const fetchedSubtypes = await documentService.getSubTypesByDocumentTypeId(selectedTypeId);
-          setSubtypes(fetchedSubtypes);
-          
-          if (docDate) {
-            const validSubtypes = fetchedSubtypes.filter(
-              st => new Date(docDate) >= new Date(st.startDate) && 
-                    new Date(docDate) <= new Date(st.endDate) &&
-                    st.isActive
-            );
-            setAvailableSubtypes(validSubtypes);
-          } else {
-            setAvailableSubtypes(fetchedSubtypes.filter(st => st.isActive));
-          }
-        } catch (error) {
-          console.error('Failed to fetch subtypes:', error);
-          toast.error('Failed to load subtypes');
-        } finally {
-          setIsLoadingSubtypes(false);
-        }
+  // Function to fetch subtypes based on the selected document type
+  const fetchSubtypes = async (typeId: number, date: string | null = null) => {
+    if (!typeId) return;
+    
+    try {
+      setIsLoadingSubtypes(true);
+      let fetchedSubtypes: SubType[];
+      
+      if (date) {
+        // If we have a date, fetch subtypes valid for this date
+        fetchedSubtypes = await documentService.getSubTypesForDate(typeId, date);
       } else {
-        setSubtypes([]);
-        setAvailableSubtypes([]);
+        // Otherwise, fetch all subtypes for the document type
+        fetchedSubtypes = await documentService.getSubTypesByDocumentTypeId(typeId);
       }
-    };
+      
+      setSubtypes(fetchedSubtypes);
+      
+      // Filter active subtypes
+      const validSubtypes = date 
+        ? fetchedSubtypes.filter(st => 
+            st.isActive && 
+            new Date(date) >= new Date(st.startDate) && 
+            new Date(date) <= new Date(st.endDate)
+          )
+        : fetchedSubtypes.filter(st => st.isActive);
+        
+      setAvailableSubtypes(validSubtypes);
+      
+      // If the currently selected subtype is no longer valid, clear it
+      if (selectedSubTypeId && !validSubtypes.some(st => st.id === selectedSubTypeId)) {
+        setSelectedSubTypeId(null);
+      }
+    } catch (error) {
+      console.error('Failed to fetch subtypes:', error);
+      toast.error('Failed to load subtypes');
+    } finally {
+      setIsLoadingSubtypes(false);
+    }
+  };
 
-    fetchSubtypes();
-  }, [selectedTypeId, docDate]);
+  // Effect to fetch subtypes when document type changes
+  useEffect(() => {
+    if (selectedTypeId) {
+      fetchSubtypes(selectedTypeId, docDate);
+    } else {
+      setSubtypes([]);
+      setAvailableSubtypes([]);
+    }
+  }, [selectedTypeId]);
+  
+  // Separate effect for when date changes
+  useEffect(() => {
+    if (selectedTypeId && docDate) {
+      fetchSubtypes(selectedTypeId, docDate);
+    }
+  }, [docDate]);
 
   const handleLogout = () => {
-    logout(navigate);
+    if (useAuth().logout) {
+      useAuth().logout(navigate);
+    }
   };
 
   const getInitials = () => {
@@ -129,7 +154,7 @@ export default function CreateDocument() {
           return false;
         }
         
-        if (selectedSubTypeId && availableSubtypes.length > 0) {
+        if (selectedSubTypeId !== null) {
           const selectedSubtype = availableSubtypes.find(st => st.id === selectedSubTypeId);
           if (!selectedSubtype) {
             toast.error('Selected subtype is not valid for the chosen date');
@@ -174,7 +199,7 @@ export default function CreateDocument() {
         title,
         content,
         typeId: selectedTypeId,
-        documentAlias,
+        documentAlias: documentAlias || undefined,
         docDate,
         subTypeId: selectedSubTypeId || undefined,
       };
@@ -196,28 +221,22 @@ export default function CreateDocument() {
       setDocDate(dateString);
       setDateError('');
       
-      if (selectedTypeId && subtypes.length > 0) {
-        const validSubtypes = subtypes.filter(
-          st => newDate >= new Date(st.startDate) && 
-                newDate <= new Date(st.endDate) &&
-                st.isActive
-        );
-        setAvailableSubtypes(validSubtypes);
-        
-        if (selectedSubTypeId) {
-          const isStillValid = validSubtypes.some(st => st.id === selectedSubTypeId);
-          if (!isStillValid) {
-            setSelectedSubTypeId(null);
-            toast.warning('Selected subtype is no longer valid for the new date');
-          }
-        }
+      // Whenever date changes and we have a document type, we need to check available subtypes
+      if (selectedTypeId) {
+        fetchSubtypes(selectedTypeId, dateString);
       }
     }
   };
 
   const handleTypeChange = (typeId: string) => {
-    setSelectedTypeId(Number(typeId));
+    const numTypeId = Number(typeId);
+    setSelectedTypeId(numTypeId);
     setSelectedSubTypeId(null); // Reset subtype when type changes
+    
+    // When type changes, fetch subtypes for this type
+    if (numTypeId) {
+      fetchSubtypes(numTypeId, docDate);
+    }
   };
 
   const renderStepContent = () => {
@@ -300,7 +319,7 @@ export default function CreateDocument() {
             <div className="space-y-3">
               <Label htmlFor="docDate" className="text-sm font-medium text-gray-200">Document Date*</Label>
               <DatePickerInput 
-                date={new Date(docDate)} 
+                date={docDate ? new Date(docDate) : new Date()} 
                 onDateChange={handleDateChange}
               />
               {dateError && (
@@ -312,7 +331,7 @@ export default function CreateDocument() {
               <Label htmlFor="subType" className="text-sm font-medium text-gray-200">Document SubType</Label>
               <Select 
                 value={selectedSubTypeId?.toString() || ''} 
-                onValueChange={(id) => setSelectedSubTypeId(Number(id))}
+                onValueChange={(id) => setSelectedSubTypeId(id ? Number(id) : null)}
                 disabled={isLoadingSubtypes || availableSubtypes.length === 0}
               >
                 <SelectTrigger className="h-12 text-base bg-gray-900 border-gray-800 text-white">
@@ -321,7 +340,7 @@ export default function CreateDocument() {
                       ? "Loading subtypes..." 
                       : availableSubtypes.length === 0 
                         ? "No valid subtypes for selected date" 
-                        : "Select document subtype"
+                        : "Select document subtype (optional)"
                   } />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-900 border-gray-800">
@@ -333,11 +352,16 @@ export default function CreateDocument() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-sm text-gray-500">
-                {selectedSubTypeId 
-                  ? `Selected subtype valid from ${new Date(availableSubtypes.find(st => st.id === selectedSubTypeId)?.startDate || '').toLocaleDateString()} to ${new Date(availableSubtypes.find(st => st.id === selectedSubTypeId)?.endDate || '').toLocaleDateString()}`
-                  : "Optional: Select a subtype for this document"}
-              </p>
+              {selectedSubTypeId && (
+                <p className="text-sm text-gray-500">
+                  {`Selected subtype valid from ${new Date(availableSubtypes.find(st => st.id === selectedSubTypeId)?.startDate || '').toLocaleDateString()} to ${new Date(availableSubtypes.find(st => st.id === selectedSubTypeId)?.endDate || '').toLocaleDateString()}`}
+                </p>
+              )}
+              {availableSubtypes.length === 0 && !isLoadingSubtypes && (
+                <p className="text-sm text-yellow-500">
+                  No valid subtypes available for this date. You can continue without selecting a subtype or adjust the document date.
+                </p>
+              )}
             </div>
             
             <div className="flex justify-between pt-6">
@@ -385,39 +409,39 @@ export default function CreateDocument() {
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-white">Document Summary</h3>
             
-            <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
+            <div className="space-y-4 rounded-lg border border-gray-700 bg-gray-800 p-6 shadow-sm">
               <div className="grid sm:grid-cols-2 gap-6">
                 <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Type</p>
+                  <p className="text-sm font-medium text-gray-400 mb-1">Document Type</p>
                   <p className="text-base font-medium text-white">{selectedType?.typeName}</p>
                 </div>
                 {documentAlias && (
                   <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Alias</p>
+                    <p className="text-sm font-medium text-gray-400 mb-1">Document Alias</p>
                     <p className="text-base font-medium text-white">{documentAlias}</p>
                   </div>
                 )}
                 {selectedSubType && (
                   <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document SubType</p>
+                    <p className="text-sm font-medium text-gray-400 mb-1">Document SubType</p>
                     <p className="text-base font-medium text-white">{selectedSubType.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="text-xs text-gray-500 mt-1">
                       Valid from {new Date(selectedSubType.startDate).toLocaleDateString()} to {new Date(selectedSubType.endDate).toLocaleDateString()}
                     </p>
                   </div>
                 )}
                 <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Title</p>
+                  <p className="text-sm font-medium text-gray-400 mb-1">Title</p>
                   <p className="text-base font-medium text-white">{title}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Date</p>
+                  <p className="text-sm font-medium text-gray-400 mb-1">Date</p>
                   <p className="text-base font-medium text-white">{new Date(docDate).toLocaleDateString()}</p>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Content</p>
-                <p className="text-base whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-4 rounded-md text-white">{content}</p>
+              <div className="mt-4 pt-4 border-t border-gray-700">
+                <p className="text-sm font-medium text-gray-400 mb-2">Content</p>
+                <p className="text-base whitespace-pre-wrap bg-gray-900 p-4 rounded-md text-white">{content}</p>
               </div>
             </div>
 
