@@ -11,7 +11,7 @@ export function WorkflowStatusSection({ workflowStatus }: WorkflowStatusSectionP
   if (!workflowStatus) return null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 w-full h-full">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <DocumentStatusCard workflowStatus={workflowStatus} />
       <StepRequirementsCard 
         statuses={workflowStatus.statuses} 

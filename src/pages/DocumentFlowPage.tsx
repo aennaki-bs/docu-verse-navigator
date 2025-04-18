@@ -118,17 +118,19 @@ const DocumentFlowPage = () => {
   // If document is not in a circuit
   if (isNoCircuit) {
     return (
-      <div className="p-3 sm:p-4 md:p-6 space-y-3 md:space-y-4 h-full">
+      <div className="h-full">
         <DocumentFlowHeader  
           documentId={id} 
           document={document}
           navigateBack={() => navigate(`/documents/${id}`)}
         />
         
-        <NoCircuitAssignedCard 
-          documentId={id}
-          navigateToDocument={() => navigate(`/documents/${id}`)}
-        />
+        <div className="p-6">
+          <NoCircuitAssignedCard 
+            documentId={id}
+            navigateToDocument={() => navigate(`/documents/${id}`)}
+          />
+        </div>
       </div>
     );
   }
@@ -140,42 +142,45 @@ const DocumentFlowPage = () => {
   const currentStepDetail = circuitDetails?.find(d => d.id === currentStepId);
 
   return (
-    <div className="p-2 sm:p-3 md:p-4 space-y-3 w-1/2">
+    <div className="h-full flex flex-col bg-[#030712]">
       <DocumentFlowHeader 
         documentId={id} 
         document={document}
         navigateBack={() => navigate(`/documents/${id}`)}
       />
       
-      <ErrorMessage error={errorMessage} />
-      
-      {/* Loading state */}
-      {isLoading ? (
-        <LoadingState />
-      ) : (
-         <div className="flex flex-col gap-3 bg-red-900 w-1/2 h-full">
-          {/* Document workflow status section */}
-          <WorkflowStatusSection workflowStatus={workflowStatus} />
+      <div className="flex-1 p-6 space-y-6">
+        <ErrorMessage error={errorMessage} />
+        
+        {isLoading ? (
+          <LoadingState />
+        ) : (
+          <div className="space-y-6">
+            {/* Document workflow status section - Full width */}
+            {workflowStatus && (
+              <WorkflowStatusSection workflowStatus={workflowStatus} />
+            )}
 
-          {/* Circuit Steps */}
-          {circuitDetails && circuitDetails.length > 0 && document && workflowStatus && (
-            <CircuitStepsSection
-              document={document}
-              circuitDetails={circuitDetails}
-              circuitHistory={circuitHistory || []}
-              workflowStatus={workflowStatus}
-              isSimpleUser={isSimpleUser}
-              onMoveClick={() => openDialog('move')}
-              onProcessClick={() => openDialog('process')}
-              onNextStepClick={() => openDialog('nextStep')}
-              onDocumentMoved={handleSuccess}
-            />
-          )}
-        </div>
-       )}
+            {/* Circuit Steps - Full width */}
+            {circuitDetails && circuitDetails.length > 0 && document && workflowStatus && (
+              <CircuitStepsSection
+                document={document}
+                circuitDetails={circuitDetails}
+                circuitHistory={circuitHistory || []}
+                workflowStatus={workflowStatus}
+                isSimpleUser={isSimpleUser}
+                onMoveClick={() => openDialog('move')}
+                onProcessClick={() => openDialog('process')}
+                onNextStepClick={() => openDialog('nextStep')}
+                onDocumentMoved={handleSuccess}
+              />
+            )}
+          </div>
+        )}
+      </div>
       
       {/* Dialogs for document actions */}
-      {/* <DocumentDialogs
+      <DocumentDialogs
         document={document}
         workflowStatus={workflowStatus}
         moveDialogOpen={dialogState.moveOpen}
@@ -189,7 +194,7 @@ const DocumentFlowPage = () => {
         handleNextStepSuccess={handleSuccess}
         currentStepDetail={currentStepDetail}
         availableActions={workflowStatus?.availableActions}
-      /> */}
+      />
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { Badge } from '@/components/ui/badge';
 import { Check, Clock, AlertCircle, Settings, Loader2 } from 'lucide-react';
 import { DocumentStatus, DocumentWorkflowStatus } from '@/models/documentCircuit';
@@ -29,13 +28,14 @@ export function StepRequirementsCard({ statuses, workflowStatus }: StepRequireme
   };
 
   return (
-    <Card className="bg-[#0a1033] border border-blue-900/30 shadow-md hover:shadow-lg transition-shadow w-1/2">
+    <Card className="h-full bg-[#0a1033] border border-blue-900/30 shadow-md hover:shadow-lg transition-shadow">
       <CardHeader className="bg-blue-950/40 border-b border-blue-900/30 pb-2 px-3 py-2">
-        <CardTitle className="text-base font-medium text-white flex items-center">
+        <CardTitle className="text-base font-medium text-white flex items-center gap-2">
           <span>Step Requirements</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-3">
+      
+      <CardContent className="p-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-6">
             <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
