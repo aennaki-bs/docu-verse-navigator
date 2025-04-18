@@ -4,8 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { ArrowLeft } from 'lucide-react';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
+import { Form } from '@/components/ui/form';
 import documentService from '@/services/documentService';
 import { DocumentType } from '@/models/document';
 import { TypeNameStep } from './steps/TypeNameStep';
@@ -149,14 +148,14 @@ export const DocumentTypeForm = ({
   const isNextDisabled = () => {
     if (step === 1) {
       const typeName = form.getValues("typeName");
-      return !typeName || typeName.length < 2 || (isTypeNameValid === false && nameValidationDone);
+      return !typeName || typeName.length < 2 || (isTypeNameValid === false);
     }
     return false;
   };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4">
-      <div className="glass-card p-6 rounded-xl shadow-lg space-y-4 w-full max-w-md">
+    <div className="w-full min-h-full flex items-center justify-center p-4">
+      <div className="p-6 rounded-xl shadow-lg space-y-4 w-full max-w-md border border-blue-900/40">
         {step === 1 && !isEditMode && (
           <div className="flex items-center text-blue-400 text-sm mb-2 cursor-pointer" onClick={handleCancel}>
             <ArrowLeft className="h-3.5 w-3.5 mr-1" />

@@ -19,7 +19,7 @@ export const TypeDetailsStep = ({ control }: TypeDetailsStepProps) => {
             <Textarea 
               {...field} 
               placeholder="Enter description (optional)" 
-              className="min-h-[100px] text-xs bg-[#0A0E2E] border-blue-900/40 focus:border-blue-500"
+              className="min-h-[100px] text-xs border-blue-900/40 focus:border-blue-500"
             />
           </FormControl>
           <FormDescription className="text-xs text-blue-300/70">

@@ -16,7 +16,7 @@ export const ReviewStep = ({
 }: ReviewStepProps) => {
   return (
     <div className="space-y-4">
-      <Card className="bg-[#0A0E2E]/60 border-blue-900/40">
+      <Card className="border-blue-900/40">
         <CardContent className="p-4 space-y-3">
           <div>
             <h4 className="text-xs font-medium text-blue-100 mb-1">Type Name</h4>

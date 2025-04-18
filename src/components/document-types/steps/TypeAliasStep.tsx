@@ -61,7 +61,7 @@ export const TypeAliasStep = ({ control }: TypeAliasStepProps) => {
               <Input 
                 {...field} 
                 placeholder="Enter type code (2-3 characters)"
-                className="h-8 text-xs bg-[#0A0E2E] border-blue-900/40 focus:border-blue-500 pr-8"
+                className="h-8 text-xs border-blue-900/40 focus:border-blue-500 pr-8"
                 maxLength={3}
                 onChange={(e) => {
                   const value = e.target.value.toUpperCase();

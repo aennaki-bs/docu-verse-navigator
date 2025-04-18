@@ -34,7 +34,7 @@ export const FormActions = ({
         type="button"
         variant="outline"
         onClick={isFirstStep ? onCancel : onPrev}
-        className="h-8 text-xs bg-transparent border-blue-800/50 hover:bg-blue-900/30 text-gray-300"
+        className="h-8 text-xs border-blue-800/50 hover:bg-blue-900/30 text-gray-300"
         size="sm"
       >
         {isFirstStep ? 'Cancel' : (
