@@ -1,11 +1,9 @@
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { DocumentType } from '@/models/document';
-import { TableCell, TableRow } from '@/components/ui/table';
+import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Edit2, Trash2, ChevronRight } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DocumentType } from '@/models/document';
 import { Badge } from '@/components/ui/badge';
 
 interface DocumentTypeTableRowProps {
@@ -23,8 +21,6 @@ export function DocumentTypeTableRow({
   onDeleteType,
   onEditType,
 }: DocumentTypeTableRowProps) {
-  const navigate = useNavigate();
-
   const handleRowClick = () => {
     navigate(`/document-types/${type.id}/subtypes`);
   };
@@ -53,22 +49,22 @@ export function DocumentTypeTableRow({
         </Badge>
       </TableCell>
       <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end items-center gap-1">
           <Button
             variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
+            size="sm"
+            className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
             onClick={() => onEditType(type)}
           >
             <Edit2 className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
-            size="icon"
-            className={`h-8 w-8 ${
+            size="sm"
+            className={`h-8 w-8 p-0 ${
               type.documentCounter && type.documentCounter > 0
                 ? 'text-gray-500 cursor-not-allowed'
-                : 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
+                : 'text-red-400 hover:text-red-300 hover:bg-red-900/30'
             }`}
             onClick={() => type.documentCounter === 0 && type.id && onDeleteType(type.id)}
             disabled={type.documentCounter !== undefined && type.documentCounter > 0}
@@ -77,8 +73,8 @@ export function DocumentTypeTableRow({
           </Button>
           <Button
             variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
+            size="sm"
+            className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
