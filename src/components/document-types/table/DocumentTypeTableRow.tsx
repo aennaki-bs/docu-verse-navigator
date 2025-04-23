@@ -5,6 +5,7 @@ import { Edit2, Trash2, ChevronRight } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DocumentType } from '@/models/document';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 
 interface DocumentTypeTableRowProps {
   type: DocumentType;
@@ -21,6 +22,8 @@ export function DocumentTypeTableRow({
   onDeleteType,
   onEditType,
 }: DocumentTypeTableRowProps) {
+  const navigate = useNavigate();
+  
   const handleRowClick = () => {
     navigate(`/document-types/${type.id}/subtypes`);
   };
