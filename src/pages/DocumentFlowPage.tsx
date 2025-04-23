@@ -140,7 +140,7 @@ const DocumentFlowPage = () => {
   const currentStepDetail = circuitDetails?.find(d => d.id === currentStepId);
 
   return (
-    <div className="p-2 sm:p-3 md:p-4 space-y-3 w-full ">
+    <div className="p-2 sm:p-3 md:p-4 space-y-3 w-full">
       <DocumentFlowHeader 
         documentId={id} 
         document={document}
@@ -153,7 +153,7 @@ const DocumentFlowPage = () => {
       {isLoading ? (
         <LoadingState />
       ) : (
-         <div className="flex flex-col gap-3 bg-red-900 w-full h-full">
+         <div className="flex flex-col gap-3 w-full h-full">
           {/* Document workflow status section */}
           <WorkflowStatusSection workflowStatus={workflowStatus} />
 
