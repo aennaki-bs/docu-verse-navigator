@@ -50,11 +50,23 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
     if (data.validationError === undefined && formData.validationError) {
       setFormDataState((prev) => ({ ...prev, validationError: undefined }));
     }
+    
+    // If admin secret key is changed, clear any related errors
+    if ('adminSecretKey' in data) {
+      setStepValidation((prev) => ({
+        ...prev,
+        errors: { ...prev.errors, registration: undefined }
+      }));
+    }
   };
 
   // Next step logic, handle extra steps.
   const nextStep = () => {
     // Clear validation errors when moving to next step
+    setStepValidation(prev => ({
+      ...prev,
+      errors: {}
+    }));
     setFormData({ validationError: undefined });
     
     // Personal flow: 1. Info, 2. Credentials, 3. Address, 4. Admin Key, 5. Summary
@@ -70,6 +82,10 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
   // Previous step logic
   const prevStep = () => {
     // Clear validation errors when moving back
+    setStepValidation(prev => ({
+      ...prev,
+      errors: {}
+    }));
     setFormData({ validationError: undefined });
     
     if (formData.userType === 'personal') {
@@ -95,7 +111,11 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const registerUser = async (): Promise<boolean> => {
     // Clear any previous validation errors
-    setFormData({ validationError: undefined });
+    setStepValidation(prev => ({
+      ...prev,
+      errors: {}
+    }));
+    
     return registerUserUtil(formData, setStepValidation, navigate);
   };
 

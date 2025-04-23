@@ -20,7 +20,8 @@ const RegisterForm: React.FC = () => {
   const { currentStep, formData, stepValidation } = useMultiStepForm();
   const isPersonal = formData.userType === 'personal';
 
-  // Get the relevant error message based on the current step
+  // Get the relevant error message based on the current step - only show one error message
+  // The priority is: registration error, form validation error, username/email validation errors
   const errorMessage = 
     stepValidation.errors.registration || 
     formData.validationError || 
@@ -63,8 +64,8 @@ const RegisterForm: React.FC = () => {
             </CardHeader>
             
             <CardContent className="pt-8 px-8">
-              {/* Display error message at the top of the form */}
-              <FormError message={errorMessage} />
+              {/* Display error message at the top of the form - only one message will be shown */}
+              {errorMessage && <FormError message={errorMessage} />}
               
               {renderStep()}
             </CardContent>
