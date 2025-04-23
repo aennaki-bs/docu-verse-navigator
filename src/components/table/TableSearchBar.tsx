@@ -1,5 +1,5 @@
 
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
@@ -45,11 +45,21 @@ export const TableSearchBar = ({
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input 
-          placeholder={placeholderText}
+          placeholder={`Search by ${searchFields.find(f => f.id === searchField)?.label?.toLowerCase() || 'all fields'}...`}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9 pr-4 w-full"
         />
+        {searchQuery && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => onSearchChange('')}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
       
       {searchFields.length > 0 && (
