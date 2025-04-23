@@ -50,8 +50,13 @@ export default function DocumentsTableRow({
           <span className="text-sm text-gray-500">{index + 1}</span>
         )}
       </TableCell>
-      <TableCell className="font-mono text-sm text-blue-300">
-        {document.documentKey}
+      <TableCell className="font-mono text-sm">
+        <Link
+          to={`/documents/${document.id}`}
+          className="text-blue-300 hover:text-blue-200 hover:underline"
+        >
+          {document.documentKey}
+        </Link>
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
