@@ -13,10 +13,7 @@ export function WorkflowStatusSection({ workflowStatus }: WorkflowStatusSectionP
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 w-full">
       <DocumentStatusCard workflowStatus={workflowStatus} />
-      <StepRequirementsCard 
-        statuses={workflowStatus.statuses} 
-        workflowStatus={workflowStatus}
-      />
+      <StepRequirementsCard workflowStatus={workflowStatus} />
     </div>
   );
 }
