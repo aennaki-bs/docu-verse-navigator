@@ -664,7 +664,7 @@ const Documents = () => {
                     </TableHead>
                     <TableHead className="text-blue-300 w-52">
                       {renderSortableHeader(
-                        "Document Key",
+                        "Document Code",
                         "documentKey",
                         <Tag className="h-4 w-4" />
                       )}
@@ -685,8 +685,8 @@ const Documents = () => {
                     </TableHead>
                     <TableHead className="text-blue-300">
                       {renderSortableHeader(
-                        "Created Date",
-                        "createdAt",
+                        "Document Date",
+                        "docDate",
                         <CalendarDays className="h-4 w-4" />
                       )}
                     </TableHead>
