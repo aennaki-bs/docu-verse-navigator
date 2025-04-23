@@ -249,7 +249,7 @@ const StepFiveSummary = () => {
                 variant="ghost" 
                 size="sm" 
                 className="h-8 w-8 p-0 hover:bg-blue-900/20" 
-                onClick={() => goToStep(3)}
+                onClick={() => goToStep(4)}
               >
                 <FileEdit className="h-4 w-4 text-blue-400" />
               </Button>
