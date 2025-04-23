@@ -21,8 +21,8 @@ export function useStepStatuses(documentId: number) {
     refetchInterval: 10000,
     // Important: set this to true to refetch in the background
     refetchOnWindowFocus: true,
-    // Keep previous data while fetching new data
-    keepPreviousData: true,
+    // Keep previous data using the correct property name for React Query v5+
+    placeholderData: 'keepPreviousData',
     meta: {
       onSettled: (data, err) => {
         if (err) {
