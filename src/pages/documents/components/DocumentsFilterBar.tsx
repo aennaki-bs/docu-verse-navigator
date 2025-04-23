@@ -23,13 +23,13 @@ export default function DocumentsFilterBar() {
     resetFilters
   } = useDocumentsFilter();
 
-  const [searchField, setSearchField] = useState("all");
+  const [searchField, setSearchField] = useState(activeFilters.searchField || "all");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [isDatePickerEnabled, setIsDatePickerEnabled] = useState(false);
 
   // Advanced filters state
-  const [statusFilter, setStatusFilter] = useState("any");
-  const [typeFilter, setTypeFilter] = useState("any");
+  const [statusFilter, setStatusFilter] = useState(activeFilters.statusFilter || "any");
+  const [typeFilter, setTypeFilter] = useState(activeFilters.typeFilter || "any");
   const [advancedDateRange, setAdvancedDateRange] = useState(dateRange);
 
   useEffect(() => {
@@ -39,6 +39,38 @@ export default function DocumentsFilterBar() {
     }
   }, [searchField, dateRange, setDateRange]);
 
+  // Update local state when activeFilters change
+  useEffect(() => {
+    setSearchField(activeFilters.searchField || "all");
+    setStatusFilter(activeFilters.statusFilter || "any");
+    setTypeFilter(activeFilters.typeFilter || "any");
+  }, [activeFilters]);
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    applyFilters({
+      ...activeFilters,
+      searchQuery: query,
+      searchField
+    });
+  };
+
+  const handleSearchFieldChange = (field: string) => {
+    setSearchField(field);
+    applyFilters({
+      ...activeFilters,
+      searchField: field
+    });
+  };
+
+  const handleDateRangeChange = (newDateRange: any) => {
+    setDateRange(newDateRange);
+    applyFilters({
+      ...activeFilters,
+      dateRange: newDateRange
+    });
+  };
+
   const handleCloseAdvancedFilters = () => {
     setShowAdvancedFilters(false);
   };
@@ -46,7 +78,7 @@ export default function DocumentsFilterBar() {
   const handleApplyAdvancedFilters = () => {
     // When advanced filters are applied, pass them to the main filter system
     const combinedFilters = {
-      searchQuery: searchQuery, // Add the searchQuery property
+      searchQuery,
       searchField,
       statusFilter,
       typeFilter,
@@ -65,6 +97,10 @@ export default function DocumentsFilterBar() {
   
   const handleClearDateRange = () => {
     setDateRange(undefined);
+    applyFilters({
+      ...activeFilters,
+      dateRange: undefined
+    });
   };
 
   const handleClearStatusFilter = () => {
@@ -90,13 +126,13 @@ export default function DocumentsFilterBar() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <TableSearchBar
             searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
+            onSearchChange={handleSearchChange}
             searchField={searchField}
-            onSearchFieldChange={setSearchField}
+            onSearchFieldChange={handleSearchFieldChange}
             searchFields={DEFAULT_DOCUMENT_SEARCH_FIELDS}
             showDatePicker={isDatePickerEnabled}
             dateRange={dateRange}
-            onDateRangeChange={setDateRange}
+            onDateRangeChange={handleDateRangeChange}
             onToggleAdvancedFilters={() => setShowAdvancedFilters(!showAdvancedFilters)}
             placeholderText="Search documents..."
           />

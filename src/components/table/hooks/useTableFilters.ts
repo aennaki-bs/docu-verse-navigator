@@ -104,23 +104,21 @@ export function useTableFilters(
   // Utility function to check if an item matches the current filters
   const filterItem = useCallback((item: any) => {
     // Search query filtering
-    if (filters.searchQuery) {
-      const query = filters.searchQuery.toLowerCase();
+    if (filters.searchQuery && filters.searchQuery.trim() !== '') {
+      const query = filters.searchQuery.toLowerCase().trim();
       const field = filters.searchField;
       
       if (field === 'all') {
         // Search across all searchable fields
         const matchesAnyField = options.searchableFields.some(searchField => {
-          const fieldValue = item[searchField.id];
+          const fieldValue = getNestedValue(item, searchField.id);
           return fieldValue && String(fieldValue).toLowerCase().includes(query);
         });
         if (!matchesAnyField) return false;
       } else {
         // Search in specific field
-        const fieldValue = field.includes('.') 
-          ? field.split('.').reduce((obj, key) => obj?.[key], item)
-          : item[field];
-          
+        const fieldValue = getNestedValue(item, field);
+        
         if (!fieldValue || !String(fieldValue).toLowerCase().includes(query)) {
           return false;
         }
@@ -136,7 +134,7 @@ export function useTableFilters(
     
     // Type filtering
     if (filters.typeFilter && filters.typeFilter !== 'any') {
-      const typeField = item.typeId?.toString() || item.type?.id?.toString() || item.documentType?.id?.toString();
+      const typeField = getTypeFieldValue(item);
       if (typeField !== filters.typeFilter) {
         return false;
       }
@@ -167,9 +165,7 @@ export function useTableFilters(
       for (const [key, value] of Object.entries(filters.customFilters)) {
         if (value === undefined || value === null || value === 'any') continue;
         
-        const itemValue = key.includes('.')
-          ? key.split('.').reduce((obj, k) => obj?.[k], item)
-          : item[key];
+        const itemValue = getNestedValue(item, key);
           
         if (Array.isArray(value)) {
           // For multi-select filters
@@ -184,6 +180,22 @@ export function useTableFilters(
     
     return true;
   }, [filters, options.dateField, options.searchableFields]);
+  
+  // Helper function to safely get nested values from an object using dot notation
+  function getNestedValue(obj: any, path: string): any {
+    if (!obj) return null;
+    return path.includes('.')
+      ? path.split('.').reduce((nestedObj, key) => nestedObj && nestedObj[key] !== undefined ? nestedObj[key] : null, obj)
+      : obj[path];
+  }
+  
+  // Helper function to get type field value from various possible object structures
+  function getTypeFieldValue(item: any): string | undefined {
+    if (item.typeId) return String(item.typeId);
+    if (item.type?.id) return String(item.type.id);
+    if (item.documentType?.id) return String(item.documentType.id);
+    return undefined;
+  }
 
   return {
     filters,

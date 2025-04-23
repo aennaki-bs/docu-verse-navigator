@@ -1,5 +1,5 @@
 
-import { useState, createContext, useContext, ReactNode } from 'react';
+import { useState, createContext, useContext, ReactNode, useCallback, useEffect } from 'react';
 import { DateRange } from "react-day-picker";
 import { FilterState } from '@/components/table';
 
@@ -28,8 +28,8 @@ export function DocumentsFilterProvider({ children }: { children: ReactNode }) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [activeFilters, setActiveFilters] = useState<FilterState>(initialFilterState);
 
-  const applyFilters = (filters: FilterState) => {
-    // Update searchQuery and dateRange if they're in the filters
+  const applyFilters = useCallback((filters: FilterState) => {
+    // Update local state for UI components
     if (filters.searchQuery !== undefined) {
       setSearchQuery(filters.searchQuery);
     }
@@ -37,17 +37,18 @@ export function DocumentsFilterProvider({ children }: { children: ReactNode }) {
       setDateRange(filters.dateRange);
     }
     
-    setActiveFilters({
-      ...activeFilters,
+    // Update the full filter state
+    setActiveFilters(prev => ({
+      ...prev,
       ...filters
-    });
-  };
+    }));
+  }, []);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setActiveFilters(initialFilterState);
     setDateRange(undefined);
     setSearchQuery('');
-  };
+  }, []);
 
   return (
     <DocumentsFilterContext.Provider value={{ 
@@ -73,8 +74,8 @@ export function useDocumentsFilter() {
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
     const [activeFilters, setActiveFilters] = useState<FilterState>(initialFilterState);
     
-    const applyFilters = (filters: FilterState) => {
-      // Update searchQuery and dateRange if they're in the filters
+    const applyFilters = useCallback((filters: FilterState) => {
+      // Update local state for UI components
       if (filters.searchQuery !== undefined) {
         setSearchQuery(filters.searchQuery);
       }
@@ -82,17 +83,18 @@ export function useDocumentsFilter() {
         setDateRange(filters.dateRange);
       }
       
-      setActiveFilters({
-        ...activeFilters,
+      // Update the full filter state
+      setActiveFilters(prev => ({
+        ...prev,
         ...filters
-      });
-    };
+      }));
+    }, []);
 
-    const resetFilters = () => {
+    const resetFilters = useCallback(() => {
       setActiveFilters(initialFilterState);
       setDateRange(undefined);
       setSearchQuery('');
-    };
+    }, []);
     
     return { 
       searchQuery, 

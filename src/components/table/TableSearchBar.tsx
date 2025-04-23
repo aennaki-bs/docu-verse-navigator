@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Button } from "@/components/ui/button";
 import { FilterState } from './hooks/useTableFilters';
+import { useState, useEffect } from 'react';
 
 interface SearchField {
   id: string;
@@ -39,22 +40,43 @@ export const TableSearchBar = ({
   className = ""
 }: TableSearchBarProps) => {
   const isDatePickerEnabled = searchField === 'date' || searchField === 'docDate' || showDatePicker;
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+  
+  // Sync local state with props
+  useEffect(() => {
+    setLocalSearchQuery(searchQuery);
+  }, [searchQuery]);
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setLocalSearchQuery(newValue);
+    onSearchChange(newValue);
+  };
+  
+  const clearSearch = () => {
+    setLocalSearchQuery('');
+    onSearchChange('');
+  };
+  
+  const selectedField = searchFields.find(f => f.id === searchField);
+  const fieldLabel = selectedField?.label?.toLowerCase() || 'all fields';
+  const placeholder = `Search by ${fieldLabel}...`;
   
   return (
     <div className={`flex items-center gap-2 w-full ${className}`}>
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input 
-          placeholder={`Search by ${searchFields.find(f => f.id === searchField)?.label?.toLowerCase() || 'all fields'}...`}
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9 pr-4 w-full"
+          placeholder={placeholder}
+          value={localSearchQuery}
+          onChange={handleSearchChange}
+          className="pl-9 pr-8 w-full"
         />
-        {searchQuery && (
+        {localSearchQuery && (
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => onSearchChange('')}
+            onClick={clearSearch}
             className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
           >
             <X className="h-4 w-4" />
