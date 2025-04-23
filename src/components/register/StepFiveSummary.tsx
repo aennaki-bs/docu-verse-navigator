@@ -45,7 +45,7 @@ const StepFiveSummary = () => {
       </div>
 
       {/* Display error message */}
-      <FormError message={stepValidation.errors.registration} />
+      {/* <FormError message={stepValidation.errors.registration} /> */}
       
       <ScrollArea className="h-[calc(100vh-400px)] pr-4">
         <div className="space-y-6">
