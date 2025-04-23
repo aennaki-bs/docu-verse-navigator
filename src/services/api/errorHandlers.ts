@@ -11,6 +11,18 @@ export const getErrorMessage = (error: any): string => {
   // Get the response data
   const { data, status } = error.response;
   
+  // Special handling for 401 Unauthorized errors
+  if (status === 401) {
+    // Handle specific 401 error cases
+    if (error.config?.url?.includes('/Auth/register') && 
+        (typeof data === 'string' && data.includes('admin secret'))) {
+      return "Invalid admin secret. Please check your admin key or unselect the admin option.";
+    }
+    
+    // Generic unauthorized message
+    return data || "Unauthorized. Please check your credentials.";
+  }
+  
   // Special handling for 404 Not Found errors
   if (status === 404) {
     // Check if it's a search operation (this can be expanded based on URL patterns)
@@ -54,7 +66,7 @@ export const getErrorMessage = (error: any): string => {
     case 400:
       return 'Bad request. Please check your input.';
     case 401:
-      return 'Unauthorized. Please log in again.';
+      return 'Unauthorized. Please check your credentials.';
     case 403:
       return 'Forbidden. You do not have permission to access this resource.';
     case 404:

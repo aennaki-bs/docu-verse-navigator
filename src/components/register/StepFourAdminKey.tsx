@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Shield } from 'lucide-react';
+import { FormError } from '@/components/ui/form-error';
 
 const StepFourAdminKey = () => {
-  const { formData, setFormData, prevStep, nextStep } = useMultiStepForm();
+  const { formData, setFormData, prevStep, nextStep, stepValidation } = useMultiStepForm();
   const [showAdminField, setShowAdminField] = useState<boolean>(!!formData.adminSecretKey);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,17 +34,13 @@ const StepFourAdminKey = () => {
     }
     
     // Clear any validation errors and proceed
-    setFormData({ validationError: "" });
+    setFormData({ validationError: undefined });
     nextStep();
   };
 
   return (
     <div className="space-y-6">
-      {formData.validationError && (
-        <div className="bg-red-500/20 border border-red-500 text-red-400 px-4 py-3 rounded-md">
-          {formData.validationError}
-        </div>
-      )}
+      {/* Error will now be handled by the parent RegisterForm component */}
       
       <div className="text-center mb-6">
         <div className="bg-amber-600/20 p-3 rounded-full inline-flex mb-3">
