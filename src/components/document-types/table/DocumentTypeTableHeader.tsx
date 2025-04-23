@@ -45,7 +45,7 @@ export const DocumentTypeTableHeader = ({
           onClick={() => onSort('typeKey')}
         >
           <div className="flex items-center">
-            Type Key
+            Type Code
             {renderSortIcon('typeKey')}
           </div>
         </TableHead>
@@ -63,7 +63,7 @@ export const DocumentTypeTableHeader = ({
           onClick={() => onSort('typeAttr')}
         >
           <div className="flex items-center">
-            Attributes
+            Description
             {renderSortIcon('typeAttr')}
           </div>
         </TableHead>

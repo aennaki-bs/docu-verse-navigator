@@ -63,7 +63,7 @@ export const DocumentTypeSearchBar = ({
               <SelectItem value="all">All fields</SelectItem>
               <SelectItem value="typeKey">Document Code</SelectItem>
               <SelectItem value="typeName">Type Name</SelectItem>
-              <SelectItem value="typeAttr">Attributes</SelectItem>
+              <SelectItem value="typeAttr">Description</SelectItem>
               <SelectItem value="documentCounter">Document Count</SelectItem>
             </SelectContent>
           </Select>

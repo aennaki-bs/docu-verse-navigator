@@ -33,16 +33,16 @@ export const TypeDetailsStep = ({ control }: TypeDetailsStepProps) => {
         name="typeAttr"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs text-blue-100">Type Attributes (Optional)</FormLabel>
+            <FormLabel className="text-xs text-blue-100">Type Description (Optional)</FormLabel>
             <FormControl>
               <Input 
                 {...field} 
-                placeholder="Enter attributes (optional)" 
+                placeholder="Enter description (optional)" 
                 className="h-8 text-xs bg-[#0A0E2E] border-blue-900/40 focus:border-blue-500"
               />
             </FormControl>
             <FormDescription className="text-xs text-blue-300/70">
-              Additional attributes for this document type
+              Additional description for this document type
             </FormDescription>
             <FormMessage className="text-xs" />
           </FormItem>

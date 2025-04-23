@@ -148,7 +148,7 @@ export const DocumentTypeForm = ({
             ? 'Update document type details'
             : step === 1 
               ? 'Create a unique name for this document type' 
-              : 'Add additional attributes for this document type'}
+              : 'Add additional description for this document type'}
         </p>
       </div>
 

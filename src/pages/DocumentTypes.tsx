@@ -235,7 +235,7 @@ const DocumentTypes = () => {
                 </p>
                 {type.typeAttr && (
                   <p className="text-sm text-blue-300 mt-1">
-                    Attributes:{" "}
+                    Description:{" "}
                     <span className="text-white">{type.typeAttr}</span>
                   </p>
                 )}
@@ -330,7 +330,7 @@ const DocumentTypes = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <label htmlFor="typeKey" className="text-blue-300 text-sm">
-                  Type Key
+                  Type Code
                 </label>
                 <input
                   id="typeKey"
@@ -342,14 +342,14 @@ const DocumentTypes = () => {
               </div>
               <div className="grid gap-2">
                 <label htmlFor="typeAttr" className="text-blue-300 text-sm">
-                  Attributes
+                  Description
                 </label>
                 <input
                   id="typeAttr"
                   className="bg-[#111633] border border-blue-900/50 rounded p-2 text-white"
                   value={typeAttr}
                   onChange={(e) => setTypeAttr(e.target.value)}
-                  placeholder="Attributes"
+                  placeholder="Description"
                 />
               </div>
             </div>

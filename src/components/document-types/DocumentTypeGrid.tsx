@@ -89,7 +89,7 @@ const DocumentTypeGrid = ({
               <p className="text-sm text-blue-300">Key: <span className="text-white">{type.typeKey || 'N/A'}</span></p>
               {type.typeAttr && (
                 <p className="text-sm text-blue-300 mt-1">
-                  Attributes: <span className="text-white">{type.typeAttr}</span>
+                  Description: <span className="text-white">{type.typeAttr}</span>
                 </p>
               )}
               <p className="text-sm text-blue-300 mt-2">

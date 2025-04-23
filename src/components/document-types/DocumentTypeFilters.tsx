@@ -56,7 +56,7 @@ const DocumentTypeFilters = ({ onFilterChange, onClose }: DocumentTypeFiltersPro
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="typeName">Type Name</SelectItem>
-              <SelectItem value="typeKey">Type Key</SelectItem>
+              <SelectItem value="typeKey">Type Code</SelectItem>
               <SelectItem value="documentCounter">Document Count</SelectItem>
               <SelectItem value="docDate">Document Date</SelectItem>
               <SelectItem value="updatedAt">Updated Date</SelectItem>
