@@ -1,9 +1,8 @@
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { DocumentType } from "@/models/document";
-import { SubType } from "@/models/subType";
+import { SubType } from "@/models/subtype";
 
 interface TypeSelectionStepProps {
   documentTypes: DocumentType[];

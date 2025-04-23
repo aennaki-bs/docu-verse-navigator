@@ -1,5 +1,5 @@
 
-import { SubType } from '@/models/subType';
+import { SubType } from '@/models/subtype';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

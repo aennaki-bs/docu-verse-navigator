@@ -1,6 +1,5 @@
-
 import api from './api';
-import { SubType, CreateSubTypeDto, UpdateSubTypeDto } from '../models/subType';
+import { SubType, CreateSubTypeDto, UpdateSubTypeDto } from '../models/subtype';
 
 const subTypeService = {
   getAllSubTypes: async (): Promise<SubType[]> => {

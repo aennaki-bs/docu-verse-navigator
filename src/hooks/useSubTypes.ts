@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { SubType } from '@/models/subType';
+import { SubType } from '@/models/subtype';
 import subTypeService from '@/services/subTypeService';
 import { toast } from 'sonner';
 

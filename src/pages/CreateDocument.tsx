@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import documentService from '@/services/documentService';
 import subTypeService from '@/services/subTypeService';
 import { DocumentType } from '@/models/document';
-import { SubType } from '@/models/subType';
+import { SubType } from '@/models/subtype';
 import { StepIndicator } from '@/components/create-document/steps/StepIndicator';
 import { TypeSelectionStep } from '@/components/create-document/steps/TypeSelectionStep';
 import { TitleStep } from '@/components/create-document/steps/TitleStep';

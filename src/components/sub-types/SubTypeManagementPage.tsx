@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Calendar, FileText, Filter, Layers, Plus, Search } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import { SubType } from '@/models/subType';
+import { SubType } from '@/models/subtype';
 import subTypeService from '@/services/subTypeService';
 import documentService from '@/services/documents/documentTypeService';
 import { DocumentType } from '@/models/document';

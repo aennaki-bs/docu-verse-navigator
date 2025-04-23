@@ -1,5 +1,5 @@
 
-import { SubType } from '@/models/subType';
+import { SubType } from '@/models/subtype';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Edit2, Trash2 } from 'lucide-react';
