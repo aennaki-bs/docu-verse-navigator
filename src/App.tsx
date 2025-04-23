@@ -65,7 +65,7 @@ const App = () => (
               <Route path="/welcome" element={<Welcome />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/update-password/:email" element={<UpdatePassword />} />
-              
+
               {/* Protected routes with layout */}
               <Route element={<ProtectedRoute />}>
                 <Route element={<Layout />}>
@@ -73,10 +73,10 @@ const App = () => (
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminPage /></ProtectedRoute>} />
                   <Route path="/user-management" element={<ProtectedRoute requiredRole="Admin"><UserManagement /></ProtectedRoute>} />
-                  
+
                   {/* Document routes */}
                   <Route path="/documents" element={<DocumentsPageWrapper />} />
-                  
+
                   {/* Document Types Management routes */}
                   <Route path="/document-types" element={<DocumentTypes />} />
                   <Route path="/document-types-management" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><DocumentTypesManagement /></ProtectedRoute>} />
@@ -85,30 +85,30 @@ const App = () => (
                   <Route path="/documents/:id" element={<ViewDocument />} />
                   <Route path="/documents/:id/edit" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><EditDocument /></ProtectedRoute>} />
                   <Route path="/documents/:id/flow" element={<DocumentFlowPage />} />
-                  
+
                   {/* Document Lignes routes */}
                   <Route path="/documents/:id/lignes" element={<ProtectedRoute requiresManagement><DocumentLignesPage /></ProtectedRoute>} />
                   <Route path="/documents/:id/lignes/:ligneId" element={<ViewDocument />} />
-                  
+
                   {/* Document SousLignes routes */}
                   <Route path="/documents/:id/lignes/:ligneId/souslignes" element={<ProtectedRoute requiresManagement><ViewDocument /></ProtectedRoute>} />
                   <Route path="/documents/:id/lignes/:ligneId/souslignes/:sousLigneId" element={<ViewDocument />} />
-                  
+
                   {/* Circuit Management routes */}
                   <Route path="/circuits" element={<CircuitsPage />} />
                   <Route path="/circuits/:circuitId/steps" element={<CircuitStepsPage />} />
                   <Route path="/circuits/:circuitId/steps/:stepId/statuses" element={<StepStatusesPage />} />
                   <Route path="/create-circuit" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><CreateCircuit /></ProtectedRoute>} />
                   <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
-                  
+
                   {/* Step Management route */}
                   <Route path="/steps" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><StepsManagement /></ProtectedRoute>} />
-                  
+
                   {/* Settings route */}
                   <Route path="/settings" element={<Settings />} />
                 </Route>
               </Route>
-              
+
               {/* Catch-all route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
