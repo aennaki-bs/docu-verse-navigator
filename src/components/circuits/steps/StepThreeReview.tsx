@@ -1,108 +1,101 @@
 
-import { useCircuitForm } from '@/context/CircuitFormContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ChevronLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Edit, Check, ArrowLeft } from 'lucide-react';
 
-export default function StepThreeReview() {
-  const { formData, prevStep, submitForm, isSubmitting } = useCircuitForm();
-  const navigate = useNavigate();
+interface StepThreeReviewProps {
+  title: string;
+  descriptif: string;
+  disabled?: boolean;
+  onEdit: (step: 1 | 2) => void;
+  onBack: () => void;
+  onSubmit: () => void;
+  isSubmitting: boolean;
+}
 
-  const handleSubmit = async () => {
-    const success = await submitForm();
-    if (success) {
-      navigate('/circuits');
-    }
-  };
-
+export default function StepThreeReview({
+  title,
+  descriptif,
+  disabled,
+  onEdit,
+  onBack,
+  onSubmit,
+  isSubmitting,
+}: StepThreeReviewProps) {
   return (
-    <div className="space-y-6">
-      <h3 className="text-lg font-medium">Review Circuit Information</h3>
-      
-      <Card>
+    <>
+      <Card className="mb-2 bg-[#141c37] border-blue-900 shadow-md transition-all">
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
+          <CardTitle className="text-white text-lg flex items-center gap-2">
+            Review Circuit
+            <Button
+              variant="ghost"
+              size="sm"
+              type="button"
+              className="ml-2 text-gray-400 hover:text-blue-400 pl-1 pr-1 py-0.5 rounded border border-transparent hover:border-blue-400 transition"
+              onClick={() => onEdit(1)}
+              disabled={disabled || isSubmitting}
+            >
+              <Edit className="w-4 h-4 mr-0.5" />
+              Edit Title
+            </Button>
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <dl className="divide-y divide-gray-100">
-            <div className="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-500">Title</dt>
-              <dd className="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">{formData.title}</dd>
+        <CardContent className="pb-2">
+          <div className="flex flex-col gap-5 text-blue-200">
+            <div>
+              <span className="font-semibold">Title:</span>
+              <span className="ml-2 text-blue-100">{title}</span>
             </div>
-            <div className="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-500">Description</dt>
-              <dd className="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">
-                {formData.descriptif || 'No description provided'}
-              </dd>
+            <div>
+              <span className="font-semibold">Description:</span>
+              <span className="ml-2 text-blue-300">
+                {descriptif?.trim()
+                  ? descriptif
+                  : <span className="italic text-gray-400">No description</span>}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                className="ml-3 text-gray-400 hover:text-blue-400 pl-1 pr-1 py-0.5 rounded border border-transparent hover:border-blue-400 transition"
+                onClick={() => onEdit(2)}
+                disabled={disabled || isSubmitting}
+              >
+                <Edit className="w-4 h-4 mr-0.5" />
+                Edit Description
+              </Button>
             </div>
-            <div className="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-500">Status</dt>
-              <dd className="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">
-                <Badge variant={formData.isActive ? "default" : "secondary"}>
-                  {formData.isActive ? 'Active' : 'Inactive'}
-                </Badge>
-              </dd>
-            </div>
-            <div className="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-500">Flow Type</dt>
-              <dd className="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">
-                <Badge variant="outline">
-                  {formData.hasOrderedFlow ? 'Sequential' : 'Parallel'}
-                </Badge>
-              </dd>
-            </div>
-          </dl>
+          </div>
         </CardContent>
       </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Circuit Steps ({formData.steps.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {formData.steps.length > 0 ? (
-            <div className="space-y-2">
-              {formData.steps.map((step, index) => (
-                <div key={index} className="border rounded-md p-3">
-                  <div className="flex justify-between items-center">
-                    <div className="font-medium">
-                      {step.title}
-                    </div>
-                    <Badge variant="outline">Order: {step.orderIndex}</Badge>
-                  </div>
-                  {step.descriptif && (
-                    <p className="text-sm text-gray-500 mt-1">{step.descriptif}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6 text-gray-500">
-              No steps added. Please go back and add at least one step.
-            </div>
-          )}
-        </CardContent>
-      </Card>
-      
-      <div className="flex justify-between pt-6">
-        <Button 
-          type="button" 
-          variant="outline"
-          onClick={prevStep}
-        >
-          <ChevronLeft className="mr-2 h-4 w-4" /> Previous
-        </Button>
-        
-        <Button 
+      <div className="flex justify-between gap-2 pt-1">
+        <Button
           type="button"
-          onClick={handleSubmit}
-          disabled={isSubmitting || formData.steps.length === 0}
+          variant="outline"
+          onClick={onBack}
+          disabled={disabled || isSubmitting}
+          className="bg-black border-none text-gray-200 hover:bg-blue-950"
         >
-          {isSubmitting ? 'Creating Circuit...' : 'Create Circuit'}
+          <ArrowLeft className="mr-1 h-4 w-4" /> Back
+        </Button>
+        <Button
+          type="button"
+          onClick={onSubmit}
+          disabled={isSubmitting || !title}
+          className="bg-blue-700 text-white min-w-[130px] flex items-center justify-center"
+        >
+          {isSubmitting ? (
+            <>
+              Creating <Check className="ml-1 h-4 w-4 animate-spin" />
+            </>
+          ) : (
+            <>
+              Create Circuit <Check className="ml-1 h-4 w-4" />
+            </>
+          )}
         </Button>
       </div>
-    </div>
+    </>
   );
 }

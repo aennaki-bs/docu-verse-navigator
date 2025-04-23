@@ -30,7 +30,7 @@ export const CircuitStepCard = ({
   
   return (
     <Card 
-      className={`h-full min-h-[200px] rounded-lg ${
+      className={`h-full rounded-lg ${
         isDraggedOver 
           ? 'bg-green-900/10 border-green-500 shadow-lg shadow-green-500/20 transition-all duration-300' 
           : isCurrentStep 
@@ -42,14 +42,14 @@ export const CircuitStepCard = ({
         isCurrentStep ? 'border-b border-green-500/30 bg-[#060927]' : 'border-b border-blue-900/30'
       }`}>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm flex items-center space-x-2">
+          <CardTitle className="text-sm flex items-center">
             <Badge 
               variant={isCurrentStep ? "success" : "outline"} 
-              className={`text-xs ${isCurrentStep ? 'bg-green-500/20' : 'bg-blue-500/20'}`}
+              className={`mr-1.5 text-xs ${isCurrentStep ? 'bg-green-500/20' : 'bg-blue-500/20'}`}
             >
               {detail.orderIndex / 10}
             </Badge>
-            <span className="truncate max-w-[150px]">{detail.title}</span>
+            <span className="truncate">{detail.title}</span>
           </CardTitle>
           {isCurrentStep && (
             <Badge variant="success" className="ml-1 text-xs px-1.5 py-0.5">Current</Badge>

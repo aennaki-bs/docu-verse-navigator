@@ -10,8 +10,6 @@ export interface Document {
   typeId: number;
   docDate: string;
   documentType: DocumentType;
-  subTypeId?: number;
-  subType?: SubType;
   circuitId?: number;
   circuit?: Circuit;
   currentCircuitDetailId?: number;
@@ -33,18 +31,6 @@ export interface DocumentType {
   updatedAt?: string;
 }
 
-export interface SubType {
-  id: number;
-  subTypeKey: string;
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  documentTypeId: number;
-  isActive: boolean;
-  documentType?: DocumentType;
-}
-
 export interface DocumentUser {
   id: number;
   username: string;
@@ -59,7 +45,7 @@ export interface CreateDocumentRequest {
   content: string;
   documentAlias?: string;
   typeId: number;
-  subTypeId?: number;
+  subTypeId?: number | null;
   docDate?: string;
   circuitId?: number;
 }
@@ -69,7 +55,6 @@ export interface UpdateDocumentRequest {
   content?: string;
   documentAlias?: string;
   typeId?: number;
-  subTypeId?: number;
   docDate?: string;
   circuitId?: number;
 }

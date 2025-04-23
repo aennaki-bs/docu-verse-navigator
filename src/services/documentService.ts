@@ -1,5 +1,5 @@
 
-import { documentService, documentTypeService, ligneService, sousLigneService, subTypeService } from './documents';
+import { documentService, documentTypeService, ligneService, sousLigneService } from './documents';
 
 // Re-export all services as properties of a single object for backward compatibility
 const combinedDocumentService = {
@@ -12,13 +12,7 @@ const combinedDocumentService = {
   deleteDocument: documentService.deleteDocument,
   deleteMultipleDocuments: documentService.deleteMultipleDocuments,
 
-  // Add direct access to individual services
-  documentTypeService,
-  subTypeService,
-  ligneService,
-  sousLigneService,
-
-  // Document Types methods (kept for backward compatibility)
+  // Document Types methods
   getAllDocumentTypes: documentTypeService.getAllDocumentTypes,
   createDocumentType: documentTypeService.createDocumentType,
   updateDocumentType: documentTypeService.updateDocumentType,
@@ -26,16 +20,7 @@ const combinedDocumentService = {
   deleteDocumentType: documentTypeService.deleteDocumentType,
   deleteMultipleDocumentTypes: documentTypeService.deleteMultipleDocumentTypes,
 
-  // SubType methods (kept for backward compatibility)
-  getAllSubTypes: subTypeService.getAllSubTypes,
-  getSubTypeById: subTypeService.getSubTypeById,
-  getSubTypesByDocumentTypeId: subTypeService.getSubTypesByDocumentTypeId,
-  getSubTypesForDate: subTypeService.getSubTypesForDate,
-  createSubType: subTypeService.createSubType,
-  updateSubType: subTypeService.updateSubType,
-  deleteSubType: subTypeService.deleteSubType,
-
-  // Ligne methods (kept for backward compatibility)
+  // Ligne methods
   getAllLignes: ligneService.getAllLignes,
   getLigneById: ligneService.getLigneById,
   getLignesByDocumentId: ligneService.getLignesByDocumentId,
@@ -43,7 +28,7 @@ const combinedDocumentService = {
   updateLigne: ligneService.updateLigne,
   deleteLigne: ligneService.deleteLigne,
 
-  // SousLigne methods (kept for backward compatibility)
+  // SousLigne methods
   getAllSousLignes: sousLigneService.getAllSousLignes,
   getSousLigneById: sousLigneService.getSousLigneById,
   getSousLignesByLigneId: sousLigneService.getSousLignesByLigneId,

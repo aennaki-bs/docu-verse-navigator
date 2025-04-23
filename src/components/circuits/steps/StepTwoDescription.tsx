@@ -1,79 +1,32 @@
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useCircuitForm } from '@/context/CircuitFormContext';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
 
-const formSchema = z.object({
-  descriptif: z.string().optional(),
-});
+interface StepTwoDescriptionProps {
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}
 
-type FormValues = z.infer<typeof formSchema>;
-
-export default function StepTwoDescription() {
-  const { formData, setCircuitData, nextStep, prevStep } = useCircuitForm();
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      descriptif: formData.descriptif || '',
-    },
-  });
-
-  const onSubmit = (values: FormValues) => {
-    setCircuitData({
-      descriptif: values.descriptif || '',
-    });
-    nextStep();
-  };
-
+export default function StepTwoDescription({ value, onChange, disabled }: StepTwoDescriptionProps) {
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="descriptif"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Circuit Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter circuit description"
-                  {...field}
-                  value={field.value || ''}
-                  className="min-h-[150px]"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-between pt-4">
-          <Button 
-            type="button" 
-            variant="outline"
-            onClick={prevStep}
-          >
-            <ChevronLeft className="mr-2 h-4 w-4" /> Previous
-          </Button>
-          
-          <Button type="submit">
-            Next Step <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      </form>
-    </Form>
+    <FormField
+      name="descriptif"
+      render={() => (
+        <FormItem>
+          <FormLabel className="text-blue-200 font-medium">Description</FormLabel>
+          <FormControl>
+            <Textarea
+              placeholder="Enter circuit description (optional)"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              className="bg-[#0a1033] border-blue-800/80 text-blue-100 placeholder:text-blue-400 focus:border-blue-500 focus:ring-blue-500/80 min-h-[100px]"
+              disabled={disabled}
+            />
+          </FormControl>
+          <FormMessage className="text-red-400 text-xs" />
+        </FormItem>
+      )}
+    />
   );
 }

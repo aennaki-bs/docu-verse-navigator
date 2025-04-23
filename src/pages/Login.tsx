@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -17,6 +18,10 @@ const Login = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const [isApiAvailable, setIsApiAvailable] = useState(true);
   const [isCheckingApi, setIsCheckingApi] = useState(false);
+  const [isTouched, setIsTouched] = useState<{ emailOrUsername: boolean; password: boolean }>({
+    emailOrUsername: false,
+    password: false
+  });
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -74,6 +79,9 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Mark all fields as touched
+    setIsTouched({ emailOrUsername: true, password: true });
+    
     // Clear any previous API errors
     setApiError(null);
     
@@ -108,12 +116,31 @@ const Login = () => {
       } else {
         // Extract the specific error message from the API response
         const errorMessage = error.response?.data?.message || 
-                           error.response?.data || 
-                           error.message || 
-                           'Invalid password or username';
+                         error.response?.data || 
+                         error.message || 
+                         'Invalid password or username';
         
         setApiError(errorMessage);
       }
+    }
+  };
+
+  const handleInputChange = (field: 'emailOrUsername' | 'password', value: string) => {
+    if (field === 'emailOrUsername') {
+      setEmailOrUsername(value);
+    } else {
+      setPassword(value);
+    }
+    
+    // Mark the field as touched
+    setIsTouched(prev => ({ ...prev, [field]: true }));
+    
+    // Clear API error when user types
+    setApiError(null);
+    
+    // Clear field error if there's a value
+    if (value) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
 
@@ -167,15 +194,13 @@ const Login = () => {
                     id="emailOrUsername"
                     type="text"
                     placeholder="Email or username"
-                    className={`pl-10 border-gray-700 bg-[#0d1117] text-gray-300 ${errors.emailOrUsername ? 'border-red-500' : 'border-gray-700'}`}
+                    className="pl-10 border-gray-700 bg-[#0d1117] text-gray-300"
                     value={emailOrUsername}
-                    onChange={(e) => {
-                      setEmailOrUsername(e.target.value);
-                      setApiError(null); // Clear API error when user types
-                    }}
+                    error={isTouched.emailOrUsername && Boolean(errors.emailOrUsername)}
+                    onChange={(e) => handleInputChange('emailOrUsername', e.target.value)}
                   />
                 </div>
-                {errors.emailOrUsername && (
+                {isTouched.emailOrUsername && errors.emailOrUsername && (
                   <p className="text-sm text-red-500">{errors.emailOrUsername}</p>
                 )}
               </div>
@@ -195,12 +220,10 @@ const Login = () => {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    className={`pl-10 border-gray-700 bg-[#0d1117] text-gray-300 ${errors.password ? 'border-red-500' : ''}`}
+                    className="pl-10 border-gray-700 bg-[#0d1117] text-gray-300"
                     value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      setApiError(null); // Clear API error when user types
-                    }}
+                    error={isTouched.password && Boolean(errors.password)}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
                   />
                   <button
                     type="button"
@@ -214,7 +237,7 @@ const Login = () => {
                     )}
                   </button>
                 </div>
-                {errors.password && (
+                {isTouched.password && errors.password && (
                   <p className="text-sm text-red-500">{errors.password}</p>
                 )}
               </div>

@@ -3,12 +3,13 @@ import React from 'react';
 
 interface StepIndicatorProps {
   currentStep: number;
+  stepCount?: number;
 }
 
-const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => {
+const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, stepCount = 4 }) => {
   return (
     <div className="flex justify-center mb-6">
-      {[1, 2, 3, 4].map((step) => (
+      {Array.from({ length: stepCount }, (_, i) => i + 1).map((step) => (
         <div key={step} className="flex items-center">
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
@@ -21,7 +22,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => {
           >
             {step < currentStep ? '✓' : step}
           </div>
-          {step < 4 && (
+          {step < stepCount && (
             <div
               className={`h-1.5 w-16 rounded-full transition-all ${
                 step < currentStep ? 'bg-blue-600' : 'bg-gray-700'

@@ -40,3 +40,18 @@ add typeLine where we can choose an intrerval of this type
 -- types and subtypes
 -- add alias for the types and subtypes
 -- at creation of the document chouse the type at first
+
+☐ add filter for user managment
+☐ change text in tables document (doc date, doc number )
+☐ filter 
+☐ type managment -- change attrebute by description
+☐ in creation type 
+    ☐ -- type name , type TypeAlias {optionel if not checked} , description --optionel
+    ☐ 
+☐ add subtype managment
+
+ - for the user upgrade the ui and make it pretty and modern , and add a filter that i can search by what i select in the filter .
+ - do the same logic filter in users managmet in all tables
+ - in Document change document created by document date and document key by document code
+ - in type managment in the filter i want to see the date piker filter just when i select somting related by date in the filter in filter by it 
+ - fix the ui and ux in user managment and type management specelly the tables and the scroll and pagination

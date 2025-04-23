@@ -59,16 +59,6 @@ const documentTypeService = {
       throw error;
     }
   },
-
-  validateTypeKey: async (typeKey: string): Promise<boolean> => {
-    try {
-      const response = await api.post('/Documents/valide-typeKey', { typeKey });
-      return response.data === "True";
-    } catch (error) {
-      console.error('Error validating type key:', error);
-      throw error;
-    }
-  },
 };
 
 export default documentTypeService;

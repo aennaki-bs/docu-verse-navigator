@@ -27,7 +27,7 @@ export function MainNavbar() {
   };
 
   return (
-    <nav className="border-b border-blue-900/30 bg-[#0a1033]/95 backdrop-blur-sm h-16 shadow-md">
+    <nav className="border-b border-blue-900/30 bg-[#0a1033]/95 backdrop-blur-sm h-16 shadow-md w-full">
       <div className="container h-full mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center md:w-64">
           <Link to="/dashboard" className="flex items-center gap-2">

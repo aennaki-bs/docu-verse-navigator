@@ -45,7 +45,7 @@ export const DocumentTypeTableHeader = ({
           onClick={() => onSort('typeKey')}
         >
           <div className="flex items-center">
-            Code
+            Type Key
             {renderSortIcon('typeKey')}
           </div>
         </TableHead>
@@ -63,19 +63,11 @@ export const DocumentTypeTableHeader = ({
           onClick={() => onSort('typeAttr')}
         >
           <div className="flex items-center">
-            Description
+            Attributes
             {renderSortIcon('typeAttr')}
           </div>
         </TableHead>
-        <TableHead 
-          className="w-1/6 cursor-pointer text-blue-300 hover:text-blue-200 py-2 h-9"
-          onClick={() => onSort('documentCounter')}
-        >
-          <div className="flex items-center">
-            Document Count
-            {renderSortIcon('documentCounter')}
-          </div>
-        </TableHead>
+        
         <TableHead className="w-1/12 text-right text-blue-300 py-2 h-9">Actions</TableHead>
       </TableRow>
     </TableHeader>

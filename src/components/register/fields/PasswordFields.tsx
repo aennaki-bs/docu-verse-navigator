@@ -44,10 +44,8 @@ const PasswordFields: React.FC<PasswordFieldsProps> = ({
             name="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="Create new password"
-            className={`pl-10 pr-12 ${
-              hasPasswordError && !isPasswordEmpty ? 'border-red-500' : 
-              isPasswordValid ? 'border-green-500' : ''
-            }`}
+            className="pl-10 pr-12"
+            error={!isPasswordEmpty && hasPasswordError}
             value={password}
             onChange={onChange}
           />
@@ -77,10 +75,8 @@ const PasswordFields: React.FC<PasswordFieldsProps> = ({
             name="confirmPassword"
             type={showConfirmPassword ? 'text' : 'password'}
             placeholder="Confirm password"
-            className={`pl-10 pr-12 ${
-              hasConfirmError && !isConfirmEmpty ? 'border-red-500' : 
-              isConfirmValid ? 'border-green-500' : ''
-            }`}
+            className="pl-10 pr-12"
+            error={!isConfirmEmpty && hasConfirmError}
             value={confirmPassword}
             onChange={onChange}
           />

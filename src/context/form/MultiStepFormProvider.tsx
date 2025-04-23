@@ -36,10 +36,44 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setFormData = (data: Partial<FormData>) => {
     setFormDataState((prev) => ({ ...prev, ...data }));
+    
+    // Clear registration error when user updates any field
+    // This allows resubmission after fixing the error
+    if (stepValidation.errors.registration) {
+      setStepValidation((prev) => ({ 
+        ...prev, 
+        errors: { ...prev.errors, registration: undefined } 
+      }));
+    }
   };
 
-  const nextStep = () => setCurrentStep((prev) => prev + 1);
-  const prevStep = () => setCurrentStep((prev) => Math.max(1, prev - 1));
+  // Next step logic, handle extra steps.
+  const nextStep = () => {
+    // Clear validation errors when moving to next step
+    setFormData({ validationError: "" });
+    
+    // Personal flow: 1. Info, 2. Credentials, 3. Address, 4. Admin Key, 5. Summary
+    if (formData.userType === 'personal') {
+      if (currentStep < 5) setCurrentStep(currentStep + 1);
+    }
+    // Company flow: 1. Info, 2. Credentials, 3. Admin Key, 4. Summary
+    else if (formData.userType === 'company') {
+      if (currentStep < 4) setCurrentStep(currentStep + 1);
+    }
+  };
+
+  // Previous step logic
+  const prevStep = () => {
+    // Clear validation errors when moving back
+    setFormData({ validationError: "" });
+    
+    if (formData.userType === 'personal') {
+      if (currentStep > 1) setCurrentStep(currentStep - 1);
+    } else if (formData.userType === 'company') {
+      if (currentStep > 1) setCurrentStep(currentStep - 1);
+    }
+  };
+
   const resetForm = () => {
     setCurrentStep(1);
     setFormDataState(initialFormData);
@@ -55,6 +89,8 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const registerUser = async (): Promise<boolean> => {
+    // Clear any previous validation errors
+    setFormData({ validationError: "" });
     return registerUserUtil(formData, setStepValidation, navigate);
   };
 

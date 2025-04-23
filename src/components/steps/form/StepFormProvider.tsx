@@ -1,8 +1,7 @@
-
-import React, { createContext, useContext, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'sonner';
-import stepService from '@/services/stepService';
+import React, { createContext, useContext, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
+import stepService from "@/services/stepService";
 
 interface StepFormData {
   title: string;
@@ -28,20 +27,22 @@ interface StepFormContextType {
 }
 
 const initialFormData: StepFormData = {
-  title: '',
-  descriptif: '',
+  title: "",
+  descriptif: "",
   orderIndex: 10,
   circuitId: 0,
   responsibleRoleId: undefined,
   isFinalStep: false,
 };
 
-const StepFormContext = createContext<StepFormContextType | undefined>(undefined);
+const StepFormContext = createContext<StepFormContextType | undefined>(
+  undefined
+);
 
 export const useStepForm = () => {
   const context = useContext(StepFormContext);
   if (!context) {
-    throw new Error('useStepForm must be used within a StepFormProvider');
+    throw new Error("useStepForm must be used within a StepFormProvider");
   }
   return context;
 };
@@ -53,18 +54,19 @@ interface StepFormProviderProps {
   circuitId?: number;
 }
 
-export const StepFormProvider: React.FC<StepFormProviderProps> = ({ 
-  children, 
+export const StepFormProvider: React.FC<StepFormProviderProps> = ({
+  children,
   editStep,
   onSuccess,
-  circuitId: propCircuitId 
+  circuitId: propCircuitId,
 }) => {
   const navigate = useNavigate();
   const { circuitId: urlCircuitId } = useParams<{ circuitId: string }>();
-  
+
   // Determine if we're within a circuit context (either from props or URL params)
-  const contextCircuitId = propCircuitId || (urlCircuitId ? parseInt(urlCircuitId, 10) : undefined);
-  
+  const contextCircuitId =
+    propCircuitId || (urlCircuitId ? parseInt(urlCircuitId, 10) : undefined);
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormDataState] = useState<StepFormData>(() => {
@@ -78,29 +80,30 @@ export const StepFormProvider: React.FC<StepFormProviderProps> = ({
         isFinalStep: editStep.isFinalStep,
       };
     }
-    
+
     // If we have a circuit context, pre-fill the circuitId
     if (contextCircuitId) {
       return {
         ...initialFormData,
-        circuitId: contextCircuitId
+        circuitId: contextCircuitId,
       };
     }
-    
+
     return initialFormData;
   });
 
   // We now have a simplified 2-step process
   const totalSteps = 2;
-  
+
   const isEditMode = !!editStep;
 
   const setFormData = (data: Partial<StepFormData>) => {
-    setFormDataState(prev => ({ ...prev, ...data }));
+    setFormDataState((prev) => ({ ...prev, ...data }));
   };
 
-  const nextStep = () => setCurrentStep(prev => Math.min(totalSteps, prev + 1));
-  const prevStep = () => setCurrentStep(prev => Math.max(1, prev - 1));
+  const nextStep = () =>
+    setCurrentStep((prev) => Math.min(totalSteps, prev + 1));
+  const prevStep = () => setCurrentStep((prev) => Math.max(1, prev - 1));
 
   const resetForm = () => {
     setCurrentStep(1);
@@ -114,13 +117,13 @@ export const StepFormProvider: React.FC<StepFormProviderProps> = ({
         const success = await stepService.updateStep(editStep.id, {
           title: formData.title,
           descriptif: formData.descriptif,
-          orderIndex: formData.orderIndex,
-          responsibleRoleId: formData.responsibleRoleId,
+          // orderIndex: formData.orderIndex,
+          // responsibleRoleId: formData.responsibleRoleId,
           isFinalStep: formData.isFinalStep,
         });
-        
+
         if (success) {
-          toast.success('Step updated successfully');
+          toast.success("Step updated successfully");
           if (onSuccess) onSuccess();
           return true;
         }
@@ -132,17 +135,19 @@ export const StepFormProvider: React.FC<StepFormProviderProps> = ({
           circuitId: formData.circuitId,
           responsibleRoleId: formData.responsibleRoleId,
         });
-        
+
         if (createdStep) {
-          toast.success('Step created successfully');
+          toast.success("Step created successfully");
           if (onSuccess) onSuccess();
           return true;
         }
       }
       return false;
     } catch (error) {
-      console.error('Error saving step:', error);
-      toast.error(isEditMode ? 'Failed to update step' : 'Failed to create step');
+      console.error("Error saving step:", error);
+      toast.error(
+        isEditMode ? "Failed to update step" : "Failed to create step"
+      );
       return false;
     } finally {
       setIsSubmitting(false);

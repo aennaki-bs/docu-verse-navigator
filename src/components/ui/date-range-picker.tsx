@@ -19,6 +19,7 @@ interface DateRangePickerProps {
   className?: string;
   align?: "center" | "start" | "end";
   children?: React.ReactNode;
+  disabled?: boolean;
 }
 
 export function DateRangePicker({
@@ -27,19 +28,22 @@ export function DateRangePicker({
   className,
   align = "start",
   children,
+  disabled = false,
 }: DateRangePickerProps) {
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
-        <PopoverTrigger asChild>
+        <PopoverTrigger asChild disabled={disabled}>
           {children || (
             <Button
               id="date"
               variant={"outline"}
               className={cn(
                 "w-auto justify-start text-left font-normal bg-blue-900/20 border-blue-800/30 hover:bg-blue-900/30",
-                !date && "text-blue-300/50"
+                !date && "text-blue-300/50",
+                disabled && "opacity-50 cursor-not-allowed"
               )}
+              disabled={disabled}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
               {date?.from ? (

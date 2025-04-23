@@ -1,35 +1,55 @@
 
-import { Dispatch, SetStateAction } from 'react';
+export type UserType = 'personal' | 'company';
+
+export interface StepValidation {
+  isLoading: boolean;
+  errors: {
+    username?: string;
+    email?: string;
+    registration?: string;
+    verification?: string;
+  };
+}
+
+// Add the SetStepValidation type
+export type SetStepValidation = React.Dispatch<React.SetStateAction<StepValidation>>;
 
 export interface FormData {
-  userType: 'personal' | 'company';
+  userType: UserType;
   firstName: string;
   lastName: string;
+  cin?: string;
+  companyName?: string;
+  companyIRC?: string;
+  companyPhone?: string;
+  companyAddress?: string;
+  companyEmail?: string;
+  companyWebsite?: string;
+  personalPhone?: string;
+  personalAddress?: string; 
+  city?: string;
+  country?: string;
   username: string;
   email: string;
   password: string;
   confirmPassword: string;
-  adminSecretKey?: string;
-  // Personal user fields
-  cin?: string;
-  personalAddress?: string;
-  personalPhone?: string;
-  // Company fields
-  companyName?: string;
-  companyIRC?: string;
-  companyAddress?: string;
-  companyPhone?: string;
-  companyEmail?: string;
-  companyWebsite?: string;
+  adminSecretKey: string;
+  validationError?: string; // Added for form validation errors
 }
 
-export interface StepValidation {
-  isLoading: boolean;
-  errors: Record<string, string>;
-}
+export const initialFormData: FormData = {
+  userType: 'personal',
+  firstName: '',
+  lastName: '',
+  username: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  adminSecretKey: '',
+  validationError: ''
+};
 
-export type SetStepValidation = Dispatch<SetStateAction<StepValidation>>;
-
+// Add the MultiStepFormContextType
 export interface MultiStepFormContextType {
   currentStep: number;
   formData: FormData;
@@ -44,25 +64,3 @@ export interface MultiStepFormContextType {
   verifyEmail: (code: string) => Promise<boolean>;
   resetForm: () => void;
 }
-
-export const initialFormData: FormData = {
-  userType: 'personal',
-  firstName: '',
-  lastName: '',
-  username: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  adminSecretKey: '',
-  // Personal user fields
-  cin: '',
-  personalAddress: '',
-  personalPhone: '',
-  // Company fields
-  companyName: '',
-  companyIRC: '',
-  companyAddress: '',
-  companyPhone: '',
-  companyEmail: '',
-  companyWebsite: '',
-};

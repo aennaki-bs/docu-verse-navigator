@@ -11,7 +11,7 @@ export function useDocumentsData() {
   const [useFakeData, setUseFakeData] = useState(false);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'ascending' | 'descending' } | null>(null);
   
-  const { searchQuery, dateRange } = useDocumentsFilter();
+  const { searchQuery, dateRange, activeFilters } = useDocumentsFilter();
 
   const fetchDocuments = async () => {
     try {
@@ -118,11 +118,41 @@ export function useDocumentsData() {
 
   const filteredItems = useMemo(() => {
     return sortedItems.filter(doc => {
-      // Text search filter
-      const matchesSearch = !searchQuery || 
-        doc.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        doc.documentKey.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.documentType.typeName.toLowerCase().includes(searchQuery.toLowerCase());
+      // Text search filter based on search field
+      let matchesSearch = true;
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const searchField = activeFilters.searchField || 'all';
+        
+        if (searchField === 'all') {
+          matchesSearch = 
+            doc.title.toLowerCase().includes(query) || 
+            doc.documentKey.toLowerCase().includes(query) ||
+            doc.documentType.typeName.toLowerCase().includes(query) ||
+            doc.createdBy.username.toLowerCase().includes(query);
+        } else if (searchField === 'documentType.typeName') {
+          matchesSearch = doc.documentType.typeName.toLowerCase().includes(query);
+        } else if (searchField === 'createdBy.username') {
+          matchesSearch = doc.createdBy.username.toLowerCase().includes(query);
+        } else if (Object.prototype.hasOwnProperty.call(doc, searchField)) {
+          const fieldValue = (doc as any)[searchField];
+          matchesSearch = fieldValue && String(fieldValue).toLowerCase().includes(query);
+        } else {
+          matchesSearch = false;
+        }
+      }
+      
+      // Status filter
+      let matchesStatus = true;
+      if (activeFilters.statusFilter && activeFilters.statusFilter !== 'any') {
+        matchesStatus = doc.status.toString() === activeFilters.statusFilter;
+      }
+      
+      // Type filter
+      let matchesType = true;
+      if (activeFilters.typeFilter && activeFilters.typeFilter !== 'any') {
+        matchesType = doc.typeId.toString() === activeFilters.typeFilter;
+      }
       
       // Date range filter
       let matchesDateRange = true;
@@ -140,9 +170,9 @@ export function useDocumentsData() {
         }
       }
       
-      return matchesSearch && matchesDateRange;
+      return matchesSearch && matchesStatus && matchesType && matchesDateRange;
     });
-  }, [sortedItems, searchQuery, dateRange]);
+  }, [sortedItems, searchQuery, dateRange, activeFilters]);
 
   return { 
     documents,

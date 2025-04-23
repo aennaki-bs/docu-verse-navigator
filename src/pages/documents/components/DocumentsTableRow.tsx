@@ -1,13 +1,17 @@
-
-import { Link } from 'react-router-dom';
-import { Document } from '@/models/document';
+import { Link } from "react-router-dom";
+import { Document } from "@/models/document";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Edit, Trash, GitBranch } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Edit, Trash, GitBranch } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DocumentsTableRowProps {
   document: Document;
@@ -26,18 +30,18 @@ export default function DocumentsTableRow({
   canManageDocuments,
   onSelect,
   onDelete,
-  onAssignCircuit
+  onAssignCircuit,
 }: DocumentsTableRowProps) {
   return (
-    <TableRow 
-      key={document.id} 
+    <TableRow
+      key={document.id}
       className={`border-blue-900/30 hover:bg-blue-900/20 transition-all ${
-        isSelected ? 'bg-blue-900/30 border-l-4 border-l-blue-500' : ''
+        isSelected ? "bg-blue-900/30 border-l-4 border-l-blue-500" : ""
       }`}
     >
       <TableCell>
         {canManageDocuments ? (
-          <Checkbox 
+          <Checkbox
             checked={isSelected}
             onCheckedChange={onSelect}
             className="border-blue-500/50"
@@ -46,25 +50,37 @@ export default function DocumentsTableRow({
           <span className="text-sm text-gray-500">{index + 1}</span>
         )}
       </TableCell>
-      <TableCell className="font-mono text-sm text-blue-300">{document.documentKey}</TableCell>
+      <TableCell className="font-mono text-sm text-blue-300">
+        {document.documentKey}
+      </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          <Link to={`/documents/${document.id}`} className="text-blue-400 hover:text-blue-300 font-medium hover:underline">
+          <Link
+            to={`/documents/${document.id}`}
+            className="text-blue-400 hover:text-blue-300 font-medium hover:underline"
+          >
             {document.title}
           </Link>
           {getStatusBadge(document.status)}
         </div>
       </TableCell>
-      <TableCell className="text-blue-100">{document.documentType.typeName}</TableCell>
+      <TableCell className="text-blue-100">
+        {document.documentType.typeName}
+      </TableCell>
       <TableCell className="text-blue-100/70 text-sm">
         {new Date(document.docDate).toLocaleDateString()}
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
           <Avatar className="h-6 w-6">
-            <AvatarFallback className="bg-blue-800 text-xs">{document.createdBy.firstName[0]}{document.createdBy.lastName[0]}</AvatarFallback>
+            <AvatarFallback className="bg-blue-800 text-xs">
+              {document.createdBy.firstName[0]}
+              {document.createdBy.lastName[0]}
+            </AvatarFallback>
           </Avatar>
-          <span className="text-sm text-blue-100/80">{document.createdBy.username}</span>
+          <span className="text-sm text-blue-100/80">
+            {document.createdBy.username}
+          </span>
         </div>
       </TableCell>
       <TableCell className="text-right">
@@ -73,9 +89,9 @@ export default function DocumentsTableRow({
             <>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
                     onClick={onAssignCircuit}
                   >
@@ -89,10 +105,10 @@ export default function DocumentsTableRow({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
                     asChild
                   >
                     <Link to={`/documents/${document.id}/edit`}>
@@ -104,12 +120,12 @@ export default function DocumentsTableRow({
                   <p>Edit document</p>
                 </TooltipContent>
               </Tooltip>
-              
+
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/30"
                     onClick={onDelete}
                   >
@@ -125,7 +141,11 @@ export default function DocumentsTableRow({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="cursor-not-allowed opacity-50">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="cursor-not-allowed opacity-50"
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -142,13 +162,31 @@ export default function DocumentsTableRow({
 }
 
 function getStatusBadge(status: number) {
-  switch(status) {
+  switch (status) {
     case 0:
-      return <Badge className="bg-amber-600/20 text-amber-500 hover:bg-amber-600/30 border-amber-500/30">Draft</Badge>;
+      return (
+        <Badge className="bg-amber-600/20 text-amber-500 hover:bg-amber-600/30 border-amber-500/30">
+          Draft
+        </Badge>
+      );
     case 1:
-      return <Badge className="bg-green-600/20 text-green-500 hover:bg-green-600/30 border-green-500/30">Active</Badge>;
+      return (
+        <Badge className="bg-green-600/20 text-green-500 hover:bg-green-600/30 border-green-500/30">
+          In progress
+        </Badge>
+      );
     case 2:
-      return <Badge className="bg-red-600/20 text-red-500 hover:bg-red-600/30 border-red-500/30">Archived</Badge>;
+      return (
+        <Badge className="bg-red-600/20 text-red-500 hover:bg-red-600/30 border-red-500/30">
+          Completed
+        </Badge>
+      );
+    case 3:
+      return (
+        <Badge className="bg-red-600/20 text-red-500 hover:bg-red-600/30 border-red-500/30">
+          Rejected
+        </Badge>
+      );
     default:
       return <Badge variant="outline">Unknown</Badge>;
   }

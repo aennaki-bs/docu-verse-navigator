@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useMultiStepForm } from '@/context/form';
 import { Button } from '@/components/ui/button';
@@ -5,12 +6,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle 
 } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ChevronLeft, Check, FileEdit, User, Building2, Lock, Shield, ExternalLink, Phone, MapPin, AtSign, CreditCard } from 'lucide-react';
+import { ChevronLeft, Check, FileEdit, User, Building2, Lock, Shield, ExternalLink, Phone, MapPin, AtSign, CreditCard, Globe2 } from 'lucide-react';
 
 const StepFourSummary = () => {
   const { 
@@ -38,7 +38,6 @@ const StepFourSummary = () => {
         <h3 className="text-2xl font-semibold mb-2">Review Your Information</h3>
         <p className="text-sm text-gray-400">Please verify all information before submitting</p>
       </div>
-
       <ScrollArea className="h-[calc(100vh-400px)] pr-4">
         <div className="space-y-6">
           {/* Account Type Card */}
@@ -117,6 +116,18 @@ const StepFourSummary = () => {
                       <MapPin className="h-3 w-3" /> Address
                     </p>
                     <p className="text-sm font-medium">{formData.personalAddress || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <Globe2 className="h-3 w-3" /> City
+                    </p>
+                    <p className="text-sm font-medium">{formData.city || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <Globe2 className="h-3 w-3" /> Country
+                    </p>
+                    <p className="text-sm font-medium">{formData.country || 'Not provided'}</p>
                   </div>
                 </div>
               ) : (
@@ -242,7 +253,6 @@ const StepFourSummary = () => {
           </Card>
         </div>
       </ScrollArea>
-
       <div className="flex gap-3 pt-4">
         <Button
           type="button"
@@ -254,7 +264,6 @@ const StepFourSummary = () => {
           <ChevronLeft className="mr-1.5 h-4 w-4" />
           Back
         </Button>
-
         <Button
           type="button"
           className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0"
@@ -277,7 +286,6 @@ const StepFourSummary = () => {
           )}
         </Button>
       </div>
-
       {stepValidation.errors.registration && (
         <p className="text-xs text-red-500 text-center mt-2">
           {stepValidation.errors.registration}

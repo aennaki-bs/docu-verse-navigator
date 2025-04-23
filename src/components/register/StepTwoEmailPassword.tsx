@@ -10,7 +10,7 @@ import StepTwoButtons from './step-two/StepTwoButtons';
 const StepTwoEmailPassword = () => {
   const { formData, setFormData, prevStep, nextStep, validateEmail, validateUsername, stepValidation } = useMultiStepForm();
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
-  const [hasInteracted, setHasInteracted] = useState({
+  const [touchedFields, setTouchedFields] = useState({
     username: false,
     email: false,
     password: false,
@@ -24,61 +24,52 @@ const StepTwoEmailPassword = () => {
     const { name, value } = e.target;
     setFormData({ [name]: value });
     
-    if (!hasInteracted[name as keyof typeof hasInteracted]) {
-      setHasInteracted(prev => ({
+    // Mark field as touched when the user interacts with it
+    if (!touchedFields[name as keyof typeof touchedFields]) {
+      setTouchedFields(prev => ({
         ...prev,
         [name]: true
       }));
     }
-    
-    validateField(name);
   };
   
-  const validateField = (fieldName: string) => {
+  // Validate on data change
+  useEffect(() => {
     const errors = validateEmailPasswordStep(formData);
-    
-    setLocalErrors(prev => {
-      const updatedErrors = { ...prev };
-      if (hasInteracted[fieldName as keyof typeof hasInteracted]) {
-        if (errors[fieldName]) {
-          updatedErrors[fieldName] = errors[fieldName];
-        } else {
-          delete updatedErrors[fieldName];
-        }
-      }
-      return updatedErrors;
-    });
-  };
+    setLocalErrors(errors);
+  }, [formData]);
 
   const validateStep = (showToast = true) => {
     const errors = validateEmailPasswordStep(formData);
     
-    const filteredErrors: Record<string, string> = {};
-    Object.keys(errors).forEach(key => {
-      if (hasInteracted[key as keyof typeof hasInteracted]) {
-        filteredErrors[key] = errors[key];
-      }
+    // Set all fields as touched when user tries to proceed
+    setTouchedFields({
+      username: true,
+      email: true,
+      password: true,
+      confirmPassword: true
     });
     
-    setLocalErrors(filteredErrors);
+    setLocalErrors(errors);
     
-    if (showToast && Object.keys(filteredErrors).length > 0) {
+    if (showToast && Object.keys(errors).length > 0) {
       toast.error("Please correct all errors before proceeding");
     }
     
     return Object.keys(errors).length === 0;
   };
 
-  useEffect(() => {
-    Object.keys(hasInteracted).forEach(field => {
-      if (hasInteracted[field as keyof typeof hasInteracted]) {
-        validateField(field);
-      }
-    });
-  }, [formData, hasInteracted]);
+  // Filter errors to only show for touched fields
+  const visibleErrors: Record<string, string> = {};
+  Object.keys(localErrors).forEach(key => {
+    if (touchedFields[key as keyof typeof touchedFields]) {
+      visibleErrors[key] = localErrors[key];
+    }
+  });
 
   const handleNext = async () => {
-    setHasInteracted({
+    // Mark all fields as touched when user tries to proceed
+    setTouchedFields({
       username: true,
       email: true,
       password: true,
@@ -112,7 +103,7 @@ const StepTwoEmailPassword = () => {
       <StepTwoFormFields
         formData={formData}
         onChange={handleChange}
-        localErrors={localErrors}
+        localErrors={visibleErrors}
         validationErrors={stepValidation.errors}
         passwordStrength={passwordStrength}
       />

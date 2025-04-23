@@ -29,10 +29,8 @@ const UsernameField: React.FC<UsernameFieldProps> = ({
           id="username"
           name="username"
           placeholder="Choose a unique username"
-          className={`pl-10 pr-10 ${
-            value && hasError ? 'border-red-500' : 
-            isValid ? 'border-green-500' : ''
-          }`}
+          className="pl-10 pr-10"
+          error={value && hasError}
           value={value}
           onChange={onChange}
         />

@@ -29,7 +29,7 @@ export const TypeNameStep = ({
               <Input 
                 {...field} 
                 placeholder="Enter document type name" 
-                className="h-8 text-xs border-blue-900/40 focus:border-blue-500 pr-7"
+                className="h-8 text-xs bg-[#0A0E2E] border-blue-900/40 focus:border-blue-500 pr-7"
                 onChange={(e) => {
                   field.onChange(e);
                   onTypeNameChange();

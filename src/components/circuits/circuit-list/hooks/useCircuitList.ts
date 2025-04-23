@@ -14,6 +14,7 @@ export function useCircuitList({ onApiError, searchQuery }: UseCircuitListProps)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedCircuit, setSelectedCircuit] = useState<Circuit | null>(null);
+  const [noSearchResults, setNoSearchResults] = useState(false);
 
   const { 
     data: circuits, 
@@ -44,6 +45,12 @@ export function useCircuitList({ onApiError, searchQuery }: UseCircuitListProps)
         circuit.descriptif?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : circuits;
+    
+  // Set a flag when search has results
+  const hasSearchResults = searchQuery !== '' && filteredCircuits && filteredCircuits.length > 0;
+  
+  // Set a flag when search has no results
+  const hasNoSearchResults = searchQuery !== '' && filteredCircuits && filteredCircuits.length === 0;
 
   // Dialog handlers
   const handleEdit = (circuit: Circuit) => {
@@ -94,6 +101,9 @@ export function useCircuitList({ onApiError, searchQuery }: UseCircuitListProps)
     handleDelete,
     handleViewDetails,
     confirmDelete,
-    refetch
+    refetch,
+    hasSearchResults,
+    hasNoSearchResults,
+    searchQuery
   };
 }

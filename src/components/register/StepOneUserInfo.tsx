@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useMultiStepForm } from '@/context/form';
 import { Button } from '@/components/ui/button';
@@ -10,20 +11,55 @@ import { validatePersonalUserInfo, validateCompanyInfo } from './utils/validatio
 const StepOneUserInfo = () => {
   const { formData, setFormData, nextStep } = useMultiStepForm();
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
+  // Track which fields have been interacted with
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({
+    firstName: false,
+    lastName: false,
+    cin: false,
+    personalPhone: false,
+    companyName: false,
+    companyIRC: false,
+    companyAddress: false,
+    companyPhone: false,
+    companyEmail: false,
+  });
   
-  // Clear errors when inputs change
+  // Validate on data change but only show errors for touched fields
   useEffect(() => {
-    validateStep(false);
+    const errors = formData.userType === 'personal' 
+      ? validatePersonalUserInfo(formData)
+      : validateCompanyInfo(formData);
+    
+    setLocalErrors(errors);
   }, [formData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ [name]: value });
+    
+    // Mark field as touched
+    if (!touchedFields[name]) {
+      setTouchedFields(prev => ({
+        ...prev,
+        [name]: true
+      }));
+    }
   };
 
   const handleUserTypeChange = (value: 'personal' | 'company') => {
     setFormData({ userType: value });
-    // Clear errors when changing user type
+    // Reset touched state when changing user type
+    setTouchedFields({
+      firstName: false,
+      lastName: false,
+      cin: false,
+      personalPhone: false,
+      companyName: false,
+      companyIRC: false,
+      companyAddress: false,
+      companyPhone: false,
+      companyEmail: false,
+    });
     setLocalErrors({});
   };
 
@@ -31,16 +67,17 @@ const StepOneUserInfo = () => {
     let errors: Record<string, string> = {};
     
     if (formData.userType === 'personal') {
-      // Only validate required fields
-      if (!formData.firstName.trim()) {
-        errors.firstName = 'First name is required';
-      }
-      if (!formData.lastName.trim()) {
-        errors.lastName = 'Last name is required';
-      }
+      errors = validatePersonalUserInfo(formData);
     } else {
       errors = validateCompanyInfo(formData);
     }
+    
+    // Set all fields as touched when the user tries to proceed
+    const allFieldsTouched: Record<string, boolean> = {};
+    Object.keys(touchedFields).forEach(key => {
+      allFieldsTouched[key] = true;
+    });
+    setTouchedFields(allFieldsTouched);
     
     setLocalErrors(errors);
     
@@ -59,6 +96,14 @@ const StepOneUserInfo = () => {
     nextStep();
   };
 
+  // Filter errors to only show for touched fields
+  const visibleErrors: Record<string, string> = {};
+  Object.keys(localErrors).forEach(key => {
+    if (touchedFields[key]) {
+      visibleErrors[key] = localErrors[key];
+    }
+  });
+
   return (
     <div className="space-y-5">
       {/* User Type Selection */}
@@ -72,7 +117,7 @@ const StepOneUserInfo = () => {
         {formData.userType === 'personal' && (
           <PersonalUserFields
             formData={formData}
-            localErrors={localErrors}
+            localErrors={visibleErrors}
             handleChange={handleChange}
           />
         )}
@@ -81,7 +126,7 @@ const StepOneUserInfo = () => {
         {formData.userType === 'company' && (
           <CompanyUserFields
             formData={formData}
-            localErrors={localErrors}
+            localErrors={visibleErrors}
             handleChange={handleChange}
           />
         )}

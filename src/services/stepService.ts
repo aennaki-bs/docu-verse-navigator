@@ -50,7 +50,7 @@ const stepService = {
 
   updateStep: async (id: number, step: UpdateStepDto): Promise<boolean> => {
     try {
-      await api.put(`/Steps/${id}`, step);
+      await api.put(`/Circuit/steps/${id}`, step);
       toast.success('Step updated successfully');
       return true;
     } catch (error) {

@@ -1,14 +1,19 @@
-
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { DocumentType } from '@/models/document';
-import { Layers, ArrowRight, Edit2, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import documentService from '@/services/documentService';
-import { toast } from 'sonner';
-import { 
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { DocumentType } from "@/models/document";
+import { Layers, ArrowRight, Edit2, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import documentService from "@/services/documentService";
+import { toast } from "sonner";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -32,12 +37,12 @@ const DocumentTypes = () => {
   const [typeToDelete, setTypeToDelete] = useState<DocumentType | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [typeToEdit, setTypeToEdit] = useState<DocumentType | null>(null);
-  const [typeName, setTypeName] = useState('');
-  const [typeKey, setTypeKey] = useState('');
-  const [typeAttr, setTypeAttr] = useState('');
+  const [typeName, setTypeName] = useState("");
+  const [typeKey, setTypeKey] = useState("");
+  const [typeAttr, setTypeAttr] = useState("");
 
   // Determine if user is a simple user for conditional rendering
-  const isSimpleUser = user?.role === 'SimpleUser';
+  const isSimpleUser = user?.role === "SimpleUser";
 
   useEffect(() => {
     fetchTypes();
@@ -49,8 +54,8 @@ const DocumentTypes = () => {
       const data = await documentService.getAllDocumentTypes();
       setTypes(data);
     } catch (error) {
-      console.error('Failed to fetch document types:', error);
-      toast.error('Failed to load document types');
+      console.error("Failed to fetch document types:", error);
+      toast.error("Failed to load document types");
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +64,7 @@ const DocumentTypes = () => {
   // Only allow non-simple users to delete types
   const openDeleteDialog = (type: DocumentType) => {
     if (isSimpleUser) {
-      toast.error('Simple users cannot delete document types');
+      toast.error("Simple users cannot delete document types");
       return;
     }
     setTypeToDelete(type);
@@ -70,12 +75,12 @@ const DocumentTypes = () => {
     try {
       if (typeToDelete && typeToDelete.id) {
         await documentService.deleteDocumentType(typeToDelete.id);
-        toast.success('Document type deleted successfully');
+        toast.success("Document type deleted successfully");
         fetchTypes();
       }
     } catch (error) {
-      console.error('Failed to delete document type:', error);
-      toast.error('Failed to delete document type');
+      console.error("Failed to delete document type:", error);
+      toast.error("Failed to delete document type");
     } finally {
       setDeleteDialogOpen(false);
       setTypeToDelete(null);
@@ -85,13 +90,13 @@ const DocumentTypes = () => {
   // Only allow non-simple users to edit types
   const openEditDialog = (type: DocumentType) => {
     if (isSimpleUser) {
-      toast.error('Simple users cannot edit document types');
+      toast.error("Simple users cannot edit document types");
       return;
     }
     setTypeToEdit(type);
-    setTypeName(type.typeName || '');
-    setTypeKey(type.typeKey || '');
-    setTypeAttr(type.typeAttr || '');
+    setTypeName(type.typeName || "");
+    setTypeKey(type.typeKey || "");
+    setTypeAttr(type.typeAttr || "");
     setEditDialogOpen(true);
   };
 
@@ -102,18 +107,18 @@ const DocumentTypes = () => {
           ...typeToEdit,
           typeName,
           typeKey,
-          typeAttr
+          typeAttr,
         };
-        
+
         await documentService.updateDocumentType(typeToEdit.id, updatedType);
-        toast.success('Document type updated successfully');
+        toast.success("Document type updated successfully");
         fetchTypes();
         setEditDialogOpen(false);
         setTypeToEdit(null);
       }
     } catch (error) {
-      console.error('Failed to update document type:', error);
-      toast.error('Failed to update document type');
+      console.error("Failed to update document type:", error);
+      toast.error("Failed to update document type");
     }
   };
 
@@ -130,8 +135,8 @@ const DocumentTypes = () => {
             </p>
           </div>
           {!isSimpleUser && (
-            <Button 
-              onClick={() => navigate('/document-types-management')} 
+            <Button
+              onClick={() => navigate("/document-types-management")}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               Management View <ArrowRight className="ml-2 h-4 w-4" />
@@ -143,7 +148,10 @@ const DocumentTypes = () => {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((item) => (
-            <Card key={item} className="bg-[#0f1642] border-blue-900/30 shadow-lg h-[180px] animate-pulse">
+            <Card
+              key={item}
+              className="bg-[#0f1642] border-blue-900/30 shadow-lg h-[180px] animate-pulse"
+            >
               <CardHeader className="pb-2">
                 <div className="h-6 bg-blue-800/30 rounded w-2/3"></div>
               </CardHeader>
@@ -157,10 +165,15 @@ const DocumentTypes = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {types.map((type) => (
-            <Card key={type.id} className="bg-[#0f1642] border-blue-900/30 shadow-lg overflow-hidden hover:border-blue-700/50 transition-all">
+            <Card
+              key={type.id}
+              className="bg-[#0f1642] border-blue-900/30 shadow-lg overflow-hidden hover:border-blue-700/50 transition-all"
+            >
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
-                  <CardTitle className="text-lg text-white">{type.typeName || 'Unnamed Type'}</CardTitle>
+                  <CardTitle className="text-lg text-white">
+                    {type.typeName || "Unnamed Type"}
+                  </CardTitle>
                   {!isSimpleUser && (
                     <div className="flex items-center space-x-1">
                       <TooltipProvider>
@@ -189,11 +202,17 @@ const DocumentTypes = () => {
                               size="icon"
                               className={`h-8 w-8 ${
                                 type.documentCounter && type.documentCounter > 0
-                                  ? 'text-gray-500 cursor-not-allowed'
-                                  : 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
+                                  ? "text-gray-500 cursor-not-allowed"
+                                  : "text-red-400 hover:text-red-300 hover:bg-red-900/20"
                               }`}
-                              onClick={() => type.documentCounter === 0 && openDeleteDialog(type)}
-                              disabled={type.documentCounter !== undefined && type.documentCounter > 0}
+                              onClick={() =>
+                                type.documentCounter === 0 &&
+                                openDeleteDialog(type)
+                              }
+                              disabled={
+                                type.documentCounter !== undefined &&
+                                type.documentCounter > 0
+                              }
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -210,19 +229,26 @@ const DocumentTypes = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-blue-300">Key: <span className="text-white">{type.typeKey || 'N/A'}</span></p>
+                <p className="text-sm text-blue-300">
+                  Key:{" "}
+                  <span className="text-white">{type.typeKey || "N/A"}</span>
+                </p>
                 {type.typeAttr && (
                   <p className="text-sm text-blue-300 mt-1">
-                    Attributes: <span className="text-white">{type.typeAttr}</span>
+                    Attributes:{" "}
+                    <span className="text-white">{type.typeAttr}</span>
                   </p>
                 )}
                 <p className="text-sm text-blue-300 mt-2">
-                  Documents: <span className="text-white font-medium">{type.documentCounter || 0}</span>
+                  Documents:{" "}
+                  <span className="text-white font-medium">
+                    {type.documentCounter || 0}
+                  </span>
                 </p>
               </CardContent>
               <CardFooter className="pt-0">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
                   className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 p-0"
                   onClick={() => navigate(`/documents?typeId=${type.id}`)}
@@ -236,11 +262,15 @@ const DocumentTypes = () => {
           {types.length === 0 && (
             <div className="col-span-full flex flex-col items-center justify-center p-8 text-center rounded-lg border border-dashed border-blue-900/50 bg-blue-900/10">
               <Layers className="h-12 w-12 text-blue-500/50 mb-4" />
-              <h3 className="text-xl font-medium text-blue-300 mb-2">No document types found</h3>
-              <p className="text-blue-400 mb-4">Create document types to better organize your documents</p>
+              <h3 className="text-xl font-medium text-blue-300 mb-2">
+                No document types found
+              </h3>
+              <p className="text-blue-400 mb-4">
+                Create document types to better organize your documents
+              </p>
               {!isSimpleUser && (
-                <Button 
-                  onClick={() => navigate('/document-types-management')} 
+                <Button
+                  onClick={() => navigate("/document-types-management")}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   Create Document Type
@@ -257,12 +287,15 @@ const DocumentTypes = () => {
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the document type "{typeToDelete?.typeName}"? 
-              This action cannot be undone.
+              Are you sure you want to delete the document type "
+              {typeToDelete?.typeName}"? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
@@ -325,7 +358,10 @@ const DocumentTypes = () => {
             <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleEdit} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={handleEdit}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               Save Changes
             </Button>
           </DialogFooter>

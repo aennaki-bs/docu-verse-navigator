@@ -39,7 +39,7 @@ export function DocumentStatusCard({ workflowStatus }: DocumentStatusCardProps) 
   };
 
   return (
-    <Card className="bg-[#0a1033] border border-blue-900/30 shadow-md hover:shadow-lg transition-shadow w-full h-full">
+    <Card className="bg-[#0a1033] border border-blue-900/30 shadow-md hover:shadow-lg transition-shadow w-1/2">
       <CardHeader className="bg-blue-950/40 border-b border-blue-900/30 pb-2 px-3 py-2">
         <CardTitle className="text-base font-medium text-white flex items-center">
           <span>Document Status</span>

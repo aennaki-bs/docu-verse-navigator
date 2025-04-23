@@ -1,22 +1,34 @@
 
-import DocumentTypesHeader from '@/components/document-types/DocumentTypesHeader';
+import DocumentTypesHeader from '../DocumentTypesHeader';
 
 interface DocumentTypesHeaderSectionProps {
   viewMode: 'table' | 'grid';
   onViewModeChange: (value: 'table' | 'grid') => void;
   onNewTypeClick: () => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  showFilters: boolean;
+  onToggleFilters: () => void;
 }
 
 const DocumentTypesHeaderSection = ({
   viewMode,
   onViewModeChange,
-  onNewTypeClick
+  onNewTypeClick,
+  searchQuery,
+  onSearchChange,
+  showFilters,
+  onToggleFilters
 }: DocumentTypesHeaderSectionProps) => {
   return (
-    <DocumentTypesHeader 
+    <DocumentTypesHeader
       viewMode={viewMode}
       onViewModeChange={onViewModeChange}
       onNewTypeClick={onNewTypeClick}
+      searchQuery={searchQuery}
+      onSearchChange={onSearchChange}
+      showFilters={showFilters}
+      onToggleFilters={onToggleFilters}
     />
   );
 };

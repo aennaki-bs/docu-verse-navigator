@@ -26,6 +26,7 @@ interface CircuitListContentProps {
   setDetailsDialogOpen: (open: boolean) => void;
   confirmDelete: () => Promise<void>;
   refetch: () => void;
+  hasNoSearchResults?: boolean;
 }
 
 export function CircuitListContent({
@@ -45,7 +46,8 @@ export function CircuitListContent({
   setDeleteDialogOpen,
   setDetailsDialogOpen,
   confirmDelete,
-  refetch
+  refetch,
+  hasNoSearchResults
 }: CircuitListContentProps) {
   if (isLoading) {
     return <CircuitLoadingState />;

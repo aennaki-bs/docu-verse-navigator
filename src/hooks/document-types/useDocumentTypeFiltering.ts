@@ -1,26 +1,77 @@
 
-import { useMemo, useState } from 'react';
+import { useState, useMemo } from 'react';
 import { DocumentType } from '@/models/document';
 
-export const useDocumentTypeFiltering = (types: DocumentType[]) => {
-  const [searchQuery, setSearchQuery] = useState('');
+export const useDocumentTypeFiltering = (documentTypes: DocumentType[]) => {
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filterConfig, setFilterConfig] = useState<{
+    field: string | null;
+    value: string | null;
+    dateRange?: { from?: Date; to?: Date };
+  }>({
+    field: null,
+    value: null,
+  });
 
   const filteredTypes = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return types;
-    }
+    if (!documentTypes) return [];
     
-    const query = searchQuery.toLowerCase();
-    return types.filter(type => 
-      (type.typeKey?.toLowerCase().includes(query) || '') ||
-      (type.typeName?.toLowerCase().includes(query) || '') ||
-      (type.typeAttr?.toLowerCase().includes(query) || '')
-    );
-  }, [types, searchQuery]);
+    return documentTypes.filter(type => {
+      // Text search filtering
+      const matchesSearch = !searchQuery || 
+        (type.typeName && type.typeName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (type.typeKey && type.typeKey.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (type.typeAttr && type.typeAttr.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      if (!matchesSearch) return false;
+      
+      // Advanced filtering
+      if (filterConfig.field && filterConfig.value) {
+        switch (filterConfig.field) {
+          case 'typeName':
+            return type.typeName?.toLowerCase().includes(filterConfig.value.toLowerCase());
+          case 'typeKey':
+            return type.typeKey?.toLowerCase().includes(filterConfig.value.toLowerCase());
+          case 'documentCounter':
+            return type.documentCounter?.toString() === filterConfig.value;
+          case 'createdAt':
+          case 'updatedAt':
+            if (!filterConfig.dateRange) return true;
+            
+            const date = new Date(type[filterConfig.field]);
+            const from = filterConfig.dateRange.from;
+            const to = filterConfig.dateRange.to;
+            
+            if (from && to) {
+              return date >= from && date <= to;
+            } else if (from) {
+              return date >= from;
+            } else if (to) {
+              return date <= to;
+            }
+            return true;
+          default:
+            return true;
+        }
+      }
+      
+      return true;
+    });
+  }, [documentTypes, searchQuery, filterConfig]);
+
+  const applyFilter = (config: {
+    field: string | null;
+    value: string | null;
+    dateRange?: { from?: Date; to?: Date };
+  }) => {
+    setFilterConfig(config);
+  };
 
   return {
     searchQuery,
     setSearchQuery,
-    filteredTypes
+    filterConfig,
+    applyFilter,
+    filteredTypes,
   };
 };

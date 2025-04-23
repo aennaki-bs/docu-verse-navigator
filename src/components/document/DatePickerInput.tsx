@@ -14,9 +14,10 @@ import {
 interface DatePickerInputProps {
   date: Date;
   onDateChange: (date: Date | undefined) => void;
+  error?: boolean;
 }
 
-export function DatePickerInput({ date, onDateChange }: DatePickerInputProps) {
+export function DatePickerInput({ date, onDateChange, error }: DatePickerInputProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -24,6 +25,7 @@ export function DatePickerInput({ date, onDateChange }: DatePickerInputProps) {
           variant="outline"
           className={cn(
             "w-full justify-start text-left h-12 text-base bg-gray-900 border-gray-800 text-white hover:bg-gray-800",
+            error ? "border-red-500" : ""
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />

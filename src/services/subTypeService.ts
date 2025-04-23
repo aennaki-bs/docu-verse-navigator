@@ -1,6 +1,6 @@
 
-import api from '../api';
-import { SubType, CreateSubTypeRequest, UpdateSubTypeRequest } from '../../models/subtype';
+import api from './api';
+import { SubType, CreateSubTypeDto, UpdateSubTypeDto } from '../models/subType';
 
 const subTypeService = {
   getAllSubTypes: async (): Promise<SubType[]> => {
@@ -13,7 +13,7 @@ const subTypeService = {
     }
   },
 
-  getSubTypeById: async (id: number): Promise<SubType> => {
+  getSubType: async (id: number): Promise<SubType> => {
     try {
       const response = await api.get(`/SubType/${id}`);
       return response.data;
@@ -23,33 +23,36 @@ const subTypeService = {
     }
   },
 
-  getSubTypesByDocumentTypeId: async (documentTypeId: number): Promise<SubType[]> => {
+  getSubTypesByDocType: async (docTypeId: number): Promise<SubType[]> => {
     try {
-      const response = await api.get(`/SubType/by-document-type/${documentTypeId}`);
+      console.log(`Fetching subtypes for document type ID ${docTypeId} using correct endpoint`);
+      const response = await api.get(`/SubType/by-document-type/${docTypeId}`);
+      console.log('Subtypes response:', response);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching subtypes for document type ${documentTypeId}:`, error);
+      console.error(`Error fetching subtypes for document type ${docTypeId}:`, error);
       throw error;
     }
   },
 
-  getSubTypesForDate: async (documentTypeId: number, date: string): Promise<SubType[]> => {
+  getSubTypesForDate: async (docTypeId: number, date: Date | string): Promise<SubType[]> => {
+    let formattedDate: string;
+    if (date instanceof Date) {
+      formattedDate = date.toISOString();
+    } else {
+      formattedDate = date;
+    }
+    
     try {
-      // Format the date if needed (make sure it's in YYYY-MM-DD format)
-      const formattedDate = date.includes('T') ? date.split('T')[0] : date;
-      
-      // Use encodeURIComponent to properly encode the date in the URL
-      const encodedDate = encodeURIComponent(formattedDate);
-      
-      const response = await api.get(`/SubType/for-date/${documentTypeId}/${encodedDate}`);
+      const response = await api.get(`/SubType/for-date/${docTypeId}/${formattedDate}`);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching subtypes for date ${date}:`, error);
+      console.error(`Error fetching subtypes for document type ${docTypeId} and date ${formattedDate}:`, error);
       throw error;
     }
   },
 
-  createSubType: async (subType: CreateSubTypeRequest): Promise<SubType> => {
+  createSubType: async (subType: CreateSubTypeDto): Promise<SubType> => {
     try {
       const response = await api.post('/SubType', subType);
       return response.data;
@@ -59,7 +62,7 @@ const subTypeService = {
     }
   },
 
-  updateSubType: async (id: number, subType: UpdateSubTypeRequest): Promise<void> => {
+  updateSubType: async (id: number, subType: UpdateSubTypeDto): Promise<void> => {
     try {
       await api.put(`/SubType/${id}`, subType);
     } catch (error) {
@@ -75,7 +78,7 @@ const subTypeService = {
       console.error(`Error deleting subtype with ID ${id}:`, error);
       throw error;
     }
-  },
+  }
 };
 
 export default subTypeService;

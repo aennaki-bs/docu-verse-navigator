@@ -6,6 +6,7 @@ import DocumentTypesContent from './DocumentTypesContent';
 import DocumentTypeDrawer from './DocumentTypeDrawer';
 import DeleteConfirmDialog from '@/components/document-types/DeleteConfirmDialog';
 import BottomActionBar from '@/components/document-types/BottomActionBar';
+import DocumentTypeFilters from '@/components/document-types/DocumentTypeFilters';
 import { DocumentType } from '@/models/document';
 import { toast } from 'sonner';
 import documentService from '@/services/documentService';
@@ -18,6 +19,8 @@ const DocumentTypesManagementPage = () => {
   const [currentType, setCurrentType] = useState<DocumentType | null>(null);
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [showFilters, setShowFilters] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState<any>({});
 
   const {
     types,
@@ -26,6 +29,8 @@ const DocumentTypesManagementPage = () => {
     handleSelectType,
     handleSelectAll,
     fetchTypes,
+    searchQuery,
+    setSearchQuery,
     // We still have access to all other properties from useDocumentTypes
     // but we're only explicitly listing the ones we use in this component
     ...documentTypesProps
@@ -81,13 +86,35 @@ const DocumentTypesManagementPage = () => {
     if (value) setViewMode(value);
   };
 
+  const handleToggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  const handleFilterChange = (filters: any) => {
+    setAppliedFilters(filters);
+    // The actual filtering logic would be implemented in the useDocumentTypes hook
+  };
+
   return (
     <div className="h-full flex flex-col bg-[#070b28]">
       <DocumentTypesHeaderSection 
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
         onNewTypeClick={() => setIsDrawerOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        showFilters={showFilters}
+        onToggleFilters={handleToggleFilters}
       />
+
+      {showFilters && (
+        <div className="px-6 py-2">
+          <DocumentTypeFilters 
+            onFilterChange={handleFilterChange}
+            onClose={() => setShowFilters(false)}
+          />
+        </div>
+      )}
 
       <DocumentTypesContent 
         isLoading={isLoading}
@@ -98,6 +125,8 @@ const DocumentTypesManagementPage = () => {
         onEditType={handleEditType}
         onSelectType={handleSelectType}
         onSelectAll={handleSelectAll}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
         {...documentTypesProps}
       />
 

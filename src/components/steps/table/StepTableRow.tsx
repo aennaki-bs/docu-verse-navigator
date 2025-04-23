@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Edit, MoreHorizontal, Trash, Eye } from 'lucide-react';
+import { Edit, MoreHorizontal, Trash, Eye, CircleCheck } from 'lucide-react';
 
 interface StepTableRowProps {
   step: Step;
@@ -32,6 +32,12 @@ export const StepTableRow = ({
   onViewDetails,
   circuitName
 }: StepTableRowProps) => {
+  const navigate = useNavigate();
+
+  const handleManageStatuses = () => {
+    navigate(`/circuits/${step.circuitId}/steps/${step.id}/statuses`);
+  };
+
   return (
     <TableRow className={isSelected ? 'bg-muted/30' : undefined}>
       <TableCell className="px-4 py-2">
@@ -69,6 +75,10 @@ export const StepTableRow = ({
                 Edit
               </DropdownMenuItem>
             )}
+            <DropdownMenuItem onClick={handleManageStatuses}>
+              <CircleCheck className="mr-2 h-4 w-4" />
+              Manage Statuses
+            </DropdownMenuItem>
             {onViewDetails && (
               <DropdownMenuItem onClick={() => onViewDetails(step)}>
                 <Eye className="mr-2 h-4 w-4" />

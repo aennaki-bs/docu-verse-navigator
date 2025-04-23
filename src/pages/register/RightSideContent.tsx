@@ -111,52 +111,96 @@ const RightSideContent: React.FC<RightSideContentProps> = ({ currentStep }) => {
     return (
       <>
         <h1 className="text-4xl font-bold text-white mb-4">
-          Almost There!
+          Complete Your Profile
         </h1>
         <p className="text-lg text-gray-300 mb-8">
-          Complete the final step to activate your account
+          Add your address details to complete your profile
         </p>
         
         <div className="space-y-6">
           <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
             <div className="bg-green-500/20 p-2 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
+              <MapPin className="h-6 w-6 text-green-400" />
             </div>
             <div className="text-left">
-              <h3 className="text-white font-medium">Admin Access</h3>
-              <p className="text-sm text-gray-400">Optional: Enter admin key if you have administrative privileges</p>
+              <h3 className="text-white font-medium">Address Information</h3>
+              <p className="text-sm text-gray-400">Add your personal address details (optional)</p>
             </div>
           </div>
           
           <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
             <div className="bg-blue-500/20 p-2 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
             <div className="text-left">
-              <h3 className="text-white font-medium">Secure Account</h3>
-              <p className="text-sm text-gray-400">Your data is protected with enterprise-level security</p>
+              <h3 className="text-white font-medium">Location Details</h3>
+              <p className="text-sm text-gray-400">Let us know your city and country</p>
             </div>
           </div>
           
           <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
             <div className="bg-purple-500/20 p-2 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
               </svg>
             </div>
             <div className="text-left">
-              <h3 className="text-white font-medium">Instant Access</h3>
-              <p className="text-sm text-gray-400">Get started immediately after registration</p>
+              <h3 className="text-white font-medium">Enhanced Experience</h3>
+              <p className="text-sm text-gray-400">Help us personalize your experience</p>
             </div>
           </div>
         </div>
       </>
     );
   } else if (currentStep === 4) {
+    return (
+      <>
+        <h1 className="text-4xl font-bold text-white mb-4">
+          Admin Access (Optional)
+        </h1>
+        <p className="text-lg text-gray-300 mb-8">
+          Provide admin key if you have administrative privileges
+        </p>
+        
+        <div className="space-y-6">
+          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+            <div className="bg-green-500/20 p-2 rounded-full">
+              <Shield className="h-6 w-6 text-green-400" />
+            </div>
+            <div className="text-left">
+              <h3 className="text-white font-medium">Admin Privileges</h3>
+              <p className="text-sm text-gray-400">Enable additional administrative capabilities</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+            <div className="bg-blue-500/20 p-2 rounded-full">
+              <Lock className="h-6 w-6 text-blue-400" />
+            </div>
+            <div className="text-left">
+              <h3 className="text-white font-medium">Secure Access</h3>
+              <p className="text-sm text-gray-400">Admin key is securely stored and validated</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+            <div className="bg-purple-500/20 p-2 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <h3 className="text-white font-medium">Optional Step</h3>
+              <p className="text-sm text-gray-400">Skip this step if you don't need admin access</p>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  } else if (currentStep === 5) {
     return (
       <>
         <h1 className="text-4xl font-bold text-white mb-4">
@@ -206,6 +250,8 @@ const RightSideContent: React.FC<RightSideContentProps> = ({ currentStep }) => {
       </>
     );
   }
+  
+  return null; // Default return if currentStep is not recognized
 };
 
 export default RightSideContent;

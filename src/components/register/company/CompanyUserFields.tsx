@@ -2,7 +2,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Building2, Briefcase, MapPin, Phone, Mail, Globe } from 'lucide-react';
+import { Building2, Briefcase, MapPin, Phone, Mail, Globe, CheckCircle2 } from 'lucide-react';
 
 interface CompanyUserFieldsProps {
   formData: {
@@ -22,6 +22,11 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
   localErrors,
   handleChange
 }) => {
+  // Helper function to determine if a field is valid
+  const isFieldValid = (fieldName: string, value?: string) => {
+    return value && value.trim().length > 0 && !localErrors[fieldName];
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Company Name */}
@@ -33,10 +38,14 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
             id="companyName"
             name="companyName"
             placeholder="Company Name"
-            className={`pl-10 ${localErrors.companyName ? 'border-red-500' : ''}`}
+            className="pl-10 pr-10"
+            error={formData.companyName && !!localErrors.companyName}
             value={formData.companyName || ''}
             onChange={handleChange}
           />
+          {isFieldValid('companyName', formData.companyName) && (
+            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+          )}
         </div>
         {localErrors.companyName && (
           <p className="text-xs text-red-500">{localErrors.companyName}</p>
@@ -52,10 +61,14 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
             id="companyIRC"
             name="companyIRC"
             placeholder="Company Registration Number"
-            className={`pl-10 ${localErrors.companyIRC ? 'border-red-500' : ''}`}
+            className="pl-10 pr-10"
+            error={formData.companyIRC && !!localErrors.companyIRC}
             value={formData.companyIRC || ''}
             onChange={handleChange}
           />
+          {isFieldValid('companyIRC', formData.companyIRC) && (
+            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+          )}
         </div>
         {localErrors.companyIRC && (
           <p className="text-xs text-red-500">{localErrors.companyIRC}</p>
@@ -71,10 +84,14 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
             id="companyPhone"
             name="companyPhone"
             placeholder="Company Phone Number"
-            className={`pl-10 ${localErrors.companyPhone ? 'border-red-500' : ''}`}
+            className="pl-10 pr-10"
+            error={formData.companyPhone && !!localErrors.companyPhone}
             value={formData.companyPhone || ''}
             onChange={handleChange}
           />
+          {isFieldValid('companyPhone', formData.companyPhone) && (
+            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+          )}
         </div>
         {localErrors.companyPhone && (
           <p className="text-xs text-red-500">{localErrors.companyPhone}</p>
@@ -90,10 +107,14 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
             id="companyEmail"
             name="companyEmail"
             placeholder="Company Email"
-            className={`pl-10 ${localErrors.companyEmail ? 'border-red-500' : ''}`}
+            className="pl-10 pr-10"
+            error={formData.companyEmail && !!localErrors.companyEmail}
             value={formData.companyEmail || ''}
             onChange={handleChange}
           />
+          {isFieldValid('companyEmail', formData.companyEmail) && (
+            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+          )}
         </div>
         {localErrors.companyEmail && (
           <p className="text-xs text-red-500">{localErrors.companyEmail}</p>
@@ -109,10 +130,14 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
             id="companyAddress"
             name="companyAddress"
             placeholder="Company Address"
-            className={`pl-10 ${localErrors.companyAddress ? 'border-red-500' : ''}`}
+            className="pl-10 pr-10"
+            error={formData.companyAddress && !!localErrors.companyAddress}
             value={formData.companyAddress || ''}
             onChange={handleChange}
           />
+          {isFieldValid('companyAddress', formData.companyAddress) && (
+            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+          )}
         </div>
         {localErrors.companyAddress && (
           <p className="text-xs text-red-500">{localErrors.companyAddress}</p>
@@ -128,11 +153,18 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
             id="companyWebsite"
             name="companyWebsite"
             placeholder="Company Website"
+            className="pl-10 pr-10"
+            error={formData.companyWebsite && !!localErrors.companyWebsite}
             value={formData.companyWebsite || ''}
             onChange={handleChange}
-            className="pl-10"
           />
+          {isFieldValid('companyWebsite', formData.companyWebsite) && (
+            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+          )}
         </div>
+        {localErrors.companyWebsite && (
+          <p className="text-xs text-red-500">{localErrors.companyWebsite}</p>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Edit, MoreHorizontal, Trash, CircleCheck } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,11 +29,16 @@ export const StepGrid = ({
   searchQuery,
   onSearchChange,
 }: StepGridProps) => {
+  const navigate = useNavigate();
   // Get circuit names map
   const circuitNamesMap = circuits.reduce((map, circuit) => {
     map[circuit.id] = circuit.title;
     return map;
   }, {} as Record<number, string>);
+
+  const handleManageStatuses = (step: Step) => {
+    navigate(`/circuits/${step.circuitId}/steps/${step.id}/statuses`);
+  };
 
   return (
     <div className="w-full">
@@ -53,6 +59,10 @@ export const StepGrid = ({
                     <DropdownMenuItem onClick={() => onEditStep(step)}>
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleManageStatuses(step)}>
+                      <CircleCheck className="mr-2 h-4 w-4" />
+                      Manage Statuses
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
@@ -83,7 +93,7 @@ export const StepGrid = ({
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="pt-2">
+            <CardFooter className="pt-2 flex gap-2">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -92,6 +102,15 @@ export const StepGrid = ({
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Step
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="w-full"
+                onClick={() => handleManageStatuses(step)}
+              >
+                <CircleCheck className="mr-2 h-4 w-4" />
+                Statuses
               </Button>
             </CardFooter>
           </Card>

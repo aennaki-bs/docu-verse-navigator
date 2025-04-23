@@ -1,33 +1,35 @@
+import { DocumentType } from "./document";
 
 export interface SubType {
   id: number;
   subTypeKey: string;
   name: string;
   description: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date | string;
+  endDate: Date | string;
   documentTypeId: number;
-  isActive: boolean;
   documentType?: {
+    typeAlias: string;
     typeKey: string;
     typeName: string;
     typeAttr: string;
   };
+  isActive: boolean;
 }
 
-export interface CreateSubTypeRequest {
+export interface CreateSubTypeDto {
   name: string;
   description: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date | string;
+  endDate: Date | string; 
   documentTypeId: number;
-  isActive?: boolean;
+  isActive: boolean;
 }
 
-export interface UpdateSubTypeRequest {
+export interface UpdateSubTypeDto {
   name?: string;
   description?: string;
-  startDate?: string;
-  endDate?: string;
+  startDate?: Date | string;
+  endDate?: Date | string;
   isActive?: boolean;
 }

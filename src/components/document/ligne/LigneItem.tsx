@@ -78,11 +78,13 @@ const LigneItem = ({
                 </div>
                 <div className="flex items-center text-blue-300/60">
                   <Tag className="h-3.5 w-3.5 mr-1.5" />
-                  {"No Category"}
+                  {/* Use a property that actually exists or a fallback */}
+                  {ligne.article.substring(0, 15) + '...'}
                 </div>
                 <div className="flex items-center text-blue-300/60">
                   <FileText className="h-3.5 w-3.5 mr-1.5" />
-                  {"Pending"}
+                  {/* Use a property that actually exists or a fallback */}
+                  {ligne.sousLignesCount || 0} items
                 </div>
               </div>
             </div>

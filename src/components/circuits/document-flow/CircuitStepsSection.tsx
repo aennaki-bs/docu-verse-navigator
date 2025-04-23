@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -92,7 +93,7 @@ export const CircuitStepsSection = ({
   };
   
   return (
-    <div className="bg-[#0a1033]/50 rounded-lg border border-blue-900/20 w-full">
+    <div className="bg-[#0a1033]/50 rounded-lg p-2 border border-blue-900/20 w-full h-full">
       <CircuitStepsSectionHeader 
         showHelp={showHelp}
         setShowHelp={setShowHelp}
@@ -106,44 +107,42 @@ export const CircuitStepsSection = ({
         onMoveClick={onMoveClick}
       />
       
-      <div className="p-4 overflow-hidden">
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-600/20 scrollbar-track-blue-900/10 -mx-4 px-4">
-          <div className="inline-flex space-x-4 pb-4 min-w-full">
-            {circuitDetails?.map((detail) => {
-              const historyForStep = circuitHistory?.filter(h => h.circuitDetailId === detail.id) || [];
-              const isOver = draggedOverStepId === detail.id;
-              const isCurrentStep = detail.id === currentStepId;
-              
-              return (
-                <div 
-                  key={detail.id} 
-                  className={`w-[280px] flex-none transition-all duration-300 ${isOver ? 'scale-105 transform' : ''}`}
-                  onDragOver={(e) => handleDragOver(e, detail.id)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={(e) => handleDrop(e, detail.id)}
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-600/20 scrollbar-track-blue-900/10 pb-1 -mx-1 px-1">
+        <div className="flex space-x-2 min-w-fit">
+          {circuitDetails?.map((detail) => {
+            const historyForStep = circuitHistory?.filter(h => h.circuitDetailId === detail.id) || [];
+            const isOver = draggedOverStepId === detail.id;
+            const isCurrentStep = detail.id === currentStepId;
+            
+            return (
+              <div 
+                key={detail.id} 
+                className={`w-56 sm:w-60 flex-shrink-0 transition-all duration-300 ${isOver ? 'scale-105 transform' : ''}`}
+                onDragOver={(e) => handleDragOver(e, detail.id)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, detail.id)}
+              >
+                <CircuitStepCard 
+                  detail={detail}
+                  currentStepId={currentStepId}
+                  historyForStep={historyForStep}
+                  isSimpleUser={isSimpleUser}
+                  onMoveClick={onMoveClick}
+                  onProcessClick={onProcessClick}
+                  isDraggedOver={isOver}
                 >
-                  <CircuitStepCard 
-                    detail={detail}
-                    currentStepId={currentStepId}
-                    historyForStep={historyForStep}
-                    isSimpleUser={isSimpleUser}
-                    onMoveClick={onMoveClick}
-                    onProcessClick={onProcessClick}
-                    isDraggedOver={isOver}
-                  >
-                    {isCurrentStep && document && (
-                      <div className="mt-1.5 mb-1.5">
-                        <DraggableDocumentCard 
-                          document={document} 
-                          onDragStart={() => console.log('Dragging document', document.id)} 
-                        />
-                      </div>
-                    )}
-                  </CircuitStepCard>
-                </div>
-              );
-            })}
-          </div>
+                  {isCurrentStep && document && (
+                    <div className="mt-1.5 mb-1.5">
+                      <DraggableDocumentCard 
+                        document={document} 
+                        onDragStart={() => console.log('Dragging document', document.id)} 
+                      />
+                    </div>
+                  )}
+                </CircuitStepCard>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

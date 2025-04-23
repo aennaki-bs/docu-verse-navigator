@@ -1,4 +1,3 @@
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,12 +7,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
-import api from '@/services/api';
-import { DocumentStatus } from '@/models/documentCircuit';
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import api from "@/services/api";
+import { DocumentStatus } from "@/models/documentCircuit";
 
 interface DeleteStatusDialogProps {
   open: boolean;
@@ -32,17 +31,17 @@ export function DeleteStatusDialog({
 
   const handleDelete = async () => {
     if (!status) return;
-    
+
     setIsDeleting(true);
     try {
       await api.delete(`/Status/${status.statusId}`);
-      
-      toast.success('Status deleted successfully');
+      toast.success("Status deleted successfully");
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      console.error('Error deleting status:', error);
-      toast.error('Failed to delete status');
+      console.error("Error deleting status:", error.response.data);
+      let msg = error.response.data;
+      toast.error(msg);
     } finally {
       setIsDeleting(false);
     }
@@ -59,15 +58,13 @@ export function DeleteStatusDialog({
             Delete Status
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the status <span className="font-semibold">{status.title}</span>?
-            This action cannot be undone.
+            Are you sure you want to delete the status{" "}
+            <span className="font-semibold">{status.title}</span>? This action
+            cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel
-            disabled={isDeleting}
-            className="border-border"
-          >
+          <AlertDialogCancel disabled={isDeleting} className="border-border">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
@@ -78,7 +75,7 @@ export function DeleteStatusDialog({
             disabled={isDeleting}
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
           >
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            {isDeleting ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

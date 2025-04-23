@@ -11,6 +11,19 @@ export const getErrorMessage = (error: any): string => {
   // Get the response data
   const { data, status } = error.response;
   
+  // Special handling for 404 Not Found errors
+  if (status === 404) {
+    // Check if it's a search operation (this can be expanded based on URL patterns)
+    const isSearch = error.config?.url?.includes('search') || 
+                     error.config?.params?.search || 
+                     error.config?.params?.q;
+                     
+    if (isSearch) {
+      return 'No results found. Try different search criteria.';
+    }
+    return 'Resource not found.';
+  }
+  
   // Handle different error formats from the API
   if (typeof data === 'string') {
     return data;
@@ -58,11 +71,25 @@ export const handleErrorResponse = (error: any, skipToast: boolean = false): Pro
   // Extract detailed error message from response if available
   const errorMessage = getErrorMessage(error);
   
+  // Determine the type of notification to show
+  const isNotFoundError = error.response?.status === 404;
+  const isSearchOperation = error.config?.url?.includes('search') || 
+                           error.config?.params?.search || 
+                           error.config?.params?.q;
+                     
   // Only show toast for endpoints that don't handle their own errors
   if (!skipToast && errorMessage) {
-    toast.error('API Error', {
-      description: errorMessage
-    });
+    if (isNotFoundError && isSearchOperation) {
+      // Use info toast for search with no results
+      toast.info('Search Results', {
+        description: 'No matching results found. Try different search criteria.'
+      });
+    } else {
+      // Use error toast for other errors
+      toast.error('API Error', {
+        description: errorMessage
+      });
+    }
   }
   
   return Promise.reject(error);

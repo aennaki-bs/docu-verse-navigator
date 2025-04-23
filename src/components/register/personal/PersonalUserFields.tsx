@@ -36,10 +36,8 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
             id="firstName"
             name="firstName"
             placeholder="First Name"
-            className={`pl-10 pr-10 ${
-              formData.firstName && localErrors.firstName ? 'border-red-500' : 
-              isFieldValid('firstName', formData.firstName) ? 'border-green-500' : ''
-            }`}
+            className="pl-10 pr-10"
+            error={formData.firstName && !!localErrors.firstName}
             value={formData.firstName}
             onChange={handleChange}
           />
@@ -61,10 +59,8 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
             id="lastName"
             name="lastName"
             placeholder="Last Name"
-            className={`pl-10 pr-10 ${
-              formData.lastName && localErrors.lastName ? 'border-red-500' : 
-              isFieldValid('lastName', formData.lastName) ? 'border-green-500' : ''
-            }`}
+            className="pl-10 pr-10"
+            error={formData.lastName && !!localErrors.lastName}
             value={formData.lastName}
             onChange={handleChange}
           />
@@ -86,10 +82,8 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
             id="cin"
             name="cin"
             placeholder="National ID Number (Optional)"
-            className={`pl-10 pr-10 ${
-              formData.cin && localErrors.cin ? 'border-red-500' : 
-              isFieldValid('cin', formData.cin) ? 'border-green-500' : ''
-            }`}
+            className="pl-10 pr-10"
+            error={formData.cin && !!localErrors.cin}
             value={formData.cin || ''}
             onChange={handleChange}
           />
@@ -111,10 +105,8 @@ const PersonalUserFields: React.FC<PersonalUserFieldsProps> = ({
             id="personalPhone"
             name="personalPhone"
             placeholder="Your Phone Number (Optional)"
-            className={`pl-10 pr-10 ${
-              formData.personalPhone && localErrors.personalPhone ? 'border-red-500' : 
-              isFieldValid('personalPhone', formData.personalPhone) ? 'border-green-500' : ''
-            }`}
+            className="pl-10 pr-10"
+            error={formData.personalPhone && !!localErrors.personalPhone}
             value={formData.personalPhone || ''}
             onChange={handleChange}
           />

@@ -5,14 +5,18 @@ import { InfoIcon, Lock, AlertCircle, Plus, Search } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
+import CreateCircuitDialog from '@/components/circuits/CreateCircuitDialog';
 
 export default function CircuitsPage() {
   const { user } = useAuth();
   const [apiError, setApiError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const isSimpleUser = user?.role === 'SimpleUser';
+
+  // For dialog open/close state and refetch trigger
+  const [createOpen, setCreateOpen] = useState(false);
+  const [refreshCircuits, setRefreshCircuits] = useState(0);
 
   // Clear any API errors when component mounts or when user changes
   useEffect(() => {
@@ -24,8 +28,19 @@ export default function CircuitsPage() {
     setApiError(errorMessage);
   };
 
+  // Refetch circuits list after creation
+  const handleCircuitCreated = () => {
+    setRefreshCircuits((c) => c + 1);
+  };
+
   return (
     <div className="p-6 space-y-6">
+      <CreateCircuitDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSuccess={handleCircuitCreated}
+      />
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-semibold mb-2 bg-gradient-to-r from-blue-200 to-purple-200 text-transparent bg-clip-text">Circuit Management</h1>
@@ -35,11 +50,11 @@ export default function CircuitsPage() {
         </div>
         
         {!isSimpleUser && (
-          <Link to="/create-circuit">
-            <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
-              <Plus className="mr-2 h-4 w-4" /> New Circuit
-            </Button>
-          </Link>
+          <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+            onClick={() => setCreateOpen(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" /> New Circuit
+          </Button>
         )}
       </div>
       
@@ -68,7 +83,7 @@ export default function CircuitsPage() {
         </div>
       </div>
       
-      <CircuitsList onApiError={handleApiError} searchQuery={searchQuery} />
+      <CircuitsList onApiError={handleApiError} searchQuery={searchQuery} key={refreshCircuits} />
     </div>
   );
 }
