@@ -1,4 +1,3 @@
-
 import { Badge } from '@/components/ui/badge';
 import { Check, Clock, AlertCircle, Settings, Loader2 } from 'lucide-react';
 import { DocumentStatus, DocumentWorkflowStatus } from '@/models/documentCircuit';
@@ -9,20 +8,16 @@ import { useStepStatuses } from '@/hooks/useStepStatuses';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface StepRequirementsCardProps {
-  statuses: DocumentStatus[];
   workflowStatus?: DocumentWorkflowStatus;
 }
 
-export function StepRequirementsCard({ statuses, workflowStatus }: StepRequirementsCardProps) {
+export function StepRequirementsCard({ workflowStatus }: StepRequirementsCardProps) {
   const [selectedStatus, setSelectedStatus] = useState<DocumentStatus | null>(null);
   
   const { 
-    statuses: stepStatuses, 
+    statuses = [], 
     isLoading 
-  } = useStepStatuses(workflowStatus?.currentStepId);
-  
-  // Prefer step statuses over workflow status
-  const displayStatuses = stepStatuses || workflowStatus?.statuses || statuses;
+  } = useStepStatuses(workflowStatus?.documentId || 0);
 
   const handleEditStatus = (status: DocumentStatus) => {
     setSelectedStatus(status);
@@ -40,9 +35,9 @@ export function StepRequirementsCard({ statuses, workflowStatus }: StepRequireme
           <div className="flex items-center justify-center py-6">
             <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
           </div>
-        ) : displayStatuses && displayStatuses.length > 0 ? (
+        ) : statuses && statuses.length > 0 ? (
           <div className="space-y-2 max-h-[250px] overflow-y-auto pr-1 text-sm">
-            {displayStatuses.map(status => (
+            {statuses.map(status => (
               <div 
                 key={status.statusId} 
                 className={`flex items-center justify-between p-2 rounded-md ${

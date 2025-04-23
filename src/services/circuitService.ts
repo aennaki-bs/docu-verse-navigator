@@ -1,4 +1,3 @@
-
 import api from './api/index';
 import { 
   DocumentCircuitHistory, 
@@ -168,7 +167,7 @@ const circuitService = {
   // New method to get status using the correct API
   getStepStatuses: async (stepId: number): Promise<DocumentStatus[]> => {
     if (!stepId) return [];
-    const response = await api.get(`/Status/step/${stepId}`);
+    const response = await api.get(`/Workflow/document/${stepId}/step-statuses`);
     return response.data;
   },
 

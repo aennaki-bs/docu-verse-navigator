@@ -1,4 +1,3 @@
-
 // Add the DocumentStatus type if it doesn't exist yet
 export interface DocumentStatus {
   statusId: number;
