@@ -92,4 +92,3 @@ const RegisterForm: React.FC = () => {
 };
 
 export default RegisterForm;
-
