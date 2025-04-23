@@ -58,11 +58,27 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
         errors: { ...prev.errors, registration: undefined }
       }));
     }
+    
+    // Clear specific field validation errors when the field changes
+    const fieldKeys = Object.keys(data);
+    if (fieldKeys.includes('username') && stepValidation.errors.username) {
+      setStepValidation((prev) => ({
+        ...prev,
+        errors: { ...prev.errors, username: undefined }
+      }));
+    }
+    
+    if (fieldKeys.includes('email') && stepValidation.errors.email) {
+      setStepValidation((prev) => ({
+        ...prev,
+        errors: { ...prev.errors, email: undefined }
+      }));
+    }
   };
 
   // Next step logic, handle extra steps.
   const nextStep = () => {
-    // Clear validation errors when moving to next step
+    // Clear all validation errors when moving to next step
     setStepValidation(prev => ({
       ...prev,
       errors: {}
@@ -81,7 +97,7 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Previous step logic
   const prevStep = () => {
-    // Clear validation errors when moving back
+    // Clear all validation errors when moving back
     setStepValidation(prev => ({
       ...prev,
       errors: {}
@@ -110,7 +126,7 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const registerUser = async (): Promise<boolean> => {
-    // Clear any previous validation errors
+    // Clear any previous validation errors before attempting registration
     setStepValidation(prev => ({
       ...prev,
       errors: {}
@@ -120,6 +136,12 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const verifyEmail = async (code: string): Promise<boolean> => {
+    // Clear verification errors before attempting verification
+    setStepValidation(prev => ({
+      ...prev,
+      errors: { ...prev.errors, verification: undefined }
+    }));
+    
     return verifyEmailUtil(formData.email, code, setStepValidation, navigate);
   };
 
