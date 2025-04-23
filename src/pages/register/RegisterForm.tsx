@@ -11,13 +11,20 @@ import { useMultiStepForm } from '@/context/form';
 import StepIndicator from './StepIndicator';
 import StepTitle from './StepTitle';
 import RightSideContent from './RightSideContent';
+import { FormError } from '@/components/ui/form-error';
 
 // For personal users: 1. info, 2. credentials, 3. address, 4. admin key, 5. summary
 // For company users:  1. info, 2. credentials, 3. admin key, 4. summary
 
 const RegisterForm: React.FC = () => {
-  const { currentStep, formData } = useMultiStepForm();
+  const { currentStep, formData, stepValidation } = useMultiStepForm();
   const isPersonal = formData.userType === 'personal';
+
+  // Get the relevant error message based on the current step
+  const errorMessage = 
+    stepValidation.errors.registration || 
+    formData.validationError || 
+    (currentStep === 2 ? (stepValidation.errors.username || stepValidation.errors.email) : undefined);
 
   // For step indicators and titles, always show 5 steps for personal, 4 for company
   const stepCount = isPersonal ? 5 : 4;
@@ -56,6 +63,9 @@ const RegisterForm: React.FC = () => {
             </CardHeader>
             
             <CardContent className="pt-8 px-8">
+              {/* Display error message at the top of the form */}
+              <FormError message={errorMessage} />
+              
               {renderStep()}
             </CardContent>
           </Card>

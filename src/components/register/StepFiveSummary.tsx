@@ -1,14 +1,16 @@
+
 import React from 'react';
 import { useMultiStepForm } from '@/context/form';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { FormError } from '@/components/ui/form-error';
 import { 
   Card,
   CardContent,
   CardHeader,
   CardTitle 
 } from '@/components/ui/card';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { ChevronLeft, Check, FileEdit, User, Building2, Lock, Shield, ExternalLink, Phone, MapPin, AtSign, CreditCard, Globe2 } from 'lucide-react';
 
 const StepFiveSummary = () => {
@@ -23,7 +25,11 @@ const StepFiveSummary = () => {
   const handleSubmit = async () => {
     const success = await registerUser();
     if (success) {
-      toast.success('Registration successful! Please check your email for verification.');
+      toast({
+        variant: "success",
+        title: "Registration successful!",
+        description: "Please check your email for verification."
+      });
     }
   };
   
@@ -37,6 +43,10 @@ const StepFiveSummary = () => {
         <h3 className="text-2xl font-semibold mb-2">Review Your Information</h3>
         <p className="text-sm text-gray-400">Please verify all information before submitting</p>
       </div>
+
+      {/* Display error message */}
+      <FormError message={stepValidation.errors.registration} />
+      
       <ScrollArea className="h-[calc(100vh-400px)] pr-4">
         <div className="space-y-6">
           {/* Account Type Card */}
@@ -286,12 +296,6 @@ const StepFiveSummary = () => {
           )}
         </Button>
       </div>
-      
-      {stepValidation.errors.registration && (
-        <p className="text-xs text-red-500 text-center mt-2">
-          {stepValidation.errors.registration}
-        </p>
-      )}
     </div>
   );
 };
