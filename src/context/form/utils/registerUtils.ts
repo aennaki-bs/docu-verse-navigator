@@ -1,4 +1,3 @@
-
 import authService from '@/services/authService';
 import { toast } from 'sonner';
 import { FormData, SetStepValidation } from '../types';
@@ -43,9 +42,8 @@ export const prepareUserData = (formData: FormData) => {
 export const registerUser = async (
   formData: FormData,
   setStepValidation: SetStepValidation,
-  navigateFunction: (path: string) => void
+  navigateFunction: (path: string, state?: any) => void
 ): Promise<boolean> => {
-  // Start loading and clear any previous errors
   setStepValidation((prev) => ({ ...prev, isLoading: true, errors: {} }));
   
   try {
@@ -55,24 +53,22 @@ export const registerUser = async (
     const response = await authService.register(userData);
     console.log("Registration response:", response);
     
-    // Clear loading state
     setStepValidation((prev) => ({ ...prev, isLoading: false }));
     
-    // Show success message
     toast.success('Registration successful! Please check your email for verification.');
     
-    // Redirect to verification page with email
-    navigateFunction(`/verify/${formData.email}`);
+    // Navigate to success page instead of verification page directly
+    navigateFunction('/registration-success', { 
+      state: { email: formData.email }
+    });
     
     return true;
   } catch (error: any) {
     console.error('Registration error:', error);
     
-    // Extract error message from API response
     let errorMessage = 'Registration failed. Please try again.';
     
     if (error.response) {
-      // Server responded with an error
       if (typeof error.response.data === 'string') {
         errorMessage = error.response.data;
       } else if (error.response.data && typeof error.response.data.message === 'string') {
@@ -81,18 +77,15 @@ export const registerUser = async (
         errorMessage = error.response.data.error;
       }
     } else if (error.message) {
-      // Client-side error with message
       errorMessage = error.message;
     }
     
-    // Update step validation with the error message
     setStepValidation((prev) => ({
       ...prev,
       isLoading: false,
       errors: { registration: errorMessage },
     }));
     
-    // Display toast error
     toast.error(errorMessage);
     
     return false;

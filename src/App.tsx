@@ -35,6 +35,7 @@ import { Layout } from './components/layout/Layout';
 import Settings from "./pages/Settings";
 import { SettingsProvider } from "./context/SettingsContext";
 import SubTypeManagementPage from "./pages/SubTypeManagementPage";
+import RegistrationSuccess from "./pages/RegistrationSuccess";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/registration-success" element={<RegistrationSuccess />} />
               <Route path="/verify-email" element={<EmailVerification />} />
               <Route path="/verify/:email" element={<EmailVerification />} />
               <Route path="/welcome" element={<Welcome />} />
