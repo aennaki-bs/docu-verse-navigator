@@ -26,13 +26,22 @@ export function useDocumentWorkflow(documentId: number) {
   useEffect(() => {
     // Only set up refetch interval if we have a valid document ID
     if (documentId) {
+      // Initial refetch on mount
+      queryClient.invalidateQueries({ queryKey: ['document-workflow', documentId] });
+      
       const intervalId = setInterval(() => {
-        // Silent background refetch
+        // Silent background refetch of all document-related data
         queryClient.invalidateQueries({ 
-          queryKey: ['document-workflow-status', documentId],
-          type: 'inactive' // Only refresh if the query is inactive (not already fetching)
+          queryKey: ['document-workflow', documentId],
+          type: 'all'
         });
-      }, 60000); // Every 60 seconds
+        
+        // Also invalidate step statuses
+        queryClient.invalidateQueries({ 
+          queryKey: ['document-step-statuses', documentId],
+          type: 'all'
+        });
+      }, 15000); // Every 15 seconds
       
       return () => clearInterval(intervalId);
     }
@@ -41,9 +50,10 @@ export function useDocumentWorkflow(documentId: number) {
   const refreshAllData = () => {
     // Set up a set of queries to invalidate for a full refresh
     const queriesToInvalidate = [
-      ['document-workflow-status', documentId],
+      ['document-workflow', documentId],
       ['document', documentId],
       ['document-circuit-history', documentId],
+      ['document-step-statuses', documentId],
       ['circuit-details', workflowStatus?.circuitId]
     ];
     

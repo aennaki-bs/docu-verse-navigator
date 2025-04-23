@@ -1,4 +1,3 @@
-
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
@@ -18,8 +17,12 @@ export function useStepStatuses(documentId: number) {
     queryKey: ['document-step-statuses', documentId],
     queryFn: () => circuitService.getStepStatuses(documentId),
     enabled: !!documentId,
-    // Refetch every 30 seconds
-    refetchInterval: 30000,
+    // Refetch every 10 seconds (more frequent than before)
+    refetchInterval: 10000,
+    // Important: set this to true to refetch in the background
+    refetchOnWindowFocus: true,
+    // Keep previous data while fetching new data
+    keepPreviousData: true,
     meta: {
       onSettled: (data, err) => {
         if (err) {
@@ -36,9 +39,9 @@ export function useStepStatuses(documentId: number) {
   // Force a background refetch when the component mounts
   useEffect(() => {
     if (documentId) {
+      // Initial refetch on mount
       queryClient.invalidateQueries({ 
         queryKey: ['document-step-statuses', documentId],
-        type: 'inactive'
       });
     }
   }, [documentId, queryClient]);

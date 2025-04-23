@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { DocumentStatus } from '@/models/documentCircuit';
 import circuitService from '@/services/circuitService';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface EditStepStatusDialogProps {
   open: boolean;
@@ -34,6 +35,7 @@ export function EditStepStatusDialog({
   const [title, setTitle] = useState(status.title);
   const [isRequired, setIsRequired] = useState(status.isRequired);
   const [isComplete, setIsComplete] = useState(status.isComplete);
+  const queryClient = useQueryClient();
 
   const handleSubmit = async () => {
     if (!documentId) {
@@ -49,6 +51,10 @@ export function EditStepStatusDialog({
         isComplete,
         comments: `Status '${title}' marked as ${isComplete ? 'complete' : 'incomplete'}`
       });
+
+      // Invalidate relevant queries to trigger UI updates
+      queryClient.invalidateQueries({ queryKey: ['document-step-statuses', documentId] });
+      queryClient.invalidateQueries({ queryKey: ['document-workflow', documentId] });
 
       toast.success('Status updated successfully');
       onSuccess();

@@ -1,7 +1,7 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import documentService from '@/services/documentService';
@@ -19,7 +19,6 @@ const DocumentFlowPage = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   
   // Use the document flow hook to manage all workflow-related state and operations
   const {
@@ -27,7 +26,8 @@ const DocumentFlowPage = () => {
     isLoading: isLoadingWorkflow,
     isError: isWorkflowError,
     error: workflowError,
-    refetch: refetchWorkflow
+    refetch: refetchWorkflow,
+    refreshAllData
   } = useDocumentWorkflow(Number(id));
   
   // Fetch the document information
@@ -35,7 +35,6 @@ const DocumentFlowPage = () => {
     data: document, 
     isLoading: isLoadingDocument,
     error: documentError,
-    refetch: refetchDocument
   } = useQuery({
     queryKey: ['document', Number(id)],
     queryFn: () => documentService.getDocumentById(Number(id)),
@@ -47,7 +46,6 @@ const DocumentFlowPage = () => {
     data: circuitDetails, 
     isLoading: isLoadingCircuitDetails,
     error: circuitDetailsError,
-    refetch: refetchCircuitDetails
   } = useQuery({
     queryKey: ['circuit-details', document?.circuitId],
     queryFn: () => circuitService.getCircuitDetailsByCircuitId(document?.circuitId || 0),
@@ -59,7 +57,6 @@ const DocumentFlowPage = () => {
     data: circuitHistory,
     isLoading: isLoadingHistory,
     error: historyError,
-    refetch: refetchHistory
   } = useQuery({
     queryKey: ['document-circuit-history', Number(id)],
     queryFn: () => circuitService.getDocumentCircuitHistory(Number(id)),
@@ -84,14 +81,14 @@ const DocumentFlowPage = () => {
   const isLoading = isLoadingDocument || isLoadingWorkflow || 
                     isLoadingCircuitDetails || isLoadingHistory;
 
-  const openDialog = (type) => {
+  const openDialog = (type: 'move' | 'process' | 'nextStep') => {
     setDialogState(prev => ({
       ...prev,
       [`${type}Open`]: true
     }));
   };
 
-  const closeDialog = (type) => {
+  const closeDialog = (type: 'move' | 'process' | 'nextStep') => {
     setDialogState(prev => ({
       ...prev,
       [`${type}Open`]: false
@@ -99,11 +96,8 @@ const DocumentFlowPage = () => {
   };
 
   const handleSuccess = () => {
-    // Refetch all data when an action is successful without page reload
-    refetchWorkflow();
-    refetchDocument();
-    refetchCircuitDetails();
-    refetchHistory();
+    // Use our refreshAllData function to update all relevant data
+    refreshAllData();
     toast.success("Operation completed successfully");
   };
 
@@ -175,21 +169,23 @@ const DocumentFlowPage = () => {
        )}
       
       {/* Dialogs for document actions */}
-      {/* <DocumentDialogs
-        document={document}
-        workflowStatus={workflowStatus}
-        moveDialogOpen={dialogState.moveOpen}
-        processDialogOpen={dialogState.processOpen}
-        nextStepDialogOpen={dialogState.nextStepOpen}
-        setMoveDialogOpen={(open) => open ? openDialog('move') : closeDialog('move')}
-        setProcessDialogOpen={(open) => open ? openDialog('process') : closeDialog('process')}
-        setNextStepDialogOpen={(open) => open ? openDialog('nextStep') : closeDialog('nextStep')}
-        handleMoveSuccess={handleSuccess}
-        handleProcessSuccess={handleSuccess}
-        handleNextStepSuccess={handleSuccess}
-        currentStepDetail={currentStepDetail}
-        availableActions={workflowStatus?.availableActions}
-      /> */}
+      {document && workflowStatus && (
+        <DocumentDialogs
+          document={document}
+          workflowStatus={workflowStatus}
+          moveDialogOpen={dialogState.moveOpen}
+          processDialogOpen={dialogState.processOpen}
+          nextStepDialogOpen={dialogState.nextStepOpen}
+          setMoveDialogOpen={(open) => open ? openDialog('move') : closeDialog('move')}
+          setProcessDialogOpen={(open) => open ? openDialog('process') : closeDialog('process')}
+          setNextStepDialogOpen={(open) => open ? openDialog('nextStep') : closeDialog('nextStep')}
+          handleMoveSuccess={handleSuccess}
+          handleProcessSuccess={handleSuccess}
+          handleNextStepSuccess={handleSuccess}
+          currentStepDetail={currentStepDetail}
+          availableActions={workflowStatus?.availableActions}
+        />
+      )}
     </div>
   );
 };
