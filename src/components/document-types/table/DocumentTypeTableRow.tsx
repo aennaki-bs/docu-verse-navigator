@@ -51,33 +51,43 @@ export function DocumentTypeTableRow({
           {type.documentCounter || 0}
         </Badge>
       </TableCell>
-      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-end items-center gap-1">
+      <TableCell className="text-right w-[120px]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-end items-center gap-2">
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
-            onClick={() => onEditType(type)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditType(type);
+            }}
           >
             <Edit2 className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             className={`h-8 w-8 p-0 ${
               type.documentCounter && type.documentCounter > 0
                 ? 'text-gray-500 cursor-not-allowed'
                 : 'text-red-400 hover:text-red-300 hover:bg-red-900/30'
             }`}
-            onClick={() => type.documentCounter === 0 && type.id && onDeleteType(type.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (type.documentCounter === 0 && type.id) onDeleteType(type.id);
+            }}
             disabled={type.documentCounter !== undefined && type.documentCounter > 0}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/document-types/${type.id}/subtypes`);
+            }}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

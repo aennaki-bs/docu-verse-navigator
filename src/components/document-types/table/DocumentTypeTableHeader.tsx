@@ -30,7 +30,7 @@ export const DocumentTypeTableHeader = ({
   };
 
   return (
-    <TableHeader className="bg-[#0a1033]/80">
+    <TableHeader className="bg-[#0a1033]/80 sticky top-0 z-10">
       <TableRow className="hover:bg-transparent border-b border-blue-900/30 select-none">
         <TableHead className="w-[50px] text-blue-300 py-2 h-9">
           <Checkbox 
@@ -67,8 +67,14 @@ export const DocumentTypeTableHeader = ({
             {renderSortIcon('typeAttr')}
           </div>
         </TableHead>
-        
-        <TableHead className="w-1/12 text-right text-blue-300 py-2 h-9">Actions</TableHead>
+        <TableHead 
+          className="w-[80px] text-blue-300 py-2 h-9"
+        >
+          <div className="flex items-center">
+            Count
+          </div>
+        </TableHead>
+        <TableHead className="w-[120px] text-blue-300 py-2 h-9 text-right pr-4">Actions</TableHead>
       </TableRow>
     </TableHeader>
   );

@@ -68,38 +68,42 @@ const DocumentTypesContent = ({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0 flex-1 overflow-hidden">
-          <ScrollArea className="h-[calc(100vh-230px)]">
-            {viewMode === 'table' ? (
-              <DocumentTypeTable 
-                types={types}
-                selectedTypes={selectedTypes}
-                onSelectType={onSelectType}
-                onSelectAll={onSelectAll}
-                onDeleteType={onDeleteType}
-                onEditType={onEditType}
-                onSort={handleSort}
-                sortField={sortField}
-                sortDirection={sortDirection}
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-              />
-            ) : (
-              <DocumentTypeGrid
-                types={types}
-                onDeleteType={onDeleteType}
-                onEditType={onEditType}
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-              />
-            )}
+        <CardContent className="p-0 flex-1 flex flex-col overflow-hidden">
+          <ScrollArea className="h-[calc(100vh-230px)] w-full flex-1 overflow-auto">
+            <div className="min-w-full">
+              {viewMode === 'table' ? (
+                <DocumentTypeTable 
+                  types={types}
+                  selectedTypes={selectedTypes}
+                  onSelectType={onSelectType}
+                  onSelectAll={onSelectAll}
+                  onDeleteType={onDeleteType}
+                  onEditType={onEditType}
+                  onSort={handleSort}
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                />
+              ) : (
+                <DocumentTypeGrid
+                  types={types}
+                  onDeleteType={onDeleteType}
+                  onEditType={onEditType}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                />
+              )}
+            </div>
           </ScrollArea>
           
-          <DocumentTypesPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+          <div className="mt-auto border-t border-blue-900/30">
+            <DocumentTypesPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         </CardContent>
       </Card>
     </div>
