@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -85,6 +86,10 @@ const App = () => (
                   <Route path="/document-types" element={<DocumentTypes />} />
                   <Route path="/document-types-management" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><DocumentTypesManagement /></ProtectedRoute>} />
                   <Route path="/document-types/:id/subtypes" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><SubTypeManagementPage /></ProtectedRoute>} />
+                  
+                  {/* Add the missing subtype-management route */}
+                  <Route path="/subtype-management" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><SubTypeManagement /></ProtectedRoute>} />
+                  
                   <Route path="/documents/create" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><CreateDocument /></ProtectedRoute>} />
                   <Route path="/documents/:id" element={<ViewDocument />} />
                   <Route path="/documents/:id/edit" element={<ProtectedRoute requiresManagement requiredRole={["Admin", "FullUser"]}><EditDocument /></ProtectedRoute>} />
@@ -104,8 +109,6 @@ const App = () => (
                   <Route path="/circuits/:circuitId/steps/:stepId/statuses" element={<StepStatusesPage />} />
                   {/* Removed the /create-circuit route */}
                   <Route path="/pending-approvals" element={<PendingApprovalsPage />} />
-                  
-                  {/* Step Management route - REMOVED */}
                   
                   {/* Settings route */}
                   <Route path="/settings" element={<Settings />} />
