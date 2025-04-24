@@ -90,7 +90,7 @@ export default function EditCircuitDetailDialog({
         </DialogHeader>
 
         <div className="border rounded-md p-3 bg-muted/50 mb-4">
-          <div className="text-sm font-medium">Step Key</div>
+          <div className="text-sm font-medium">Step Code</div>
           <div className="font-mono text-sm">{circuitDetail.circuitDetailKey}</div>
         </div>
 

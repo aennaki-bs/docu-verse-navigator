@@ -78,8 +78,8 @@ export const TypeSelectionStep = ({
           {subTypeError && <p className="text-sm text-red-500">{subTypeError}</p>}
           {selectedSubTypeId && (
             <p className="text-sm text-blue-400">
-              Valid from {new Date(subTypes.find(st => st.id === selectedSubTypeId)?.startDate!).toLocaleDateString()} 
-              to {new Date(subTypes.find(st => st.id === selectedSubTypeId)?.endDate!).toLocaleDateString()}
+              Valid from {new Date(subTypes.find(st => st.id === selectedSubTypeId)?.startDate!).toLocaleDateString()}  
+              -to {new Date(subTypes.find(st => st.id === selectedSubTypeId)?.endDate!).toLocaleDateString()}
             </p>
           )}
         </div>

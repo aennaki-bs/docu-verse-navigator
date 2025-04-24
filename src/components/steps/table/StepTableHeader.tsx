@@ -40,7 +40,7 @@ export const StepTableHeader = ({
             disabled={!hasEligibleSteps}
           />
         </TableHead>
-        <TableHead className="px-4 py-2">Step Key</TableHead>
+        <TableHead className="px-4 py-2">Step Code</TableHead>
         <TableHead className="px-4 py-2">
           <Button
             variant="ghost"

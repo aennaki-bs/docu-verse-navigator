@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -73,10 +72,10 @@ const DocumentTypeFilters = ({ onFilterChange, onClose }: DocumentTypeFiltersPro
               className="w-full"
             />
             {dateRange && dateRange.from && (
-              <Badge className="mt-2 bg-blue-600/20 text-blue-400 border-blue-500/50">
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium mt-2 bg-blue-600/20 text-blue-400 border border-blue-500/50">
                 {dateRange.from ? format(dateRange.from, 'MMM dd, yyyy') : ''} 
                 {dateRange.to ? ` - ${format(dateRange.to, 'MMM dd, yyyy')}` : ''}
-              </Badge>
+              </span>
             )}
           </div>
         ) : (
