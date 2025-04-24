@@ -52,7 +52,7 @@ export function DatePickerInput({ date, onDateChange, error }: DatePickerInputPr
           <Button
             variant="ghost"
             className={cn(
-              "absolute right-0 top-0 h-full px-3 py-2 hover:bg-gray-800"
+              "absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 p-0 hover:bg-gray-800"
             )}
             onClick={() => setIsPopoverOpen(true)}
           >
