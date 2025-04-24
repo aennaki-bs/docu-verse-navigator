@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { EditStepStatusDialog } from './EditStepStatusDialog';
 import { useState } from 'react';
 import { useStepStatuses } from '@/hooks/useStepStatuses';
+import { useWorkflowStepStatuses } from '@/hooks/useWorkflowStepStatuses';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface StepRequirementsCardProps {
@@ -15,13 +16,30 @@ export function StepRequirementsCard({ workflowStatus }: StepRequirementsCardPro
   const [selectedStatus, setSelectedStatus] = useState<DocumentStatus | null>(null);
   
   const { 
-    statuses = [], 
-    isLoading 
-  } = useStepStatuses(workflowStatus?.documentId || 0);
+    workflowStatuses = [], 
+    isLoading: isLoadingWorkflow 
+  } = useWorkflowStepStatuses(workflowStatus?.documentId || 0);
+
+  const {
+    statuses = [],
+    isLoading: isLoadingManagement
+  } = useStepStatuses(workflowStatus?.currentStepId || 0);
+
+  // Combine workflow statuses with management statuses
+  // Workflow statuses take precedence as they represent the current state
+  const combinedStatuses = workflowStatuses.map(wStatus => {
+    const managementStatus = statuses.find(s => s.statusId === wStatus.statusId);
+    return {
+      ...managementStatus,
+      ...wStatus,
+    };
+  });
 
   const handleEditStatus = (status: DocumentStatus) => {
     setSelectedStatus(status);
   };
+
+  const isLoading = isLoadingWorkflow || isLoadingManagement;
 
   return (
     <Card className="bg-[#0a1033] border border-blue-900/30 shadow-md hover:shadow-lg transition-shadow w-full">
