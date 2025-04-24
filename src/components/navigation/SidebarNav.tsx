@@ -95,23 +95,23 @@ export function SidebarNav() {
                   <span>Subtypes</span>
                 </Link>
               </li>
+              {/* Circuits */}
+              <li>
+                <Link 
+                  to="/circuits"
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/circuits') 
+                      ? 'bg-blue-600/40 text-blue-200' 
+                      : 'text-blue-100 hover:bg-blue-800/30 hover:text-blue-50'
+                  }`}
+                >
+                  <GitBranch className="h-5 w-5" />
+                  <span>Circuits</span>
+                </Link>
+              </li>
             </>
           )}
           
-          {/* Circuits */}
-          <li>
-            <Link 
-              to="/circuits"
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/circuits') 
-                  ? 'bg-blue-600/40 text-blue-200' 
-                  : 'text-blue-100 hover:bg-blue-800/30 hover:text-blue-50'
-              }`}
-            >
-              <GitBranch className="h-5 w-5" />
-              <span>Circuits</span>
-            </Link>
-          </li>
         </ul>
       </div>
     </div>
