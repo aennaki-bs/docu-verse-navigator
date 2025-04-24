@@ -1,6 +1,8 @@
+
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,9 +65,16 @@ export function MainNavbar() {
                     <p className="text-sm font-medium">{user.firstName} {user.lastName}</p>
                     <p className="text-xs text-blue-300">{user.role}</p>
                   </div>
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white">
-                    {user.firstName?.[0]}
-                  </div>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage 
+                      src={user.profilePicture} 
+                      alt={`${user.firstName} ${user.lastName}`} 
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="bg-blue-600 text-white">
+                      {user.firstName?.[0]}{user.lastName?.[0]}
+                    </AvatarFallback>
+                  </Avatar>
                   <ChevronDown className="h-4 w-4 text-blue-300" />
                 </Button>
               </DropdownMenuTrigger>
