@@ -41,14 +41,14 @@ export function StatusFormDialog({
 
     try {
       if (status) {
-        // Update existing status
+        // Update existing status using new endpoint
         await api.put(`/Status/${status.statusId}`, {
           title,
           isRequired,
         });
         toast.success('Status updated successfully');
       } else {
-        // Create new status
+        // Create new status using new endpoint
         await api.post(`/Status/step/${stepId}`, {
           title,
           isRequired,

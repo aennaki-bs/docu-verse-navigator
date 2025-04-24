@@ -1,10 +1,11 @@
+
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
-import circuitService from '@/services/circuitService';
+import api from '@/services/api';
 import { DocumentStatus } from '@/models/documentCircuit';
 
-export function useStepStatuses(documentId: number) {
+export function useStepStatuses(stepId: number) {
   const queryClient = useQueryClient();
 
   const { 
@@ -14,15 +15,11 @@ export function useStepStatuses(documentId: number) {
     error,
     refetch
   } = useQuery({
-    queryKey: ['document-step-statuses', documentId],
-    queryFn: () => circuitService.getStepStatuses(documentId),
-    enabled: !!documentId,
-    // Refetch every 10 seconds (more frequent than before)
+    queryKey: ['document-step-statuses', stepId],
+    queryFn: () => api.get(`/Status/step/${stepId}`).then(res => res.data),
+    enabled: !!stepId,
     refetchInterval: 10000,
-    // Important: set this to true to refetch in the background
     refetchOnWindowFocus: true,
-    // In React Query v5+, we need to use placeholderData with a function
-    // that returns the previous data instead of the string 'keepPreviousData'
     placeholderData: (previousData) => previousData ?? [],
     meta: {
       onSettled: (data, err) => {
@@ -39,13 +36,12 @@ export function useStepStatuses(documentId: number) {
 
   // Force a background refetch when the component mounts
   useEffect(() => {
-    if (documentId) {
-      // Initial refetch on mount
+    if (stepId) {
       queryClient.invalidateQueries({ 
-        queryKey: ['document-step-statuses', documentId],
+        queryKey: ['document-step-statuses', stepId],
       });
     }
-  }, [documentId, queryClient]);
+  }, [stepId, queryClient]);
 
   return {
     statuses,

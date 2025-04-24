@@ -34,14 +34,14 @@ export function DeleteStatusDialog({
 
     setIsDeleting(true);
     try {
+      // Update to use new Status API endpoint
       await api.delete(`/Status/${status.statusId}`);
       toast.success("Status deleted successfully");
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      console.error("Error deleting status:", error.response.data);
-      let msg = error.response.data;
-      toast.error(msg);
+      console.error("Error deleting status:", error);
+      toast.error("Failed to delete status");
     } finally {
       setIsDeleting(false);
     }
