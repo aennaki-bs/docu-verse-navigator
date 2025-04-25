@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useMultiStepForm } from '@/context/form';
 import { Button } from '@/components/ui/button';
@@ -47,7 +46,7 @@ const StepFiveSummary = () => {
       {/* Display error message */}
       {/* <FormError message={stepValidation.errors.registration} /> */}
       
-      <ScrollArea className="h-[calc(100vh-400px)] pr-4">
+      <ScrollArea className="h-[calc(100vh-300px)] md:h-[400px] pr-4">
         <div className="space-y-6">
           {/* Account Type Card */}
           <Card className="border border-blue-900/30 bg-gradient-to-b from-[#161b22]/80 to-[#1c2128]/80 shadow-lg hover:shadow-blue-900/10 transition-all">
@@ -75,14 +74,19 @@ const StepFiveSummary = () => {
             </CardContent>
           </Card>
 
-          {/* Personal Information Card */}
+          {/* Personal/Company Information Card */}
           <Card className="border border-blue-900/30 bg-gradient-to-b from-[#161b22]/80 to-[#1c2128]/80 shadow-lg hover:shadow-blue-900/10 transition-all">
             <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-blue-900/20">
               <div className="flex items-center gap-2">
                 <div className="bg-purple-600/20 p-2 rounded-full">
-                  <User className="h-4 w-4 text-purple-400" />
+                  {formData.userType === 'personal' ? 
+                    <User className="h-4 w-4 text-purple-400" /> : 
+                    <Building2 className="h-4 w-4 text-purple-400" />
+                  }
                 </div>
-                <CardTitle className="text-sm font-medium">Personal Information</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  {formData.userType === 'personal' ? 'Personal Information' : 'Company Information'}
+                </CardTitle>
               </div>
               <Button 
                 variant="ghost" 
@@ -149,21 +153,9 @@ const StepFiveSummary = () => {
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs text-gray-400 flex items-center gap-1">
-                      <User className="h-3 w-3" /> First Name
+                      <CreditCard className="h-3 w-3" /> Company RC
                     </p>
-                    <p className="text-sm font-medium">{formData.firstName || 'Not provided'}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-400 flex items-center gap-1">
-                      <User className="h-3 w-3" /> Last Name
-                    </p>
-                    <p className="text-sm font-medium">{formData.lastName || 'Not provided'}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-400 flex items-center gap-1">
-                      <CreditCard className="h-3 w-3" /> Company IRC
-                    </p>
-                    <p className="text-sm font-medium">{formData.companyIRC || 'Not provided'}</p>
+                    <p className="text-sm font-medium">{formData.companyRC || 'Not provided'}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs text-gray-400 flex items-center gap-1">
@@ -179,10 +171,22 @@ const StepFiveSummary = () => {
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <Globe2 className="h-3 w-3" /> Company City
+                    </p>
+                    <p className="text-sm font-medium">{formData.companyCity || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <Globe2 className="h-3 w-3" /> Company Country
+                    </p>
+                    <p className="text-sm font-medium">{formData.companyCountry || 'Not provided'}</p>
+                  </div>
+                  {/* <div className="space-y-1">
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
                       <AtSign className="h-3 w-3" /> Company Email
                     </p>
                     <p className="text-sm font-medium">{formData.companyEmail || 'Not provided'}</p>
-                  </div>
+                  </div> */}
                   <div className="space-y-1">
                     <p className="text-xs text-gray-400 flex items-center gap-1">
                       <ExternalLink className="h-3 w-3" /> Company Website
@@ -207,7 +211,7 @@ const StepFiveSummary = () => {
                 variant="ghost" 
                 size="sm" 
                 className="h-8 w-8 p-0 hover:bg-blue-900/20" 
-                onClick={() => goToStep(2)}
+                onClick={() => goToStep(3)}
               >
                 <FileEdit className="h-4 w-4 text-blue-400" />
               </Button>

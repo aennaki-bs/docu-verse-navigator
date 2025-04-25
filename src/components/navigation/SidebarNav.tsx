@@ -82,7 +82,7 @@ export function SidebarNav() {
                   <span>Types Management</span>
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link 
                   to="/subtype-management"
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -94,7 +94,7 @@ export function SidebarNav() {
                   <CalendarRange className="h-5 w-5" />
                   <span>Subtypes</span>
                 </Link>
-              </li>
+              </li> */}
               {/* Circuits */}
               <li>
                 <Link 

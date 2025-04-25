@@ -1,12 +1,15 @@
-
 import React from 'react';
-import { User, Building2, Lock, Shield, ExternalLink, Phone, MapPin, AtSign, CreditCard } from 'lucide-react';
+import { User, Building2, Lock, Shield, ExternalLink, Phone, MapPin, AtSign, CreditCard, Globe } from 'lucide-react';
+import { useMultiStepForm } from '@/context/form';
 
 interface RightSideContentProps {
   currentStep: number;
 }
 
 const RightSideContent: React.FC<RightSideContentProps> = ({ currentStep }) => {
+  const { formData } = useMultiStepForm();
+  const isPersonal = formData.userType === 'personal';
+
   // Different content for each step
   if (currentStep === 1) {
     return (
@@ -59,102 +62,194 @@ const RightSideContent: React.FC<RightSideContentProps> = ({ currentStep }) => {
       </>
     );
   } else if (currentStep === 2) {
-    return (
-      <>
-        <h1 className="text-4xl font-bold text-white mb-4">
-          Set Up Your Account Credentials
-        </h1>
-        <p className="text-lg text-gray-300 mb-8">
-          Create unique credentials that will be used to access your account
-        </p>
-        
-        <div className="space-y-6">
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-green-500/20 p-2 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-            <div className="text-left">
-              <h3 className="text-white font-medium">Unique Username</h3>
-              <p className="text-sm text-gray-400">Choose a unique username that identifies you on the platform</p>
-            </div>
-          </div>
+    if (isPersonal) {
+      return (
+        <>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Complete Your Profile
+          </h1>
+          <p className="text-lg text-gray-300 mb-8">
+            Add your address details to complete your profile
+          </p>
           
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-blue-500/20 p-2 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
+          <div className="space-y-6">
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-green-500/20 p-2 rounded-full">
+                <MapPin className="h-6 w-6 text-green-400" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Address Information</h3>
+                <p className="text-sm text-gray-400">Add your personal address details (optional)</p>
+              </div>
             </div>
-            <div className="text-left">
-              <h3 className="text-white font-medium">Verified Email</h3>
-              <p className="text-sm text-gray-400">Enter a valid email address for account verification</p>
+            
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-blue-500/20 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Location Details</h3>
+                <p className="text-sm text-gray-400">Let us know your city and country</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-purple-500/20 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Enhanced Experience</h3>
+                <p className="text-sm text-gray-400">Help us personalize your experience</p>
+              </div>
             </div>
           </div>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Company Address Details
+          </h1>
+          <p className="text-lg text-gray-300 mb-8">
+            Add your company address information (optional)
+          </p>
           
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-purple-500/20 p-2 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
+          <div className="space-y-6">
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-green-500/20 p-2 rounded-full">
+                <MapPin className="h-6 w-6 text-green-400" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Company Address</h3>
+                <p className="text-sm text-gray-400">Add your company's main address</p>
+              </div>
             </div>
-            <div className="text-left">
-              <h3 className="text-white font-medium">Secure Password</h3>
-              <p className="text-sm text-gray-400">Create a strong password to protect your account</p>
+            
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-blue-500/20 p-2 rounded-full">
+                <Globe className="h-6 w-6 text-blue-400" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Location Details</h3>
+                <p className="text-sm text-gray-400">City and country information</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-purple-500/20 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Optional Information</h3>
+                <p className="text-sm text-gray-400">You can add this information later if needed</p>
+              </div>
             </div>
           </div>
-        </div>
-      </>
-    );
+        </>
+      );
+    }
   } else if (currentStep === 3) {
-    return (
-      <>
-        <h1 className="text-4xl font-bold text-white mb-4">
-          Complete Your Profile
-        </h1>
-        <p className="text-lg text-gray-300 mb-8">
-          Add your address details to complete your profile
-        </p>
-        
-        <div className="space-y-6">
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-green-500/20 p-2 rounded-full">
-              <MapPin className="h-6 w-6 text-green-400" />
-            </div>
-            <div className="text-left">
-              <h3 className="text-white font-medium">Address Information</h3>
-              <p className="text-sm text-gray-400">Add your personal address details (optional)</p>
-            </div>
-          </div>
+    if (isPersonal) {
+      return (
+        <>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Set Up Your Account Credentials
+          </h1>
+          <p className="text-lg text-gray-300 mb-8">
+            Create unique credentials that will be used to access your account
+          </p>
           
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-blue-500/20 p-2 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+          <div className="space-y-6">
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-green-500/20 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Unique Username</h3>
+                <p className="text-sm text-gray-400">Choose a unique username that identifies you on the platform</p>
+              </div>
             </div>
-            <div className="text-left">
-              <h3 className="text-white font-medium">Location Details</h3>
-              <p className="text-sm text-gray-400">Let us know your city and country</p>
+            
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-blue-500/20 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Verified Email</h3>
+                <p className="text-sm text-gray-400">Enter a valid email address for account verification</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-purple-500/20 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Secure Password</h3>
+                <p className="text-sm text-gray-400">Create a strong password to protect your account</p>
+              </div>
             </div>
           </div>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Set Up Company Account Credentials
+          </h1>
+          <p className="text-lg text-gray-300 mb-8">
+            Create login credentials for your company account
+          </p>
           
-          <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
-            <div className="bg-purple-500/20 p-2 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
+          <div className="space-y-6">
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-green-500/20 p-2 rounded-full">
+                <AtSign className="h-6 w-6 text-green-400" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Company Email</h3>
+                <p className="text-sm text-gray-400">Use your company email for account verification</p>
+              </div>
             </div>
-            <div className="text-left">
-              <h3 className="text-white font-medium">Enhanced Experience</h3>
-              <p className="text-sm text-gray-400">Help us personalize your experience</p>
+            
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-blue-500/20 p-2 rounded-full">
+                <User className="h-6 w-6 text-blue-400" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Company Username</h3>
+                <p className="text-sm text-gray-400">Choose a unique username for your company account</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3 bg-[#1c2128]/50 p-3 rounded-lg border border-blue-900/30">
+              <div className="bg-purple-500/20 p-2 rounded-full">
+                <Lock className="h-6 w-6 text-purple-400" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-medium">Secure Password</h3>
+                <p className="text-sm text-gray-400">Create a strong password to protect your company account</p>
+              </div>
             </div>
           </div>
-        </div>
-      </>
-    );
+        </>
+      );
+    }
   } else if (currentStep === 4) {
     return (
       <>

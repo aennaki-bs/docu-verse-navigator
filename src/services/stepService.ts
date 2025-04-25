@@ -1,4 +1,3 @@
-
 import api from './api';
 import { toast } from 'sonner';
 
@@ -62,7 +61,7 @@ const stepService = {
 
   deleteStep: async (id: number): Promise<boolean> => {
     try {
-      await api.delete(`/Steps/${id}`);
+      await api.delete(`/Circuit/steps/${id}`);
       toast.success('Step deleted successfully');
       return true;
     } catch (error) {
@@ -76,7 +75,7 @@ const stepService = {
     try {
       // Sequentially delete steps as there might not be a bulk delete endpoint
       for (const id of ids) {
-        await api.delete(`/Steps/${id}`);
+        await api.delete(`/Circuit/steps/${id}`);
       }
       toast.success(`Successfully deleted ${ids.length} steps`);
       return true;

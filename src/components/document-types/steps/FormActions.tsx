@@ -1,9 +1,9 @@
-
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, Save } from 'lucide-react';
 
 interface FormActionsProps {
   step: number;
+  totalSteps?: number;
   isEditMode: boolean;
   onNext: () => void;
   onPrev: () => void;
@@ -15,6 +15,7 @@ interface FormActionsProps {
 
 export const FormActions = ({
   step,
+  totalSteps = 2,
   isEditMode,
   onNext,
   onPrev,
@@ -24,7 +25,8 @@ export const FormActions = ({
   isValidating,
 }: FormActionsProps) => {
   const isFirstStep = step === 1;
-  const isLastStep = step === 2;
+  const isLastStep = step === totalSteps;
+  const isReviewStep = (totalSteps > 2) && (step === totalSteps - 1);
 
   return (
     <div className="flex justify-between gap-2 mt-4">
@@ -55,11 +57,13 @@ export const FormActions = ({
             <Loader2 className="mr-1 h-2.5 w-2.5 animate-spin" />
             Validating...
           </>
-        ) : isLastStep || isEditMode ? (
+        ) : isLastStep ? (
           <>
             <Save className="mr-1 h-2.5 w-2.5" />
             {isEditMode ? 'Update Type' : 'Create Type'}
           </>
+        ) : isReviewStep ? (
+          'Review'
         ) : (
           'Continue'
         )}

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import {
   Dialog,
@@ -13,8 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { DocumentStatus } from '@/models/documentCircuit';
-import circuitService from '@/services/circuitService';
-import { useQueryClient } from '@tanstack/react-query';
+import { useWorkflowStepStatuses } from '@/hooks/useWorkflowStepStatuses';
 
 interface EditStepStatusDialogProps {
   open: boolean;
@@ -35,7 +33,8 @@ export function EditStepStatusDialog({
   const [title, setTitle] = useState(status.title);
   const [isRequired, setIsRequired] = useState(status.isRequired);
   const [isComplete, setIsComplete] = useState(status.isComplete);
-  const queryClient = useQueryClient();
+  
+  const { completeStatus, updateStatus } = useWorkflowStepStatuses(documentId || 0);
 
   const handleSubmit = async () => {
     if (!documentId) {
@@ -45,23 +44,25 @@ export function EditStepStatusDialog({
 
     setIsSubmitting(true);
     try {
-      await circuitService.completeStatus({
-        documentId,
-        statusId: status.statusId,
-        isComplete,
-        comments: `Status '${title}' marked as ${isComplete ? 'complete' : 'incomplete'}`
-      });
+      // If only completion status changed
+      if (title === status.title && isRequired === status.isRequired) {
+        await completeStatus({
+          statusId: status.statusId,
+          isComplete,
+          comments: `Status '${title}' marked as ${isComplete ? 'complete' : 'incomplete'}`
+        });
+      } else {
+        // If other fields changed
+        await updateStatus({
+          statusId: status.statusId,
+          title,
+          isRequired,
+          isComplete
+        });
+      }
 
-      // Invalidate relevant queries to trigger UI updates
-      queryClient.invalidateQueries({ queryKey: ['document-step-statuses', documentId] });
-      queryClient.invalidateQueries({ queryKey: ['document-workflow', documentId] });
-
-      toast.success('Status updated successfully');
       onSuccess();
       onOpenChange(false);
-    } catch (error) {
-      console.error('Error updating status:', error);
-      toast.error('Failed to update status');
     } finally {
       setIsSubmitting(false);
     }
@@ -69,35 +70,36 @@ export function EditStepStatusDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-[#0a1033] border-blue-900/30">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Status</DialogTitle>
         </DialogHeader>
-        
         <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="title" className="text-right">
+              Title
+            </Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-[#060927] border-blue-900/30"
-              disabled
+              className="col-span-3"
             />
           </div>
-          
-          <div className="flex items-center justify-between">
-            <Label htmlFor="required">Required</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="required" className="text-right">
+              Required
+            </Label>
             <Switch
               id="required"
               checked={isRequired}
               onCheckedChange={setIsRequired}
-              disabled
             />
           </div>
-          
-          <div className="flex items-center justify-between">
-            <Label htmlFor="complete">Complete</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="complete" className="text-right">
+              Complete
+            </Label>
             <Switch
               id="complete"
               checked={isComplete}
@@ -105,19 +107,11 @@ export function EditStepStatusDialog({
             />
           </div>
         </div>
-
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="bg-blue-900/10 border-blue-900/30 hover:bg-blue-900/20"
-          >
-            Cancel
-          </Button>
           <Button 
+            type="submit" 
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="bg-green-600 hover:bg-green-700"
           >
             {isSubmitting ? 'Saving...' : 'Save changes'}
           </Button>

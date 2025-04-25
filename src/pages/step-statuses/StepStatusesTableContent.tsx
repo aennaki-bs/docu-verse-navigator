@@ -1,4 +1,3 @@
-
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { StatusTable } from '@/components/statuses/StatusTable';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -10,6 +9,7 @@ interface StepStatusesTableContentProps {
   onDelete: (status: any) => void;
   isSimpleUser: boolean;
   apiError?: string;
+  isCircuitActive?: boolean;
 }
 
 export function StepStatusesTableContent({
@@ -17,7 +17,8 @@ export function StepStatusesTableContent({
   onEdit,
   onDelete,
   isSimpleUser,
-  apiError
+  apiError,
+  isCircuitActive = false
 }: StepStatusesTableContentProps) {
   return (
     <>
@@ -39,7 +40,7 @@ export function StepStatusesTableContent({
             statuses={statuses}
             onEdit={onEdit}
             onDelete={onDelete}
-            isSimpleUser={isSimpleUser}
+            isCircuitActive={isCircuitActive}
           />
         </CardContent>
       </Card>

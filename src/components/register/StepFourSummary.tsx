@@ -152,9 +152,9 @@ const StepFourSummary = () => {
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs text-gray-400 flex items-center gap-1">
-                      <CreditCard className="h-3 w-3" /> Company IRC
+                      <CreditCard className="h-3 w-3" /> Company RC
                     </p>
-                    <p className="text-sm font-medium">{formData.companyIRC || 'Not provided'}</p>
+                    <p className="text-sm font-medium">{formData.companyRC || 'Not provided'}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs text-gray-400 flex items-center gap-1">

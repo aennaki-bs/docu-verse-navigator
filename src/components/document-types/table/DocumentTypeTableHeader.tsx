@@ -1,4 +1,3 @@
-
 import { ArrowUpDown } from 'lucide-react';
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -68,10 +67,12 @@ export const DocumentTypeTableHeader = ({
           </div>
         </TableHead>
         <TableHead 
-          className="w-[80px] text-blue-300 py-2 h-9"
+          className="w-[120px] cursor-pointer text-blue-300 hover:text-blue-200 py-2 h-9"
+          onClick={() => onSort('documentCounter')}
         >
           <div className="flex items-center">
-            Count
+            Document Count
+            {renderSortIcon('documentCounter')}
           </div>
         </TableHead>
         <TableHead className="w-[120px] text-blue-300 py-2 h-9 text-right pr-4">Actions</TableHead>

@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { StepFormDialog } from '@/components/steps/dialogs/StepFormDialog';
@@ -11,6 +10,7 @@ import { CircuitStepsHeader } from '@/components/circuit-steps/CircuitStepsHeade
 import { CircuitStepsSearchBar } from '@/components/circuit-steps/CircuitStepsSearchBar';
 import { CircuitStepsContent } from '@/components/circuit-steps/CircuitStepsContent';
 import { CircuitStepsError } from '@/components/circuit-steps/CircuitStepsError';
+import { toast } from 'sonner';
 
 export default function CircuitStepsPage() {
   const { circuitId = '' } = useParams<{ circuitId: string }>();
@@ -38,22 +38,40 @@ export default function CircuitStepsPage() {
     refetchSteps
   } = useCircuitSteps(circuitId);
 
+  const isCircuitActive = circuit?.isActive || false;
+
   const handleAddStep = () => {
+    if (isCircuitActive) {
+      toast.error("Cannot add steps to an active circuit");
+      return;
+    }
     setSelectedStep(null);
     setFormDialogOpen(true);
   };
 
   const handleEditStep = (step: Step) => {
+    if (isCircuitActive) {
+      toast.error("Cannot edit steps in an active circuit");
+      return;
+    }
     setSelectedStep(step);
     setFormDialogOpen(true);
   };
 
   const handleDeleteStep = (step: Step) => {
+    if (isCircuitActive) {
+      toast.error("Cannot delete steps from an active circuit");
+      return;
+    }
     setSelectedStep(step);
     setDeleteDialogOpen(true);
   };
 
   const handleBulkDelete = () => {
+    if (isCircuitActive) {
+      toast.error("Cannot delete steps from an active circuit");
+      return;
+    }
     // Implement bulk delete functionality here
     // You would call a service method to delete multiple steps
     setSelectedSteps([]);
@@ -100,17 +118,18 @@ export default function CircuitStepsPage() {
         onSelectAll={handleSelectAll}
         onEdit={handleEditStep}
         onDelete={handleDeleteStep}
-        onDetails={(step) => window.location.href = `/circuits/${circuitId}/steps/${step.id}/statuses`}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onAddStep={handleAddStep}
         isSimpleUser={isSimpleUser}
         circuitId={circuitId}
+        circuit={circuit}
       />
       
       <BulkActionBar
         selectedCount={selectedSteps.length}
         onBulkDelete={handleBulkDelete}
+        disabled={isCircuitActive}
       />
       
       {/* Step Form Dialog - Now passing the circuit ID */}
@@ -123,12 +142,15 @@ export default function CircuitStepsPage() {
       />
       
       {/* Delete Step Dialog */}
-      <DeleteStepDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        step={selectedStep}
-        onSuccess={refetchSteps}
-      />
+      {selectedStep && (
+        <DeleteStepDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          stepId={selectedStep.id}
+          stepTitle={selectedStep.title}
+          onSuccess={refetchSteps}
+        />
+      )}
     </div>
   );
 }

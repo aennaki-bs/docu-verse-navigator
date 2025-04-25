@@ -1,36 +1,40 @@
-
 import React from 'react';
+import { useMultiStepForm } from '@/context/form';
 
 interface StepTitleProps {
   currentStep: number;
   stepCount?: number;
 }
 
-const StepTitle: React.FC<StepTitleProps> = ({ currentStep, stepCount = 4 }) => {
-  const getTitleForStep = (step: number, totalSteps: number) => {
-    if (totalSteps === 5) { // Personal flow
+const StepTitle: React.FC<StepTitleProps> = ({ currentStep, stepCount = 5 }) => {
+  const { formData } = useMultiStepForm();
+  const isPersonal = formData.userType === 'personal';
+
+  const getTitleForStep = (step: number) => {
+    if (isPersonal) { // Personal flow
       switch (step) {
         case 1: return 'Account Details';
-        case 2: return 'Credentials';
-        case 3: return 'Personal Address';
+        case 2: return 'Personal Address';
+        case 3: return 'Credentials';
         case 4: return 'Admin Access (Optional)';
         case 5: return 'Review Information';
         default: return 'Account Details';
       }
     } else { // Company flow
       switch (step) {
-        case 1: return 'Account Details';
-        case 2: return 'Credentials';
-        case 3: return 'Admin Access (Optional)';
-        case 4: return 'Review Information';
-        default: return 'Account Details';
+        case 1: return 'Company Details';
+        case 2: return 'Company Address (Optional)';
+        case 3: return 'Credentials';
+        case 4: return 'Admin Access (Optional)';
+        case 5: return 'Review Information';
+        default: return 'Company Details';
       }
     }
   };
 
   return (
     <h3 className="text-xl font-semibold text-white">
-      {getTitleForStep(currentStep, stepCount)}
+      {getTitleForStep(currentStep)}
     </h3>
   );
 };

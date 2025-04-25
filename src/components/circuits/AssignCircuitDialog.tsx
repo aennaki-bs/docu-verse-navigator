@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -60,6 +59,11 @@ export default function AssignCircuitDialog({
     enabled: open,
   });
 
+  // Filter circuits to only include those that have steps
+  const circuitsWithSteps = circuits?.filter(circuit => 
+    circuit.steps && circuit.steps.length > 0
+  );
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -70,9 +74,23 @@ export default function AssignCircuitDialog({
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
+      const circuitId = parseInt(values.circuitId);
+      
+      // Check if the circuit is inactive and needs to be activated
+      const selectedCircuit = circuits?.find(c => c.id === circuitId);
+      if (selectedCircuit && !selectedCircuit.isActive) {
+        // Activate the circuit before assigning
+        await circuitService.updateCircuit(circuitId, {
+          ...selectedCircuit,
+          isActive: true
+        });
+        toast.success('Circuit has been activated');
+      }
+
+      // Assign document to circuit
       await circuitService.assignDocumentToCircuit({
         documentId,
-        circuitId: parseInt(values.circuitId),
+        circuitId: circuitId,
       });
       
       toast.success('Document assigned to circuit successfully');
@@ -116,9 +134,10 @@ export default function AssignCircuitDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {circuits?.filter(c => c.isActive).map((circuit) => (
+                      {circuitsWithSteps?.map((circuit) => (
                         <SelectItem key={circuit.id} value={circuit.id.toString()}>
                           {circuit.circuitKey} - {circuit.title}
+                          {!circuit.isActive && " (Inactive)"}
                         </SelectItem>
                       ))}
                     </SelectContent>

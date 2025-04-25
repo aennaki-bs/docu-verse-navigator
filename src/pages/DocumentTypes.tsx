@@ -116,9 +116,23 @@ const DocumentTypes = () => {
         setEditDialogOpen(false);
         setTypeToEdit(null);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update document type:", error);
-      toast.error("Failed to update document type");
+      
+      // Extract specific error message if available
+      let errorMessage = "Failed to update document type";
+      
+      if (error.response?.data) {
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response.data.error) {
+          errorMessage = error.response.data.error;
+        }
+      }
+      
+      toast.error(`Failed to update document type: ${errorMessage}`);
     }
   };
 

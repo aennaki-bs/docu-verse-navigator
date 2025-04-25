@@ -26,15 +26,20 @@ export const prepareUserData = (formData: FormData) => {
       phoneNumber: formData.personalPhone || '',
     };
   } else {
+    // Map company fields to the backend field names
     return {
       ...userData,
       userType: 'company' as const, // Type assertion to narrow the type
-      companyName: formData.companyName || '',
-      companyIRC: formData.companyIRC || '',
-      companyAddress: formData.companyAddress || '',
-      companyPhone: formData.companyPhone || '',
-      companyEmail: formData.companyEmail || '',
-      companyWebsite: formData.companyWebsite || '',
+      firstName: formData.companyName || '', // Map company name to firstName
+      Identity: formData.companyRC || '', // Map company RC to Identity
+      phoneNumber: formData.companyPhone || '', // Map company phone to phoneNumber
+      webSite: formData.companyWebsite || '', // Map company website to webSite
+      Address: formData.companyAddress || '', // Map company address to Address
+      city: formData.companyCity || '', // Map company city to city
+      country: formData.companyCountry || '', // Map company country to country
+      email: formData.companyEmail || formData.email || '', // Map company email to email
+      username: formData.username || '', // username remains the same
+      passwordHash: formData.password, // password remains the same but field renamed to passwordHash
     };
   }
 };
@@ -48,7 +53,8 @@ export const registerUser = async (
   
   try {
     const userData = prepareUserData(formData);
-    console.log("Sending registration data:", userData);
+    console.log("Sending registration data for userType:", formData.userType);
+    console.log("Mapped registration data:", userData);
     
     const response = await authService.register(userData);
     console.log("Registration response:", response);

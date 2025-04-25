@@ -1,8 +1,10 @@
 import { useWorkflowStatus } from './document-workflow/useWorkflowStatus';
 import { useWorkflowActions } from './document-workflow/useWorkflowActions';
 import { useWorkflowNavigation } from './document-workflow/useWorkflowNavigation';
-import { useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useCallback } from 'react';
+import circuitService from '@/services/circuitService';
+import { toast } from 'sonner';
 
 export function useDocumentWorkflow(documentId: number) {
   const queryClient = useQueryClient();
@@ -22,48 +24,101 @@ export function useDocumentWorkflow(documentId: number) {
   // Get workflow navigation handlers
   const { isNavigating, returnToPreviousStep } = useWorkflowNavigation(documentId, refetch);
 
-  // Setup periodic background refetch to keep the UI updated
-  useEffect(() => {
-    // Only set up refetch interval if we have a valid document ID
-    if (documentId) {
-      // Initial refetch on mount
-      queryClient.invalidateQueries({ queryKey: ['document-workflow', documentId] });
-      
-      const intervalId = setInterval(() => {
-        // Silent background refetch of all document-related data
-        queryClient.invalidateQueries({ 
-          queryKey: ['document-workflow', documentId],
-          type: 'all'
-        });
-        
-        // Also invalidate step statuses
-        queryClient.invalidateQueries({ 
-          queryKey: ['document-step-statuses', documentId],
-          type: 'all'
-        });
-      }, 15000); // Every 15 seconds
-      
-      return () => clearInterval(intervalId);
+  // Mutation for deleting a step
+  const { mutate: deleteStep } = useMutation({
+    mutationFn: async (stepId: number) => {
+      await circuitService.deleteCircuitDetail(stepId);
+    },
+    onSuccess: () => {
+      refreshAllData();
+      toast.success('Step deleted successfully');
+    },
+    onError: (error) => {
+      console.error('Error deleting step:', error);
+      toast.error('Failed to delete step');
     }
-  }, [documentId, queryClient]);
+  });
 
-  const refreshAllData = () => {
-    // Set up a set of queries to invalidate for a full refresh
+  // Mutation for moving to next step
+  const { mutate: moveToNextStep } = useMutation({
+    mutationFn: async (params: { 
+      nextStepId: number, 
+      comments?: string 
+    }) => {
+      if (!workflowStatus?.currentStepId) throw new Error('No current step');
+      return circuitService.moveDocumentToNextStep({
+        documentId,
+        currentStepId: workflowStatus.currentStepId,
+        nextStepId: params.nextStepId,
+        comments: params.comments
+      });
+    },
+    onSuccess: () => {
+      refreshAllData();
+      toast.success('Document moved to next step successfully');
+    },
+    onError: (error) => {
+      console.error('Error moving to next step:', error);
+      toast.error('Failed to move document to next step');
+    }
+  });
+
+  // Mutation for moving to any step
+  const { mutate: moveToStep } = useMutation({
+    mutationFn: async (params: { 
+      targetStepId: number,
+      currentStep: any,
+      targetStep: any,
+      comments?: string 
+    }) => {
+      const { targetStepId, currentStep, targetStep, comments } = params;
+      
+      if (!workflowStatus?.currentStepId) {
+        throw new Error('No current step');
+      }
+
+      // Determine if moving forward or backward based on step order
+      const isMovingForward = targetStep.orderIndex > currentStep.orderIndex;
+      
+      if (isMovingForward) {
+        return circuitService.moveDocumentToNextStep({
+          documentId,
+          currentStepId: workflowStatus.currentStepId,
+          nextStepId: targetStepId,
+          comments
+        });
+      } else {
+        return circuitService.moveDocumentToStep({
+          documentId,
+          comments
+        });
+      }
+    },
+    onSuccess: () => {
+      refreshAllData();
+      toast.success('Document moved successfully');
+    },
+    onError: (error) => {
+      console.error('Error moving document:', error);
+      toast.error('Failed to move document');
+    }
+  });
+
+  const refreshAllData = useCallback(() => {
     const queriesToInvalidate = [
       ['document-workflow', documentId],
       ['document', documentId],
       ['document-circuit-history', documentId],
-      ['document-step-statuses', documentId],
+      ['document-workflow-statuses', documentId],
       ['circuit-details', workflowStatus?.circuitId]
     ];
     
-    // Invalidate each query
     queriesToInvalidate.forEach(queryKey => {
-      if (queryKey[1]) { // Only invalidate if the second part of the key exists
+      if (queryKey[1]) {
         queryClient.invalidateQueries({ queryKey });
       }
     });
-  };
+  }, [documentId, workflowStatus?.circuitId, queryClient]);
 
   return {
     // Status and data
@@ -76,6 +131,9 @@ export function useDocumentWorkflow(documentId: number) {
     isActionLoading: isActionLoading || isNavigating,
     performAction,
     returnToPreviousStep,
+    moveToNextStep,
+    moveToStep,
+    deleteStep,
     refetch,
     refreshAllData
   };

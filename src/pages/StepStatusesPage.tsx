@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -57,16 +56,19 @@ export default function StepStatusesPage() {
 
   // Handler logic for add/edit/delete
   const handleAddStatus = () => {
+    if (circuit?.isActive) return; // Don't allow adding statuses if circuit is active
     setSelectedStatus(null);
     setFormDialogOpen(true);
   };
 
   const handleEditStatus = (status: DocumentStatus) => {
+    if (circuit?.isActive) return; // Don't allow editing statuses if circuit is active
     setSelectedStatus(status);
     setFormDialogOpen(true);
   };
 
   const handleDeleteStatus = (status: DocumentStatus) => {
+    if (circuit?.isActive) return; // Don't allow deleting statuses if circuit is active
     setSelectedStatus(status);
     setDeleteDialogOpen(true);
   };
@@ -107,6 +109,7 @@ export default function StepStatusesPage() {
         circuitDetailKey={currentStep.circuitDetailKey}
         isSimpleUser={isSimpleUser}
         onAddStatus={handleAddStatus}
+        isCircuitActive={circuit.isActive}
       />
       <StepStatusesTableContent
         statuses={statuses}
@@ -114,6 +117,7 @@ export default function StepStatusesPage() {
         onDelete={handleDeleteStatus}
         isSimpleUser={isSimpleUser}
         apiError={apiError}
+        isCircuitActive={circuit.isActive}
       />
       <StepStatusesModals
         isSimpleUser={isSimpleUser}

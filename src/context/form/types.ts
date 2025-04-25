@@ -1,4 +1,3 @@
-
 export type UserType = 'personal' | 'company';
 
 export interface StepValidation {
@@ -20,9 +19,11 @@ export interface FormData {
   lastName: string;
   cin?: string;
   companyName?: string;
-  companyIRC?: string;
+  companyRC?: string;
   companyPhone?: string;
   companyAddress?: string;
+  companyCity?: string;
+  companyCountry?: string;
   companyEmail?: string;
   companyWebsite?: string;
   personalPhone?: string;

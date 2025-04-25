@@ -1,7 +1,31 @@
-
-import { Table, TableBody } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { MoreHorizontal, Pencil, Trash2, AlertCircle } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { StepTableHeader } from './table/StepTableHeader';
 import { StepTableRow } from './table/StepTableRow';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 interface StepTableProps {
   steps: Step[];
@@ -10,7 +34,6 @@ interface StepTableProps {
   onSelectAll: (checked: boolean) => void;
   onDelete?: (step: Step) => void;
   onEdit?: (step: Step) => void;
-  onDetails?: (step: Step) => void;
   circuits?: Circuit[];
   onSort?: (field: string) => void;
   sortField?: string | null;
@@ -23,16 +46,17 @@ interface StepTableProps {
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
+  onReorderSteps?: (dragIndex: number, hoverIndex: number) => void;
+  className?: string;
 }
 
-export const StepTable = ({
+export function StepTable({
   steps,
   selectedSteps,
   onSelectStep,
   onSelectAll,
   onDelete,
   onEdit,
-  onDetails,
   circuits = [],
   onSort,
   sortField = null,
@@ -44,54 +68,72 @@ export const StepTable = ({
   resetFilters,
   currentPage = 1,
   totalPages = 1,
-  onPageChange
-}: StepTableProps) => {
+  onPageChange,
+  onReorderSteps,
+  className,
+}: StepTableProps) {
   // Check if all eligible steps are selected
   const areAllEligibleSelected = steps.length > 0 && steps.length === selectedSteps.length;
   const hasEligibleSteps = steps.length > 0;
 
-  // Get circuit names map
-  const circuitNamesMap = circuits.reduce((map, circuit) => {
-    map[circuit.id] = circuit.title;
+  // Create circuit info map with title, key, and active status
+  const circuitInfoMap = circuits.reduce((map, circuit) => {
+    map[circuit.id] = {
+      title: circuit.title,
+      key: circuit.circuitKey,
+      isActive: circuit.isActive
+    };
     return map;
-  }, {} as Record<number, string>);
+  }, {} as Record<number, { title: string; key: string; isActive: boolean }>);
 
   return (
-    <div className="w-full">
-      <div className="border rounded-md border-blue-900/30">
-        <Table>
-          <StepTableHeader
-            onSelectAll={onSelectAll}
-            areAllEligibleSelected={areAllEligibleSelected}
-            hasEligibleSteps={hasEligibleSteps}
-            onSort={onSort}
-            sortField={sortField}
-            sortDirection={sortDirection}
-          />
-          <TableBody>
-            {steps.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="h-24 text-center text-muted-foreground">
-                  No steps found
-                </td>
-              </tr>
-            ) : (
-              steps.map((step) => (
-                <StepTableRow
-                  key={step.id}
-                  step={step}
-                  isSelected={selectedSteps.includes(step.id)}
-                  onSelectStep={onSelectStep}
-                  onDeleteStep={onDelete}
-                  onEditStep={onEdit}
-                  onViewDetails={onDetails}
-                  circuitName={circuitNamesMap[step.circuitId]}
-                />
-              ))
-            )}
-          </TableBody>
-        </Table>
+    <DndProvider backend={HTML5Backend}>
+      <div className={cn("w-full", className)}>
+        <div className="border rounded-md border-blue-900/30">
+          <Table>
+            <StepTableHeader
+              onSelectAll={onSelectAll}
+              areAllEligibleSelected={areAllEligibleSelected}
+              hasEligibleSteps={hasEligibleSteps}
+              onSort={onSort}
+              sortField={sortField}
+              sortDirection={sortDirection}
+            />
+            <TableBody>
+              {steps.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="h-24 text-center text-muted-foreground">
+                    No steps found
+                  </td>
+                </tr>
+              ) : (
+                steps.map((step, index) => {
+                  const circuitInfo = circuitInfoMap[step.circuitId] || {
+                    title: `Circuit #${step.circuitId}`,
+                    key: '',
+                    isActive: false
+                  };
+                  return (
+                    <StepTableRow
+                      key={step.id}
+                      step={step}
+                      isSelected={selectedSteps.includes(step.id)}
+                      onSelectStep={onSelectStep}
+                      onDeleteStep={onDelete}
+                      onEditStep={onEdit}
+                      circuitName={circuitInfo.title}
+                      circuitKey={circuitInfo.key}
+                      isCircuitActive={circuitInfo.isActive}
+                      index={index}
+                      onReorder={onReorderSteps}
+                    />
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
+    </DndProvider>
   );
 }

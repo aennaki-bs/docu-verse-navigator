@@ -38,7 +38,7 @@ export function StepRequirementsCard({ workflowStatus }: StepRequirementsCardPro
     <Card className="bg-[#0a1033] border border-blue-900/30 shadow-md hover:shadow-lg transition-shadow w-full">
       <CardHeader className="bg-blue-950/40 border-b border-blue-900/30 pb-2 px-3 py-2">
         <CardTitle className="text-base font-medium text-white flex items-center">
-          <span>Step Requirements</span>
+          <span>Step Statuses</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-3">

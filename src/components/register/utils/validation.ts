@@ -34,10 +34,9 @@ export const validatePersonalUserInfo = (formData: {
 
 export const validateCompanyInfo = (formData: {
   companyName?: string;
-  companyIRC?: string;
-  companyAddress?: string;
+  companyRC?: string;
   companyPhone?: string;
-  companyEmail?: string;
+  companyWebsite?: string;
 }) => {
   const errors: Record<string, string> = {};
   
@@ -46,20 +45,16 @@ export const validateCompanyInfo = (formData: {
     errors.companyName = 'Company name is required';
   }
   
-  if (!formData.companyIRC?.trim()) {
-    errors.companyIRC = 'Company IRC is required';
-  }
-  
-  if (!formData.companyAddress?.trim()) {
-    errors.companyAddress = 'Company address is required';
+  if (!formData.companyRC?.trim()) {
+    errors.companyRC = 'Company RC is required';
   }
   
   if (!formData.companyPhone?.trim()) {
     errors.companyPhone = 'Company phone is required';
   }
   
-  if (formData.companyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
-    errors.companyEmail = 'Please enter a valid email address';
+  if (formData.companyWebsite && !/^(https?:\/\/)?(www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}$/i.test(formData.companyWebsite)) {
+    errors.companyWebsite = 'Please enter a valid website URL';
   }
   
   return errors;

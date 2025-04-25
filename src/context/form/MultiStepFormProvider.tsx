@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MultiStepFormContext from './MultiStepFormContext';
@@ -85,14 +84,10 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
     }));
     setFormData({ validationError: undefined });
     
+    // Both flows now have 5 steps
     // Personal flow: 1. Info, 2. Credentials, 3. Address, 4. Admin Key, 5. Summary
-    if (formData.userType === 'personal') {
-      if (currentStep < 5) setCurrentStep(currentStep + 1);
-    }
-    // Company flow: 1. Info, 2. Credentials, 3. Admin Key, 4. Summary
-    else if (formData.userType === 'company') {
-      if (currentStep < 4) setCurrentStep(currentStep + 1);
-    }
+    // Company flow: 1. Info, 2. Address, 3. Credentials, 4. Admin Key, 5. Summary
+    if (currentStep < 5) setCurrentStep(currentStep + 1);
   };
 
   // Previous step logic
@@ -104,11 +99,7 @@ export const MultiStepFormProvider: React.FC<{ children: React.ReactNode }> = ({
     }));
     setFormData({ validationError: undefined });
     
-    if (formData.userType === 'personal') {
-      if (currentStep > 1) setCurrentStep(currentStep - 1);
-    } else if (formData.userType === 'company') {
-      if (currentStep > 1) setCurrentStep(currentStep - 1);
-    }
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
   const resetForm = () => {

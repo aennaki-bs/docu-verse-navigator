@@ -1,13 +1,13 @@
-
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useEffect } from 'react';
-import api from '@/services/api';
+import { useCallback } from 'react';
+import circuitService from '@/services/circuitService';
 import { DocumentStatus } from '@/models/documentCircuit';
 
 export function useWorkflowStepStatuses(documentId: number) {
   const queryClient = useQueryClient();
 
+  // Main query for workflow statuses
   const { 
     data: workflowStatuses,
     isLoading,
@@ -16,29 +16,67 @@ export function useWorkflowStepStatuses(documentId: number) {
     refetch
   } = useQuery({
     queryKey: ['document-workflow-statuses', documentId],
-    queryFn: () => api.get(`/Workflow/document/${documentId}/step-statuses`).then(res => res.data),
+    queryFn: () => circuitService.getStepStatuses(documentId),
     enabled: !!documentId,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true,
-    placeholderData: (previousData) => previousData ?? [],
-    meta: {
-      onSettled: (data, err) => {
-        if (err) {
-          const errorMessage = err instanceof Error 
-            ? err.message 
-            : 'Failed to load workflow statuses.';
-          console.error('Workflow statuses error:', err);
-          toast.error(errorMessage);
-        }
-      }
+    staleTime: 30000, // Consider data fresh for 30 seconds
+  });
+
+  // Mutation for completing a status
+  const { mutate: completeStatus } = useMutation({
+    mutationFn: (data: { 
+      statusId: number, 
+      isComplete: boolean, 
+      comments: string 
+    }) => circuitService.completeStatus({
+      documentId,
+      ...data
+    }),
+    onSuccess: () => {
+      // Only invalidate queries after a successful status update
+      queryClient.invalidateQueries({ 
+        queryKey: ['document-workflow-statuses', documentId] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['document-workflow', documentId] 
+      });
+      toast.success('Status updated successfully');
+    },
+    onError: (error) => {
+      console.error('Error updating status:', error);
+      toast.error('Failed to update status');
     }
   });
 
-  // Force a background refetch when the component mounts
-  useEffect(() => {
-    if (documentId) {
+  // Mutation for updating a status
+  const { mutate: updateStatus } = useMutation({
+    mutationFn: (data: { 
+      statusId: number, 
+      title: string, 
+      isRequired: boolean, 
+      isComplete: boolean 
+    }) => circuitService.updateStepStatus(data.statusId, data),
+    onSuccess: () => {
+      // Only invalidate queries after a successful status update
       queryClient.invalidateQueries({ 
+        queryKey: ['document-workflow-statuses', documentId] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['document-workflow', documentId] 
+      });
+      toast.success('Status updated successfully');
+    },
+    onError: (error) => {
+      console.error('Error updating status:', error);
+      toast.error('Failed to update status');
+    }
+  });
+
+  // Prefetch next status on hover
+  const prefetchNextStatus = useCallback(() => {
+    if (documentId) {
+      queryClient.prefetchQuery({
         queryKey: ['document-workflow-statuses', documentId],
+        queryFn: () => circuitService.getStepStatuses(documentId),
       });
     }
   }, [documentId, queryClient]);
@@ -48,6 +86,9 @@ export function useWorkflowStepStatuses(documentId: number) {
     isLoading,
     isError,
     error,
-    refetch
+    refetch,
+    completeStatus,
+    updateStatus,
+    prefetchNextStatus
   };
 }

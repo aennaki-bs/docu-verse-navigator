@@ -37,6 +37,11 @@ const DocumentCircuitPanel = ({ document, onCircuitAssigned }: DocumentCircuitPa
     queryFn: () => circuitService.getAllCircuits(),
   });
 
+  // Filter circuits to only include those that have steps
+  const circuitsWithSteps = circuits?.filter(circuit => 
+    circuit.steps && circuit.steps.length > 0
+  );
+
   const handleAssignCircuit = async () => {
     if (!circuitId) {
       setError('Please select a circuit to assign.');
@@ -47,6 +52,17 @@ const DocumentCircuitPanel = ({ document, onCircuitAssigned }: DocumentCircuitPa
     setError(null);
 
     try {
+      // Check if the circuit is inactive and needs to be activated
+      const selectedCircuit = circuits?.find(c => c.id === circuitId);
+      if (selectedCircuit && !selectedCircuit.isActive) {
+        // Activate the circuit before assigning
+        await circuitService.updateCircuit(circuitId, {
+          ...selectedCircuit,
+          isActive: true
+        });
+        toast.success('Circuit has been activated');
+      }
+
       const request: AssignCircuitRequest = {
         documentId: document!.id,
         circuitId: circuitId,
@@ -94,16 +110,16 @@ const DocumentCircuitPanel = ({ document, onCircuitAssigned }: DocumentCircuitPa
                 <SelectValue placeholder="Select a circuit" />
               </SelectTrigger>
               <SelectContent className="bg-[#111633] border-blue-900/30 text-white">
-                {circuits?.map((circuit) => (
+                {circuitsWithSteps?.map((circuit) => (
                   <SelectItem key={circuit.id} value={circuit.id.toString()}>
-                    {circuit.title}
+                    {circuit.title} {!circuit.isActive && "(Inactive)"}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="grid gap-2">
+          <div>
             <Label htmlFor="comments" className="text-white">Comments</Label>
             <Textarea
               id="comments"

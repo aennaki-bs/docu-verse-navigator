@@ -20,7 +20,7 @@ export interface RegisterCredentials {
   personalPhone?: string;
   // Company fields
   companyName?: string;
-  companyIRC?: string;
+  companyRC?: string;
   companyAddress?: string;
   companyPhone?: string;
   companyEmail?: string;
@@ -48,7 +48,7 @@ export interface UserInfo {
   personalPhone?: string;
   // Company fields
   companyName?: string;
-  companyIRC?: string;
+  companyRC?: string;
   companyAddress?: string;
   companyPhone?: string;
   companyEmail?: string;

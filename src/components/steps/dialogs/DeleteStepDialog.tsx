@@ -1,102 +1,89 @@
-
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import stepService from '@/services/stepService';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { useStepManagement } from '@/hooks/useStepManagement';
+import { AlertCircle } from 'lucide-react';
 
 interface DeleteStepDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm?: () => void;
-  onSuccess: () => void;
-  step?: Step | null;
-  isBulk?: boolean;
-  count?: number;
+  stepId: number;
+  stepTitle: string;
+  onSuccess?: () => void;
 }
 
-export const DeleteStepDialog = ({
+export function DeleteStepDialog({
   open,
   onOpenChange,
-  onConfirm,
-  onSuccess,
-  step,
-  isBulk = false,
-  count = 0,
-}: DeleteStepDialogProps) => {
-  const { toast } = useToast();
-  const [isDeleting, setIsDeleting] = useState(false);
+  stepId,
+  stepTitle,
+  onSuccess
+}: DeleteStepDialogProps) {
+  const { deleteStep, isDeleting } = useStepManagement();
 
   const handleDelete = async () => {
-    if (!step && !isBulk) return;
-    
-    setIsDeleting(true);
-    
+    if (!stepId) {
+      console.error('Step ID is required for deletion');
+      return;
+    }
+
     try {
-      if (step) {
-        await stepService.deleteStep(step.id);
-        toast({
-          title: "Step deleted",
-          description: "The step has been deleted successfully",
-        });
-      } else if (isBulk && onConfirm) {
-        onConfirm();
-        toast({
-          title: `${count} steps deleted`,
-          description: "The selected steps have been deleted successfully",
-        });
-      }
-      
-      onSuccess();
+      await deleteStep(stepId);
       onOpenChange(false);
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       console.error('Error deleting step:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete step. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeleting(false);
+      // Error toast is handled by the hook
     }
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-background border-destructive/20">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-destructive">
-            {isBulk ? `Delete ${count} Steps` : 'Delete Step'}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {isBulk
-              ? `Are you sure you want to delete ${count} selected steps? This action cannot be undone.`
-              : step 
-                ? `Are you sure you want to delete the step "${step.title}"? This action cannot be undone.`
-                : 'Are you sure you want to delete this step? This action cannot be undone.'}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="border-blue-900/30" disabled={isDeleting}>
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            className="bg-red-600 hover:bg-red-700 text-white"
-            onClick={handleDelete}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px] bg-[#070b28] border-blue-900/30">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-red-400">
+            <AlertCircle className="h-5 w-5" />
+            Delete Step
+          </DialogTitle>
+          <DialogDescription className="text-blue-300">
+            Are you sure you want to delete the step "{stepTitle}"? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="bg-red-950/20 border border-red-900/30 rounded-md p-3 text-sm text-red-300">
+          <p>Warning: Deleting this step will:</p>
+          <ul className="list-disc list-inside mt-2 space-y-1">
+            <li>Remove all associated statuses</li>
+            <li>Affect documents currently in this step</li>
+            <li>Break the workflow for documents using this circuit</li>
+          </ul>
+        </div>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="bg-blue-900/10 border-blue-900/30 hover:bg-blue-900/20"
             disabled={isDeleting}
           >
-            {isDeleting ? 'Deleting...' : 'Delete'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {isDeleting ? 'Deleting...' : 'Delete Step'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
-};
+}

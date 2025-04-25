@@ -1,16 +1,13 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Building2, Briefcase, MapPin, Phone, Mail, Globe, CheckCircle2 } from 'lucide-react';
+import { Building2, Briefcase, Phone, Globe, CheckCircle2 } from 'lucide-react';
 
 interface CompanyUserFieldsProps {
   formData: {
     companyName?: string;
-    companyIRC?: string;
-    companyAddress?: string;
+    companyRC?: string;
     companyPhone?: string;
-    companyEmail?: string;
     companyWebsite?: string;
   };
   localErrors: Record<string, string>;
@@ -52,26 +49,26 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
         )}
       </div>
       
-      {/* Company IRC */}
+      {/* Company RC */}
       <div className="space-y-1">
-        <Label htmlFor="companyIRC">Company IRC</Label>
+        <Label htmlFor="companyRC">Company RC</Label>
         <div className="relative">
           <Briefcase className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
-            id="companyIRC"
-            name="companyIRC"
+            id="companyRC"
+            name="companyRC"
             placeholder="Company Registration Number"
             className="pl-10 pr-10"
-            error={formData.companyIRC && !!localErrors.companyIRC}
-            value={formData.companyIRC || ''}
+            error={formData.companyRC && !!localErrors.companyRC}
+            value={formData.companyRC || ''}
             onChange={handleChange}
           />
-          {isFieldValid('companyIRC', formData.companyIRC) && (
+          {isFieldValid('companyRC', formData.companyRC) && (
             <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
           )}
         </div>
-        {localErrors.companyIRC && (
-          <p className="text-xs text-red-500">{localErrors.companyIRC}</p>
+        {localErrors.companyRC && (
+          <p className="text-xs text-red-500">{localErrors.companyRC}</p>
         )}
       </div>
       
@@ -98,55 +95,9 @@ const CompanyUserFields: React.FC<CompanyUserFieldsProps> = ({
         )}
       </div>
       
-      {/* Company Email */}
+      {/* Company Website - Optional */}
       <div className="space-y-1">
-        <Label htmlFor="companyEmail">Company Email</Label>
-        <div className="relative">
-          <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            id="companyEmail"
-            name="companyEmail"
-            placeholder="Company Email"
-            className="pl-10 pr-10"
-            error={formData.companyEmail && !!localErrors.companyEmail}
-            value={formData.companyEmail || ''}
-            onChange={handleChange}
-          />
-          {isFieldValid('companyEmail', formData.companyEmail) && (
-            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
-          )}
-        </div>
-        {localErrors.companyEmail && (
-          <p className="text-xs text-red-500">{localErrors.companyEmail}</p>
-        )}
-      </div>
-      
-      {/* Company Address - Full Width */}
-      <div className="space-y-1 col-span-1 md:col-span-2">
-        <Label htmlFor="companyAddress">Company Address</Label>
-        <div className="relative">
-          <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            id="companyAddress"
-            name="companyAddress"
-            placeholder="Company Address"
-            className="pl-10 pr-10"
-            error={formData.companyAddress && !!localErrors.companyAddress}
-            value={formData.companyAddress || ''}
-            onChange={handleChange}
-          />
-          {isFieldValid('companyAddress', formData.companyAddress) && (
-            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
-          )}
-        </div>
-        {localErrors.companyAddress && (
-          <p className="text-xs text-red-500">{localErrors.companyAddress}</p>
-        )}
-      </div>
-      
-      {/* Company Website - Full Width */}
-      <div className="space-y-1 col-span-1 md:col-span-2">
-        <Label htmlFor="companyWebsite">Company Website (Optional)</Label>
+        <Label htmlFor="companyWebsite">Company Website</Label>
         <div className="relative">
           <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
