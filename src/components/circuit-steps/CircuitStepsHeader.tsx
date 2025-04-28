@@ -49,13 +49,13 @@ export const CircuitStepsHeader = ({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button 
+                {/* <Button 
                   className="bg-blue-500/50 text-blue-200 cursor-not-allowed"
                   disabled
                 >
                   <Plus className="mr-2 h-4 w-4" /> Add Step
                   <AlertCircle className="ml-2 h-3 w-3" />
-                </Button>
+                </Button> */}
               </TooltipTrigger>
               <TooltipContent>
                 <p>Cannot add steps to an active circuit</p>
