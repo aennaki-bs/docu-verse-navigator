@@ -1,4 +1,13 @@
 
+export interface DocumentType {
+  id: number;
+  typeKey: string;
+  typeName: string;
+  typeAttr?: string;
+  documentCounter?: number;
+  name?: string; // Some parts of the code refer to typeName as name
+}
+
 export interface DocumentTypeUpdateRequest {
   typeKey?: string;
   typeName?: string;

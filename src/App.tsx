@@ -1,22 +1,24 @@
+
 import { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import { Layout } from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import { Layout } from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import DocumentsPage from './pages/documents/DocumentsPage';
-import DocumentDetailsPage from './pages/documents/DocumentDetailsPage';
-import DocumentEditPage from './pages/documents/DocumentEditPage';
-import DocumentTypesManagementPage from './pages/document-types/DocumentTypesManagementPage';
-import SubTypeManagementPage from './pages/sub-types/SubTypeManagementPage';
-import CircuitsPage from './pages/circuits/CircuitsPage';
-import CircuitDetailsPage from './pages/circuits/CircuitDetailsPage';
+import ViewDocument from './pages/ViewDocument';
+import EditDocument from './pages/EditDocument';
+import { DocumentTypesManagementPage } from './components/document-types/management/DocumentTypesManagementPage';
+import SubTypeManagementPage from './pages/SubTypeManagement';
+import Circuits from './pages/Circuits';
+import CircuitStepsPage from './pages/CircuitStepsPage';
+import { CircuitDetailsPage } from './pages/circuits/CircuitDetailsPage';
 import CircuitEditPage from './pages/circuits/CircuitEditPage';
-import UserManagementPage from './pages/admin/UserManagementPage';
-import EditUserDialog from './components/admin/EditUserDialog';
-import EditEmailDialog from './components/admin/EditEmailDialog';
-import { ThemeProvider } from './components/ThemeProvider';
-import ActionsManagementPage from './pages/actions/ActionsManagementPage';
+import UserManagement from './pages/UserManagement';
+import { EditUserDialog } from './components/admin/EditUserDialog';
+import { EditEmailDialog } from './components/admin/EditUserEmailDialog';
+import { ThemeProvider } from './context/SettingsContext';
+import { ActionsManagementPage } from './pages/actions/ActionsManagementPage';
 
 function App() {
   return (
@@ -59,7 +61,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <DocumentDetailsPage />
+                    <ViewDocument />
                   </Layout>
                 </ProtectedRoute>
               }
@@ -69,7 +71,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <DocumentEditPage />
+                    <EditDocument />
                   </Layout>
                 </ProtectedRoute>
               }
@@ -85,7 +87,7 @@ function App() {
               }
             />
             <Route
-              path="/subtype-management/:documentTypeId"
+              path="/subtype-management/:id"
               element={
                 <ProtectedRoute>
                   <Layout>
@@ -99,7 +101,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <CircuitsPage />
+                    <Circuits />
                   </Layout>
                 </ProtectedRoute>
               }
@@ -129,7 +131,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <UserManagementPage />
+                    <UserManagement />
                   </Layout>
                 </ProtectedRoute>
               }
