@@ -1,6 +1,7 @@
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Action } from '@/models/action';
+import { useState } from 'react';
 
 interface DeleteActionDialogProps {
   open: boolean;
@@ -15,6 +16,14 @@ export function DeleteActionDialog({
   action,
   onConfirm,
 }: DeleteActionDialogProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const handleConfirm = () => {
+    setIsDeleting(true);
+    onConfirm();
+    setIsDeleting(false);
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="bg-[#0f1642] text-white border-blue-900/30">
@@ -25,9 +34,13 @@ export function DeleteActionDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="border-blue-900/30">Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-red-600 hover:bg-red-700">
-            Delete
+          <AlertDialogCancel className="border-blue-900/30" disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={handleConfirm} 
+            className="bg-red-600 hover:bg-red-700"
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
