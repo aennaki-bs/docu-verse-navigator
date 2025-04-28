@@ -19,19 +19,31 @@ import EditCircuitDetailDialog from './EditCircuitDetailDialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface CircuitDetailsListProps {
-  circuitDetails: CircuitDetail[];
-  onUpdate: () => void;
+  circuitId: number;
 }
 
-export default function CircuitDetailsList({
-  circuitDetails,
-  onUpdate,
-}: CircuitDetailsListProps) {
+export default function CircuitDetailsList({ circuitId }: CircuitDetailsListProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState<CircuitDetail | null>(null);
   const { user } = useAuth();
   const isSimpleUser = user?.role === 'SimpleUser';
+  const [circuitDetails, setCircuitDetails] = useState<CircuitDetail[]>([]);
+
+  // Fetch circuit details
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const details = await circuitService.getCircuitDetailsByCircuitId(circuitId);
+        setCircuitDetails(details);
+      } catch (error) {
+        toast.error("Failed to load circuit details");
+        console.error(error);
+      }
+    };
+    
+    fetchData();
+  }, [circuitId]);
 
   const handleEdit = (detail: CircuitDetail) => {
     if (isSimpleUser) {
@@ -57,7 +69,9 @@ export default function CircuitDetailsList({
     try {
       await circuitService.deleteCircuitDetail(selectedDetail.id);
       toast.success("Circuit step deleted successfully");
-      onUpdate();
+      // Refresh data
+      const updatedDetails = await circuitService.getCircuitDetailsByCircuitId(circuitId);
+      setCircuitDetails(updatedDetails);
     } catch (error) {
       toast.error("Failed to delete circuit step");
       console.error(error);
@@ -159,7 +173,10 @@ export default function CircuitDetailsList({
             circuitDetail={selectedDetail}
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
-            onSuccess={onUpdate}
+            onSuccess={async () => {
+              const updatedDetails = await circuitService.getCircuitDetailsByCircuitId(circuitId);
+              setCircuitDetails(updatedDetails);
+            }}
           />
           
           <DeleteConfirmDialog

@@ -16,7 +16,7 @@ import { CircuitDetailsPage } from './pages/circuits/CircuitDetailsPage';
 import CircuitEditPage from './pages/circuits/CircuitEditPage';
 import UserManagement from './pages/UserManagement';
 import { EditUserDialog } from './components/admin/EditUserDialog';
-import { EditEmailDialog } from './components/admin/EditUserEmailDialog';
+import { EditUserEmailDialog } from './components/admin/EditUserEmailDialog';
 import { ThemeProvider } from './context/SettingsContext';
 import { ActionsManagementPage } from './pages/actions/ActionsManagementPage';
 
@@ -136,8 +136,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/edit-user/:id" element={<EditUserDialog />} />
-            <Route path="/edit-email/:id" element={<EditEmailDialog />} />
+            <Route 
+              path="/edit-user/:id" 
+              element={<EditUserDialog />} 
+            />
+            <Route 
+              path="/edit-email/:id" 
+              element={<EditUserEmailDialog />} 
+            />
             
             <Route
               path="/actions"

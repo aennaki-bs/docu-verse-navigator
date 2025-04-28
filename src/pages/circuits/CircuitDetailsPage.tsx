@@ -1,6 +1,6 @@
 
 import { useParams } from 'react-router-dom';
-import { CircuitDetailsList } from '@/components/circuits/CircuitDetailsList';
+import CircuitDetailsList from '@/components/circuits/CircuitDetailsList';
 
 export function CircuitDetailsPage() {
   const { id } = useParams<{ id: string }>();

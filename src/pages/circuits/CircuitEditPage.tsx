@@ -1,6 +1,6 @@
 
 import { useParams } from 'react-router-dom';
-import { EditCircuitDialog } from '@/components/circuits/EditCircuitDialog';
+import EditCircuitDialog from '@/components/circuits/EditCircuitDialog';
 
 export default function CircuitEditPage() {
   const { id } = useParams<{ id: string }>();
