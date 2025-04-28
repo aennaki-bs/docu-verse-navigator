@@ -1,66 +1,80 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+type Theme = 'light' | 'dark';
+type Language = 'en' | 'fr' | 'es';
+
 interface SettingsContextType {
-  theme: 'light' | 'dark';
-  toggleTheme: () => void;
-  setTheme: (theme: 'light' | 'dark') => void;
-  language: string;
-  setLanguage: (language: string) => void;
+  theme: Theme;
+  language: Language;
+  setTheme: (theme: Theme) => void;
+  setLanguage: (lang: Language) => void;
 }
 
-const defaultSettings: SettingsContextType = {
-  theme: 'dark',
-  toggleTheme: () => {},
-  setTheme: () => {},
-  language: 'en',
-  setLanguage: () => {},
-};
+const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
-const SettingsContext = createContext<SettingsContextType>(defaultSettings);
-
-export const useSettings = () => useContext(SettingsContext);
-
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [language, setLanguage] = useState<string>('en');
-
-  useEffect(() => {
-    // Check if theme is saved in localStorage
+export function SettingsProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Check localStorage first
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light' || savedTheme === 'dark') {
-      setTheme(savedTheme);
-    } else {
-      // Use system preference if no saved theme
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
+      return savedTheme;
     }
     
-    // Get saved language
-    const savedLanguage = localStorage.getItem('language');
-    if (savedLanguage) {
-      setLanguage(savedLanguage);
+    // If no saved theme, check system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
     }
-  }, []);
+    
+    // Default to dark mode
+    return 'dark';
+  });
+  
+  const [language, setLanguage] = useState<Language>(() => {
+    const savedLang = localStorage.getItem('language');
+    if (savedLang === 'en' || savedLang === 'fr' || savedLang === 'es') {
+      return savedLang;
+    }
+    
+    // Try to detect browser language
+    const browserLang = navigator.language.split('-')[0];
+    if (browserLang === 'fr' || browserLang === 'es') {
+      return browserLang as Language;
+    }
+    
+    return 'en';
+  });
 
   useEffect(() => {
-    // Apply theme to document
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(theme);
     localStorage.setItem('theme', theme);
+    
+    // Apply theme class to document element
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // Also set a data attribute for potential CSS selectors
+    document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
-  
+
   useEffect(() => {
     localStorage.setItem('language', language);
+    document.documentElement.setAttribute('lang', language);
   }, [language]);
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
-  };
-
   return (
-    <SettingsContext.Provider value={{ theme, toggleTheme, setTheme, language, setLanguage }}>
+    <SettingsContext.Provider value={{ theme, setTheme, language, setLanguage }}>
       {children}
     </SettingsContext.Provider>
   );
+}
+
+export const useSettings = () => {
+  const context = useContext(SettingsContext);
+  if (context === undefined) {
+    throw new Error('useSettings must be used within a SettingsProvider');
+  }
+  return context;
 };

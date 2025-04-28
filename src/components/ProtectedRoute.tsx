@@ -1,11 +1,11 @@
 
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   requiredRole?: 'Admin' | 'FullUser' | 'SimpleUser' | string[];
   requiresManagement?: boolean;
 }
@@ -44,7 +44,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // If in development mode, bypass all authentication checks
   if (allowAllAccess) {
     console.log('Development mode: Bypassing authentication checks');
-    return <>{children}</>;
+    return children ? <>{children}</> : <Outlet />;
   }
 
   // Regular authentication check (will only run if allowAllAccess is false)
@@ -60,12 +60,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     // For document-types route, SimpleUsers should have view-only access
     if (location.pathname === '/document-types') {
       // Allow SimpleUsers to view document types
-      return <>{children}</>;
+      return children ? <>{children}</> : <Outlet />;
     }
     
     // For circuits page, allow viewing but apply restrictions in the component
     if (location.pathname === '/circuits') {
-      return <>{children}</>;
+      return children ? <>{children}</> : <Outlet />;
     }
     
     toast.error('Simple users cannot make management changes', {
@@ -89,7 +89,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   console.log('User is authenticated, rendering protected content');
-  return <>{children}</>;
+  return children ? <>{children}</> : <Outlet />;
 };
 
 export default ProtectedRoute;

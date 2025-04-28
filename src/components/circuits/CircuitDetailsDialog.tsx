@@ -32,6 +32,7 @@ export default function CircuitDetailsDialog({
   const isSimpleUser = user?.role === 'SimpleUser';
   
   const { 
+    data: circuitDetails,
     isLoading,
     isError,
     error,
@@ -120,7 +121,10 @@ export default function CircuitDetailsDialog({
             </Alert>
           </div>
         ) : (
-          <CircuitDetailsList circuitId={circuit.id} />
+          <CircuitDetailsList 
+            circuitDetails={circuitDetails || []} 
+            onUpdate={refetch}
+          />
         )}
         
         {/* Create Circuit Detail Dialog - Only render if not SimpleUser */}

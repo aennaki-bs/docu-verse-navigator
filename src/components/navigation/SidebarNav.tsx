@@ -1,6 +1,7 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { LayoutDashboard, FileText, GitBranch, Layers, Users, CalendarRange, PlaySquare } from "lucide-react";
+import { LayoutDashboard, FileText, GitBranch, Layers, Users, CalendarRange } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 
 export function SidebarNav() {
@@ -81,21 +82,19 @@ export function SidebarNav() {
                   <span>Types Management</span>
                 </Link>
               </li>
-              {/* Actions */}
-              <li>
+              {/* <li>
                 <Link 
-                  to="/actions"
+                  to="/subtype-management"
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive('/actions') 
+                    isActive('/subtype-management') 
                       ? 'bg-blue-600/40 text-blue-200' 
                       : 'text-blue-100 hover:bg-blue-800/30 hover:text-blue-50'
                   }`}
                 >
-                  <PlaySquare className="h-5 w-5" />
-                  <span>Actions</span>
+                  <CalendarRange className="h-5 w-5" />
+                  <span>Subtypes</span>
                 </Link>
-              </li>
-              
+              </li> */}
               {/* Circuits */}
               <li>
                 <Link 
@@ -112,6 +111,7 @@ export function SidebarNav() {
               </li>
             </>
           )}
+          
         </ul>
       </div>
     </div>
