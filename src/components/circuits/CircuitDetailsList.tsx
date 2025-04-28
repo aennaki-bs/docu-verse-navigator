@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Edit, Trash2, Info, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
@@ -31,7 +31,7 @@ export default function CircuitDetailsList({ circuitId }: CircuitDetailsListProp
   const [circuitDetails, setCircuitDetails] = useState<CircuitDetail[]>([]);
 
   // Fetch circuit details
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const details = await circuitService.getCircuitDetailsByCircuitId(circuitId);

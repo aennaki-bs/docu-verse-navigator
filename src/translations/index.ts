@@ -2,38 +2,38 @@
 export const translations = {
   en: {
     settings: {
-      theme: 'Theme Settings',
-      language: 'Language Settings',
-      background: 'Background Settings',
+      theme: 'Theme',
       lightMode: 'Light Mode',
       darkMode: 'Dark Mode',
-      selectLanguage: 'Select Language',
-      useCustomBg: 'Use Custom Background Image',
-      uploadBg: 'Click to upload background image'
+      language: 'Language',
+      selectLanguage: 'Select language',
+      background: 'Background',
+      useCustomBg: 'Use custom background',
+      uploadBg: 'Click to upload an image'
     }
   },
   fr: {
     settings: {
-      theme: 'Paramètres du thème',
-      language: 'Paramètres de langue',
-      background: 'Paramètres d\'arrière-plan',
-      lightMode: 'Mode clair',
-      darkMode: 'Mode sombre',
+      theme: 'Thème',
+      lightMode: 'Mode Clair',
+      darkMode: 'Mode Sombre',
+      language: 'Langue',
       selectLanguage: 'Sélectionner la langue',
-      useCustomBg: 'Utiliser une image d\'arrière-plan personnalisée',
-      uploadBg: 'Cliquez pour télécharger une image d\'arrière-plan'
+      background: 'Arrière-plan',
+      useCustomBg: 'Utiliser un arrière-plan personnalisé',
+      uploadBg: 'Cliquez pour télécharger une image'
     }
   },
   es: {
     settings: {
-      theme: 'Configuración del tema',
-      language: 'Configuración de idioma',
-      background: 'Configuración del fondo',
-      lightMode: 'Modo claro',
-      darkMode: 'Modo oscuro',
+      theme: 'Tema',
+      lightMode: 'Modo Claro',
+      darkMode: 'Modo Oscuro',
+      language: 'Idioma',
       selectLanguage: 'Seleccionar idioma',
-      useCustomBg: 'Usar imagen de fondo personalizada',
-      uploadBg: 'Haga clic para cargar imagen de fondo'
+      background: 'Fondo',
+      useCustomBg: 'Usar fondo personalizado',
+      uploadBg: 'Haga clic para cargar una imagen'
     }
   }
 };
