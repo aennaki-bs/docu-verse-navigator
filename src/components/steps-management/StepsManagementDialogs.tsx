@@ -48,18 +48,21 @@ export const StepsManagementDialogs = ({
       <DeleteStepDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        onConfirm={onDeleteConfirm}
-        step={stepToDelete}
+        stepId={stepToDelete?.id || 0}
+        stepTitle={stepToDelete?.title || ''}
         onSuccess={onRefetch}
+        onConfirm={onDeleteConfirm}
       />
 
       <DeleteStepDialog
         open={bulkDeleteDialogOpen}
         onOpenChange={setBulkDeleteDialogOpen}
+        stepId={0} // Not used for bulk delete
+        stepTitle={`${selectedStepsCount} steps`}
+        onSuccess={onRefetch}
         onConfirm={onBulkDeleteConfirm}
         isBulk={true}
         count={selectedStepsCount}
-        onSuccess={onRefetch}
       />
     </>
   );

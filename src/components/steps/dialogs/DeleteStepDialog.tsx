@@ -10,6 +10,10 @@ export interface DeleteStepDialogProps {
   stepTitle: string;
   documentId?: number; // Making this optional to maintain compatibility
   onSuccess: () => void;
+  onConfirm?: () => void; // Adding this prop to match usages
+  step?: any; // For backward compatibility
+  isBulk?: boolean; // For bulk delete functionality
+  count?: number; // For bulk delete count
 }
 
 export function DeleteStepDialog({
@@ -19,6 +23,7 @@ export function DeleteStepDialog({
   stepTitle,
   documentId,
   onSuccess,
+  onConfirm,
 }: DeleteStepDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const { deleteStep } = useStepManagement();
@@ -26,7 +31,12 @@ export function DeleteStepDialog({
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteStep(stepId);
+      // If onConfirm is provided, use that, otherwise use the hook
+      if (onConfirm) {
+        onConfirm();
+      } else {
+        await deleteStep(stepId);
+      }
       onSuccess();
       onOpenChange(false);
     } finally {

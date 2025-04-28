@@ -7,11 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ActionForm, Action } from '@/models/action';
+import { useActionManagement } from '@/hooks/useActionManagement';
 
 interface ActionFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: ActionForm) => void;
+  onSubmit?: (data: ActionForm) => void;
   action?: Action;
 }
 
@@ -21,6 +22,7 @@ export function ActionFormDialog({
   onSubmit, 
   action 
 }: ActionFormDialogProps) {
+  const { createAction, updateAction } = useActionManagement();
   const form = useForm<ActionForm>({
     defaultValues: {
       title: action?.title || '',
@@ -28,11 +30,35 @@ export function ActionFormDialog({
     },
   });
 
-  const handleSubmit = (data: ActionForm) => {
-    onSubmit(data);
+  const handleSubmit = async (data: ActionForm) => {
+    if (onSubmit) {
+      onSubmit(data);
+    } else {
+      // If no onSubmit provided, handle internally
+      try {
+        if (action) {
+          await updateAction({ id: action.id, data });
+        } else {
+          await createAction(data);
+        }
+      } catch (error) {
+        console.error('Error saving action:', error);
+      }
+    }
     form.reset();
     onOpenChange(false);
   };
+
+  React.useEffect(() => {
+    if (action && open) {
+      form.reset({
+        title: action.title,
+        description: action.description || '',
+      });
+    } else if (!open) {
+      form.reset();
+    }
+  }, [action, open, form]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

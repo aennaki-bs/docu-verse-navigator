@@ -1,3 +1,4 @@
+
 const handleEdit = async (id: string, data: DocumentTypeUpdateRequest) => {
   setLoading(true);
   try {
@@ -36,4 +37,4 @@ const handleEdit = async (id: string, data: DocumentTypeUpdateRequest) => {
   } finally {
     setLoading(false);
   }
-}; 
+};

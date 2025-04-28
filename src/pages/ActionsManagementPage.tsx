@@ -6,14 +6,14 @@ import { ActionsTable } from '@/components/actions/ActionsTable';
 import { DeleteActionDialog } from '@/components/actions/dialogs/DeleteActionDialog';
 import { ActionFormDialog } from '@/components/actions/dialogs/ActionFormDialog';
 import { useActionManagement } from '@/hooks/useActionManagement';
-import { Action } from '@/models/action';
+import { Action, ActionForm } from '@/models/action';
 
 export default function ActionsManagementPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
 
-  const { actions, isLoading, deleteAction } = useActionManagement();
+  const { actions, isLoading, createAction, updateAction, deleteAction } = useActionManagement();
 
   const handleEditAction = (action: Action) => {
     setSelectedAction(action);
@@ -29,6 +29,14 @@ export default function ActionsManagementPage() {
     if (selectedAction) {
       await deleteAction(selectedAction.id);
       setIsDeleteDialogOpen(false);
+    }
+  };
+  
+  const handleSubmitAction = async (data: ActionForm) => {
+    if (selectedAction) {
+      await updateAction({ id: selectedAction.id, data });
+    } else {
+      await createAction(data);
     }
   };
 
@@ -65,6 +73,7 @@ export default function ActionsManagementPage() {
         open={isFormOpen} 
         onOpenChange={setIsFormOpen}
         action={selectedAction}
+        onSubmit={handleSubmitAction}
       />
 
       <DeleteActionDialog
