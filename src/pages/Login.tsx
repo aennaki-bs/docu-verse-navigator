@@ -21,8 +21,11 @@ const Login = () => {
     setError(null);
     
     try {
-      // Call auth service to login
-      await login(email, password);
+      // Call auth service to login with proper credentials object
+      await login({
+        emailOrUsername: email,
+        password
+      });
       navigate('/dashboard');
     } catch (err: any) {
       setError(err?.message || 'Failed to login. Please try again.');
