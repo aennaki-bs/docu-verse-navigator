@@ -18,6 +18,7 @@ import { EditUserDialog } from './components/admin/EditUserDialog';
 import { EditUserEmailDialog } from './components/admin/EditUserEmailDialog';
 import { ThemeProvider } from './context/SettingsContext';
 import { ActionsManagementPage } from './pages/actions/ActionsManagementPage';
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -25,13 +26,19 @@ function App() {
       <Router>
         <ThemeProvider>
           <Routes>
+            <Route 
+              path="/login" 
+              element={<Login />} 
+            />
             <Route
               path="/"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <Dashboard />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
@@ -39,9 +46,11 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <Dashboard />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
@@ -49,9 +58,11 @@ function App() {
               path="/documents"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <DocumentsPage />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <DocumentsPage />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
@@ -59,9 +70,11 @@ function App() {
               path="/documents/:id"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <ViewDocument />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <ViewDocument />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
@@ -69,9 +82,11 @@ function App() {
               path="/documents/:id/edit"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <EditDocument />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <EditDocument />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
@@ -79,9 +94,11 @@ function App() {
               path="/document-types-management"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <DocumentTypesManagementPage />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <DocumentTypesManagementPage />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
@@ -89,9 +106,11 @@ function App() {
               path="/subtype-management/:id"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <SubTypeManagementPage />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <SubTypeManagementPage />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
@@ -99,9 +118,11 @@ function App() {
               path="/circuits"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <Circuits />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <Circuits />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
@@ -109,9 +130,11 @@ function App() {
               path="/circuits/:id"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <CircuitDetailsPage />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <CircuitDetailsPage />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
@@ -119,9 +142,11 @@ function App() {
               path="/circuits/:id/edit"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <CircuitEditPage />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <CircuitEditPage />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
@@ -129,34 +154,39 @@ function App() {
               path="/user-management"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <UserManagement />
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <UserManagement />
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
+            
+            {/* Routes for user dialogs need to be updated with correct props */}
             <Route 
               path="/edit-user/:id" 
-              element={<EditUserDialog />} 
+              element={<EditUserDialog user={{id: 0, username: "", firstName: "", lastName: "", email: "", role: ""}} open={true} onOpenChange={() => {}} onSuccess={() => {}} />}
             />
             <Route 
               path="/edit-email/:id" 
-              element={<EditUserEmailDialog />} 
+              element={<EditUserEmailDialog user={{id: 0, username: "", firstName: "", lastName: "", email: "", role: ""}} open={true} onOpenChange={() => {}} onSuccess={() => {}} />}
             />
             
             <Route
               path="/actions"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <ActionsManagementPage />
-                    </Suspense>
-                  </Layout>
+                  {(props) => (
+                    <Layout>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <ActionsManagementPage />
+                      </Suspense>
+                    </Layout>
+                  )}
                 </ProtectedRoute>
               }
             />
-            
           </Routes>
         </ThemeProvider>
       </Router>

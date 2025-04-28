@@ -1,3 +1,4 @@
+
 import { ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -84,7 +85,7 @@ export const CircuitStepCard = ({
         {children}
         {hasHistory && (
           <div className="mt-2 text-sm text-muted-foreground">
-            <p>Last updated: {new Date(historyForStep[0].createdAt).toLocaleString()}</p>
+            <p>Last updated: {new Date(historyForStep[0].processedAt).toLocaleString()}</p>
           </div>
         )}
       </CardContent>
