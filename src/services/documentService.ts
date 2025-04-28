@@ -1,5 +1,6 @@
 import { Document, DocumentType, CreateDocumentRequest, UpdateDocumentRequest } from "@/models/document";
 import { documentService, documentTypeService, ligneService, sousLigneService } from './documents';
+import { DocumentTypeUpdateRequest } from '@/models/documentType';
 
 // Re-export all services as properties of a single object for backward compatibility
 const combinedDocumentService = {
@@ -15,7 +16,14 @@ const combinedDocumentService = {
   // Document Types methods
   getAllDocumentTypes: documentTypeService.getAllDocumentTypes,
   createDocumentType: documentTypeService.createDocumentType,
-  updateDocumentType: documentTypeService.updateDocumentType,
+  updateDocumentType: async (id: number, documentType: DocumentTypeUpdateRequest): Promise<void> => {
+    try {
+      await documentTypeService.updateDocumentType(id, documentType);
+    } catch (error) {
+      console.error(`Error updating document type with ID ${id}:`, error);
+      throw error;
+    }
+  },
   validateTypeName: documentTypeService.validateTypeName,
   deleteDocumentType: documentTypeService.deleteDocumentType,
   deleteMultipleDocumentTypes: documentTypeService.deleteMultipleDocumentTypes,
