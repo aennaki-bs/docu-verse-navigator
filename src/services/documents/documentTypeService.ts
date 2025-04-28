@@ -1,6 +1,7 @@
 
 import api from '../api';
 import { DocumentType } from '../../models/document';
+import { DocumentTypeUpdateRequest } from '../../models/documentType';
 
 const documentTypeService = {
   getAllDocumentTypes: async (): Promise<DocumentType[]> => {
@@ -13,7 +14,7 @@ const documentTypeService = {
     }
   },
 
-  createDocumentType: async (documentType: DocumentType): Promise<void> => {
+  createDocumentType: async (documentType: Partial<DocumentType>): Promise<void> => {
     try {
       await api.post('/Documents/Types', documentType);
     } catch (error) {
@@ -22,7 +23,7 @@ const documentTypeService = {
     }
   },
 
-  updateDocumentType: async (id: number, documentType: DocumentType): Promise<void> => {
+  updateDocumentType: async (id: number, documentType: DocumentTypeUpdateRequest): Promise<void> => {
     try {
       await api.put(`/Documents/Types/${id}`, documentType);
     } catch (error) {
