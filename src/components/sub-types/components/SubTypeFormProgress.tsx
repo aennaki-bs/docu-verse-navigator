@@ -1,83 +1,98 @@
-import { CheckCircle } from "lucide-react";
 import { useSubTypeForm } from "./SubTypeFormProvider";
+import { motion } from "framer-motion";
+import { CheckIcon } from "lucide-react";
 
 export const SubTypeFormProgress = () => {
-  const { currentStep, totalSteps } = useSubTypeForm();
-  const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
+  const { currentStep, totalSteps, goToStep } = useSubTypeForm();
 
-  const getStepTitle = (step: number) => {
-    switch (step) {
-      case 1:
-        return "Basic Info";
-      case 2:
-        return "Document Type";
-      case 3:
-        return "Date & Status";
-      default:
-        return "";
-    }
-  };
-
-  const getStepDescription = (step: number) => {
-    switch (step) {
-      case 1:
-        return "Enter the basic information";
-      case 2:
-        return "Select document type";
-      case 3:
-        return "Set dates and status";
-      default:
-        return "";
-    }
-  };
+  const steps = [
+    {
+      number: 1,
+      title: "Basic Info",
+      description: "Enter name and description",
+    },
+    { number: 2, title: "Dates", description: "Set date range and status" },
+    { number: 3, title: "Review", description: "Review and submit" },
+  ];
 
   return (
-    <div className="mb-6">
-      {/* Step counter */}
-      <div className="text-center mb-3">
-        <span className="text-xs text-blue-400">
-          Step {currentStep} of {totalSteps}
-        </span>
-      </div>
+    <div className="mb-3 text-center">
+      <motion.h2
+        initial={{ opacity: 0, y: -5 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-lg font-semibold text-white mb-1"
+      >
+        Create New Subtype
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, transition: { delay: 0.1 } }}
+        className="text-xs text-blue-300/90 mb-3"
+      >
+        Step {currentStep} of {totalSteps}
+      </motion.p>
 
-      {/* Step indicators */}
-      <div className="flex justify-center items-center mb-3">
-        {steps.map((step) => (
-          <div key={step} className="flex items-center">
-            <div
-              className={`flex items-center justify-center h-8 w-8 rounded-full transition-all duration-300
-                ${
-                  step === currentStep
-                    ? "bg-blue-600 text-white ring-2 ring-blue-600/30 shadow-md"
-                    : step < currentStep
-                    ? "bg-blue-600 text-white border border-blue-500"
-                    : "bg-gray-800/70 text-gray-400 border border-gray-700"
+      <div className="flex items-center justify-center gap-1 px-2 mb-2">
+        {steps.map((step, index) => (
+          <div key={step.number} className="flex items-center">
+            <div className="flex flex-col items-center">
+              <motion.button
+                onClick={() =>
+                  step.number < currentStep && goToStep(step.number)
+                }
+                whileHover={step.number < currentStep ? { scale: 1.05 } : {}}
+                whileTap={step.number < currentStep ? { scale: 0.95 } : {}}
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
+                  currentStep === step.number
+                    ? "bg-blue-500 text-white ring-1 ring-blue-400/30 shadow-sm"
+                    : currentStep > step.number
+                    ? "bg-blue-500/20 text-blue-300 cursor-pointer hover:bg-blue-500/30"
+                    : "bg-blue-900/30 text-blue-300/50"
                 }`}
-            >
-              {step < currentStep ? (
-                <CheckCircle className="h-4 w-4 text-white" />
-              ) : (
-                <span className="text-sm font-medium">{step}</span>
-              )}
+              >
+                {currentStep > step.number ? (
+                  <CheckIcon className="h-3.5 w-3.5 text-blue-300" />
+                ) : (
+                  step.number
+                )}
+              </motion.button>
+              <span
+                className={`text-[10px] mt-1 font-medium ${
+                  currentStep === step.number
+                    ? "text-blue-300"
+                    : currentStep > step.number
+                    ? "text-blue-300/80"
+                    : "text-blue-300/50"
+                }`}
+              >
+                {step.title}
+              </span>
             </div>
-
-            {step !== steps.length && (
-              <div
-                className={`h-[2px] w-6 sm:w-8 md:w-10 transition-all duration-300
-                  ${step < currentStep ? "bg-blue-600" : "bg-gray-700"}`}
-              />
+            {index < steps.length - 1 && (
+              <div className="mx-2">
+                <div
+                  className={`h-[1px] w-10 transition-colors ${
+                    currentStep > step.number + 1
+                      ? "bg-blue-500"
+                      : currentStep === step.number + 1 && currentStep > 1
+                      ? "bg-gradient-to-r from-blue-500 to-blue-900/30"
+                      : "bg-blue-900/40"
+                  }`}
+                />
+              </div>
             )}
           </div>
         ))}
       </div>
 
-      {/* Step title */}
-      <p className="text-center text-base font-semibold text-blue-300 mb-1">
-        {getStepTitle(currentStep)}
-      </p>
-      <p className="text-center text-sm text-gray-400 mb-2">
-        {getStepDescription(currentStep)}
-      </p>
+      <motion.div
+        key={currentStep}
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-xs text-blue-400/80 bg-blue-900/20 py-1.5 px-3 rounded-md border border-blue-900/30 inline-block max-w-sm mx-auto"
+      >
+        {steps[currentStep - 1]?.description}
+      </motion.div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
-import { ArrowLeft, Loader2, Save, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronRight, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSubTypeForm } from "./SubTypeFormProvider";
+import { motion } from "framer-motion";
 
 interface SubTypeFormActionsProps {
   onCancel: () => void;
@@ -12,72 +13,64 @@ export const SubTypeFormActions = ({ onCancel }: SubTypeFormActionsProps) => {
     nextStep,
     prevStep,
     submitForm,
-    isSubmitting,
     totalSteps,
+    isSubmitting,
   } = useSubTypeForm();
 
   const isFirstStep = currentStep === 1;
   const isLastStep = currentStep === totalSteps;
 
-  const handleNext = () => {
-    nextStep();
-  };
-
-  const handlePrev = () => {
-    prevStep();
-  };
-
-  const handleSubmit = async () => {
-    if (isLastStep) {
-      submitForm();
-    } else {
-      handleNext();
-    }
-  };
-
   return (
-    <div className="flex justify-between mt-4 gap-3">
+    <motion.div
+      className="flex justify-between gap-2 py-2 border-t border-blue-900/30 bg-gradient-to-r from-blue-900/20 to-blue-800/10 px-2 rounded-b-md"
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 }}
+    >
       <Button
         type="button"
         variant="outline"
-        onClick={isFirstStep ? onCancel : handlePrev}
-        className="flex-1 sm:flex-none px-3 py-2 text-sm bg-transparent border-blue-800/50 hover:bg-blue-900/30 text-gray-300 shadow-sm h-10"
-        size="sm"
+        onClick={isFirstStep ? onCancel : prevStep}
+        className="flex-1 h-8 bg-blue-900/20 border-blue-800/40 hover:bg-blue-900/40 text-blue-300 text-xs font-medium transition-all hover:text-blue-200"
       >
         {isFirstStep ? (
           "Cancel"
         ) : (
-          <>
-            <ArrowLeft className="mr-2 h-4 w-4" />
+          <span className="flex items-center justify-center">
+            <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
             Back
-          </>
+          </span>
         )}
       </Button>
 
       <Button
         type="button"
-        onClick={handleSubmit}
         disabled={isSubmitting}
-        className="flex-1 sm:flex-none px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white shadow-md h-10"
-        size="sm"
+        onClick={isLastStep ? submitForm : nextStep}
+        className="flex-1 h-8 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-all relative overflow-hidden group"
       >
-        {isSubmitting ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {isLastStep ? "Saving..." : "Processing..."}
-          </>
-        ) : isLastStep ? (
-          <>
-            <Save className="mr-2 h-4 w-4" />
-            Create Subtype
-          </>
-        ) : (
-          <>
-            Continue
-            <ChevronRight className="ml-2 h-4 w-4" />
-          </>
+        {isSubmitting && (
+          <motion.div
+            className="absolute inset-0 bg-blue-400/20"
+            initial={{ width: 0 }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 1, repeat: Infinity, repeatType: "loop" }}
+          />
         )}
+        <span className="relative z-10 flex items-center justify-center">
+          {isLastStep ? (
+            <>
+              <Save className="mr-1.5 h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
+              {isSubmitting ? "Creating..." : "Create Subtype"}
+            </>
+          ) : (
+            <>
+              Continue
+              <ChevronRight className="ml-1.5 h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+            </>
+          )}
+        </span>
       </Button>
-    </div>
+    </motion.div>
   );
 };

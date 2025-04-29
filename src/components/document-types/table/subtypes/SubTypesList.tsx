@@ -6,7 +6,7 @@ import SubTypeListHeader from "./SubTypeListHeader";
 import { SubTypeFilterBar } from "./SubTypeFilterBar";
 import { useToast } from "@/hooks/use-toast";
 import SubTypeDialogs from "./SubTypeDialogs";
-import { DocumentType } from "@/models/documentType";
+import { DocumentType } from "@/models/document";
 
 interface SubTypesListProps {
   documentType: DocumentType;
@@ -131,7 +131,7 @@ export default function SubTypesList({ documentType }: SubTypesListProps) {
   return (
     <div className="flex-1 flex flex-col">
       <SubTypeListHeader
-        documentTypeName={documentType.name}
+        documentTypeName={documentType.typeName}
         onCreateClick={handleCreateClick}
       />
 

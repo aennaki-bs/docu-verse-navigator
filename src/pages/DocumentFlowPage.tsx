@@ -38,7 +38,7 @@ const DocumentFlowPage = () => {
   } = useQuery({
     queryKey: ['document', Number(id)],
     queryFn: () => documentService.getDocumentById(Number(id)),
-    enabled: !!id
+    enabled: !! id
   });
 
   // Fetch circuit details for visualization

@@ -74,11 +74,6 @@ export default function SubTypeDialogs({
     isActive: true,
   });
 
-  // Create a document type array with the current document type ID
-  const documentTypes: DocumentType[] = [
-    { id: documentTypeId, typeName: `Document Type ${documentTypeId}` },
-  ];
-
   useEffect(() => {
     if (selectedSubType) {
       setEditedSubType({
@@ -151,20 +146,19 @@ export default function SubTypeDialogs({
           if (!open) resetCreateForm();
         }}
       >
-        <DialogContent className="bg-[#0f1642] border-blue-900/50 text-white sm:max-w-[550px] p-5 overflow-hidden">
-          <DialogHeader className="mb-2 pb-2 border-b border-blue-900/30">
-            <DialogTitle className="text-xl text-white">
+        <DialogContent className="bg-[#0f1642] border-blue-900/50 text-white sm:max-w-[500px] p-3 overflow-hidden">
+          <DialogHeader className="mb-1 pb-1 border-b border-blue-900/30">
+            <DialogTitle className="text-lg text-white">
               Create New Subtype
             </DialogTitle>
-            <DialogDescription className="text-blue-300 text-sm">
+            <DialogDescription className="text-blue-300 text-xs">
               Complete each step to create a new document subtype
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-2">
+          <div className="py-1">
             <SubTypeFormProvider
               onSubmit={handleCreateSubmit}
-              documentTypes={documentTypes}
               onClose={handleCloseCreateDialog}
             >
               <MultiStepSubTypeForm onCancel={handleCloseCreateDialog} />
@@ -360,25 +354,47 @@ export default function SubTypeDialogs({
 
       {/* Delete Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-[#0f1642] border-blue-900/50 text-white">
+        <AlertDialogContent className="bg-[#0f1642] border-blue-900/50 text-white max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl text-white">
-              Are you sure?
+            <AlertDialogTitle className="text-lg text-white flex items-center gap-2">
+              <span className="w-7 h-7 rounded-full bg-red-500/20 flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-red-400"
+                >
+                  <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                </svg>
+              </span>
+              Confirm Deletion
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-blue-300">
-              This will permanently delete the subtype "{selectedSubType?.name}
-              ". This action cannot be undone.
+            <AlertDialogDescription className="text-blue-300/90 mt-2">
+              Are you sure you want to delete the subtype "
+              <span className="text-white font-medium">
+                {selectedSubType?.name}
+              </span>
+              "?
+              <p className="mt-2 text-red-300/90">
+                This action cannot be undone.
+              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="border-t border-blue-900/30 mt-4 pt-4">
-            <AlertDialogCancel className="bg-transparent hover:bg-blue-900/20 border-blue-900/50 text-blue-300 hover:text-white">
+          <AlertDialogFooter className="border-t border-blue-900/30 mt-4 pt-4 flex space-x-2">
+            <AlertDialogCancel className="bg-transparent flex-1 hover:bg-blue-900/20 border-blue-900/50 text-blue-300 hover:text-white transition-colors">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
                 selectedSubType && onDeleteConfirm(selectedSubType.id)
               }
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 flex-1 hover:bg-red-700 text-white transition-colors"
             >
               Delete
             </AlertDialogAction>
