@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -227,6 +226,7 @@ export default function CreateDocument() {
         return (
           <ReviewStep
             selectedType={documentTypes.find(t => t.id === selectedTypeId)}
+            selectedSubType={subTypes.find(st => st.id === selectedSubTypeId)}
             documentAlias={documentAlias}
             title={title}
             docDate={docDate}

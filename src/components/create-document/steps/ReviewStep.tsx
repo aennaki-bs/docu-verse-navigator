@@ -1,8 +1,9 @@
-
 import { DocumentType } from "@/models/document";
+import { SubType } from "@/models/subtype";
 
 interface ReviewStepProps {
   selectedType: DocumentType | undefined;
+  selectedSubType?: SubType | undefined;
   documentAlias: string;
   title: string;
   docDate: string;
@@ -11,6 +12,7 @@ interface ReviewStepProps {
 
 export const ReviewStep = ({
   selectedType,
+  selectedSubType,
   documentAlias,
   title,
   docDate,
@@ -26,6 +28,15 @@ export const ReviewStep = ({
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Type</p>
             <p className="text-base font-medium text-white">{selectedType?.typeName}</p>
           </div>
+          {selectedSubType && (
+            <div>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Subtype</p>
+              <p className="text-base font-medium text-white">{selectedSubType.name}</p>
+              <p className="text-xs text-blue-400 mt-1">
+                Valid from {new Date(selectedSubType.startDate).toLocaleDateString()} to {new Date(selectedSubType.endDate).toLocaleDateString()}
+              </p>
+            </div>
+          )}
           {documentAlias && (
             <div>
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Document Alias</p>
