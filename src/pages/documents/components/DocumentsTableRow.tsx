@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Edit, Trash, GitBranch } from "lucide-react";
+import { Edit, Trash, GitBranch, CheckCircle } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -32,6 +32,9 @@ export default function DocumentsTableRow({
   onDelete,
   onAssignCircuit,
 }: DocumentsTableRowProps) {
+  // Check if document is already assigned to a circuit
+  const isAssignedToCircuit = !!document.circuitId;
+
   return (
     <TableRow
       key={document.id}
@@ -94,17 +97,32 @@ export default function DocumentsTableRow({
             <>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
-                    onClick={onAssignCircuit}
-                  >
-                    <GitBranch className="h-4 w-4" />
-                  </Button>
+                  {isAssignedToCircuit ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 p-0 text-green-400 cursor-not-allowed opacity-80"
+                      disabled
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
+                      onClick={onAssignCircuit}
+                    >
+                      <GitBranch className="h-4 w-4" />
+                    </Button>
+                  )}
                 </TooltipTrigger>
                 <TooltipContent className="bg-[#0a1033]/90 border-blue-900/50">
-                  <p>Assign to circuit</p>
+                  <p>
+                    {isAssignedToCircuit
+                      ? "Document is already assigned to a circuit"
+                      : "Assign to circuit"}
+                  </p>
                 </TooltipContent>
               </Tooltip>
 

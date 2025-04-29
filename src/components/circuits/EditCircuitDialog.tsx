@@ -1,10 +1,9 @@
-
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { toast } from 'sonner';
-import circuitService from '@/services/circuitService';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
+import circuitService from "@/services/circuitService";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -20,16 +19,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
+  FormDescription,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Info } from "lucide-react";
 
 const formSchema = z.object({
-  title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
+  title: z.string().min(3, { message: "Title must be at least 3 characters" }),
   descriptif: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean().default(false),
   hasOrderedFlow: z.boolean().default(true),
 });
 
@@ -54,7 +55,7 @@ export default function EditCircuitDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: circuit.title,
-      descriptif: circuit.descriptif || '',
+      descriptif: circuit.descriptif || "",
       isActive: circuit.isActive,
       hasOrderedFlow: circuit.hasOrderedFlow,
     },
@@ -66,16 +67,16 @@ export default function EditCircuitDialog({
       await circuitService.updateCircuit(circuit.id, {
         ...circuit,
         title: values.title,
-        descriptif: values.descriptif || '',
-        isActive: values.isActive,
+        descriptif: values.descriptif || "",
+        isActive: circuit.isActive,
         hasOrderedFlow: values.hasOrderedFlow,
       });
-      
-      toast.success('Circuit updated successfully');
+
+      toast.success("Circuit updated successfully");
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      toast.error('Failed to update circuit');
+      toast.error("Failed to update circuit");
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -87,9 +88,7 @@ export default function EditCircuitDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Edit Circuit</DialogTitle>
-          <DialogDescription>
-            Update circuit information
-          </DialogDescription>
+          <DialogDescription>Update circuit information</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -98,7 +97,7 @@ export default function EditCircuitDialog({
               <div className="text-sm font-medium">Circuit Code</div>
               <div className="font-mono text-sm">{circuit.circuitKey}</div>
             </div>
-            
+
             <FormField
               control={form.control}
               name="title"
@@ -120,10 +119,7 @@ export default function EditCircuitDialog({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea
-                      {...field}
-                      value={field.value || ''}
-                    />
+                    <Textarea {...field} value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -137,12 +133,21 @@ export default function EditCircuitDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel>Active</FormLabel>
+                      <FormLabel className="flex items-center">
+                        Active Status
+                        <Info className="h-4 w-4 ml-1 text-blue-400" />
+                      </FormLabel>
+                      <FormDescription className="text-xs">
+                        {circuit.isActive
+                          ? "Active - documents are assigned to this circuit"
+                          : "Inactive - no documents assigned yet"}
+                      </FormDescription>
                     </div>
                     <FormControl>
                       <Switch
                         checked={field.value}
-                        onCheckedChange={field.onChange}
+                        disabled={true}
+                        className="cursor-not-allowed"
                       />
                     </FormControl>
                   </FormItem>
@@ -168,6 +173,14 @@ export default function EditCircuitDialog({
               />
             </div>
 
+            <div className="bg-blue-900/20 p-3 rounded-md border border-blue-800/30 text-sm text-blue-300">
+              <p className="flex items-center">
+                <Info className="h-4 w-4 mr-2 text-blue-400" />
+                Circuits are automatically activated when documents are assigned
+                to them.
+              </p>
+            </div>
+
             <DialogFooter>
               <Button
                 type="button"
@@ -178,7 +191,7 @@ export default function EditCircuitDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Updating...' : 'Update Circuit'}
+                {isSubmitting ? "Updating..." : "Update Circuit"}
               </Button>
             </DialogFooter>
           </form>

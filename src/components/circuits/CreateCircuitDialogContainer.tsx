@@ -1,11 +1,16 @@
-
-import { useState } from 'react';
-import { toast } from 'sonner';
-import circuitService from '@/services/circuitService';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import CreateCircuitStepOne from './steps/CreateCircuitStepOne';
-import CreateCircuitStepTwo from './steps/CreateCircuitStepTwo';
-import CreateCircuitStepThree from './steps/CreateCircuitStepThree';
+import { useState } from "react";
+import { toast } from "sonner";
+import circuitService from "@/services/circuitService";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import CreateCircuitStepOne from "./steps/CreateCircuitStepOne";
+import CreateCircuitStepTwo from "./steps/CreateCircuitStepTwo";
+import CreateCircuitStepThree from "./steps/CreateCircuitStepThree";
 
 export type Step = 1 | 2 | 3;
 
@@ -23,17 +28,20 @@ interface CreateCircuitDialogContainerProps {
 export default function CreateCircuitDialogContainer({
   open,
   onOpenChange,
-  onSuccess
+  onSuccess,
 }: CreateCircuitDialogContainerProps) {
   const [step, setStep] = useState<Step>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formValues, setFormValues] = useState<FormValues>({ title: '', descriptif: '' });
+  const [formValues, setFormValues] = useState<FormValues>({
+    title: "",
+    descriptif: "",
+  });
   const [errors, setErrors] = useState<{ title?: string }>({});
 
   const handleNext = () => {
     if (step === 1) {
       if (!formValues.title || formValues.title.trim().length < 3) {
-        setErrors({ title: 'Title must be at least 3 characters' });
+        setErrors({ title: "Title must be at least 3 characters" });
         return;
       }
       setErrors({});
@@ -43,12 +51,12 @@ export default function CreateCircuitDialogContainer({
     }
   };
 
-  const handleBack = () => setStep((prev) => ((prev - 1) as Step));
+  const handleBack = () => setStep((prev) => (prev - 1) as Step);
   const handleEdit = (targetStep: Step) => setStep(targetStep);
 
   const handleClose = () => {
     setStep(1);
-    setFormValues({ title: '', descriptif: '' });
+    setFormValues({ title: "", descriptif: "" });
     setErrors({});
     onOpenChange(false);
   };
@@ -60,7 +68,7 @@ export default function CreateCircuitDialogContainer({
 
   const handleSubmit = async () => {
     if (!formValues.title || formValues.title.trim().length < 3) {
-      setErrors({ title: 'Title must be at least 3 characters' });
+      setErrors({ title: "Title must be at least 3 characters" });
       setStep(1);
       return;
     }
@@ -68,19 +76,19 @@ export default function CreateCircuitDialogContainer({
     try {
       await circuitService.createCircuit({
         title: formValues.title,
-        descriptif: formValues.descriptif || '',
-        isActive: true,
+        descriptif: formValues.descriptif || "",
+        isActive: false,
         hasOrderedFlow: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
-      toast.success('Circuit created successfully');
-      setFormValues({ title: '', descriptif: '' });
+      toast.success("Circuit created successfully");
+      setFormValues({ title: "", descriptif: "" });
       setStep(1);
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      toast.error('Failed to create circuit');
+      toast.error("Failed to create circuit");
       // eslint-disable-next-line no-console
       console.error(error);
     } finally {
@@ -88,22 +96,29 @@ export default function CreateCircuitDialogContainer({
     }
   };
 
-  const dialogPanelClass = "bg-[#101942] border border-blue-900 shadow-2xl rounded-xl";
+  const dialogPanelClass =
+    "bg-[#101942] border border-blue-900 shadow-2xl rounded-xl";
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={`sm:max-w-[480px] ${dialogPanelClass}`}>
         <DialogHeader>
-          <DialogTitle className="text-xl text-white">Create Circuit</DialogTitle>
+          <DialogTitle className="text-xl text-white">
+            Create Circuit
+          </DialogTitle>
           <DialogDescription>
             Create a new circuit for document workflow
           </DialogDescription>
         </DialogHeader>
-        <form className="space-y-4" autoComplete="off" onSubmit={e => e.preventDefault()}>
+        <form
+          className="space-y-4"
+          autoComplete="off"
+          onSubmit={(e) => e.preventDefault()}
+        >
           {step === 1 && (
             <CreateCircuitStepOne
               value={formValues.title}
-              onChange={(val) => handleFieldChange('title', val)}
+              onChange={(val) => handleFieldChange("title", val)}
               error={errors.title}
               disabled={isSubmitting}
               onNext={handleNext}
@@ -112,8 +127,8 @@ export default function CreateCircuitDialogContainer({
           )}
           {step === 2 && (
             <CreateCircuitStepTwo
-              value={formValues.descriptif || ''}
-              onChange={(val) => handleFieldChange('descriptif', val)}
+              value={formValues.descriptif || ""}
+              onChange={(val) => handleFieldChange("descriptif", val)}
               disabled={isSubmitting}
               onNext={handleNext}
               onBack={handleBack}
@@ -122,7 +137,7 @@ export default function CreateCircuitDialogContainer({
           {step === 3 && (
             <CreateCircuitStepThree
               title={formValues.title}
-              descriptif={formValues.descriptif || ''}
+              descriptif={formValues.descriptif || ""}
               disabled={isSubmitting}
               onEdit={handleEdit}
               onBack={handleBack}

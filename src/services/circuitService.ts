@@ -37,6 +37,11 @@ const circuitService = {
     await api.delete(`/Circuit/${id}`);
   },
 
+  // Add this new method for circuit validation
+  validateCircuit: async (circuitId: number): Promise<CircuitValidation> => {
+    const response = await api.get(`/Circuit/${circuitId}/validation`);
+    return response.data;
+  },
   // Circuit Steps endpoints - these are part of the Circuit response now
   getCircuitDetailsByCircuitId: async (circuitId: number): Promise<CircuitDetail[]> => {
     if (circuitId === 0 || !circuitId) return [];
@@ -189,6 +194,8 @@ const circuitService = {
   }): Promise<void> => {
     await api.post('/Workflow/complete-status', data);
   },
+
+  
 };
 
 export default circuitService;
