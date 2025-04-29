@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import circuitService from '@/services/circuitService';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import circuitService from "@/services/circuitService";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -20,18 +20,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
+import { Link } from "react-router-dom";
+import { AlertCircle, PlusCircle } from "lucide-react";
 
 const formSchema = z.object({
-  circuitId: z.string().min(1, 'Please select a circuit'),
+  circuitId: z.string().min(1, "Please select a circuit"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -54,20 +56,23 @@ export default function AssignCircuitDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: circuits, isLoading } = useQuery({
-    queryKey: ['circuits'],
+    queryKey: ["circuits"],
     queryFn: circuitService.getAllCircuits,
     enabled: open,
   });
 
   // Filter circuits to only include those that have steps
-  const circuitsWithSteps = circuits?.filter(circuit => 
-    circuit.steps && circuit.steps.length > 0
+  const circuitsWithSteps = circuits?.filter(
+    (circuit) => circuit.steps && circuit.steps.length > 0
   );
+
+  const noCircuitsAvailable =
+    !isLoading && (!circuitsWithSteps || circuitsWithSteps.length === 0);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      circuitId: '',
+      circuitId: "",
     },
   });
 
@@ -75,16 +80,16 @@ export default function AssignCircuitDialog({
     setIsSubmitting(true);
     try {
       const circuitId = parseInt(values.circuitId);
-      
+
       // Check if the circuit is inactive and needs to be activated
-      const selectedCircuit = circuits?.find(c => c.id === circuitId);
+      const selectedCircuit = circuits?.find((c) => c.id === circuitId);
       if (selectedCircuit && !selectedCircuit.isActive) {
         // Activate the circuit before assigning
         await circuitService.updateCircuit(circuitId, {
           ...selectedCircuit,
-          isActive: true
+          isActive: true,
         });
-        toast.success('Circuit has been activated');
+        toast.success("Circuit has been activated");
       }
 
       // Assign document to circuit
@@ -92,13 +97,13 @@ export default function AssignCircuitDialog({
         documentId,
         circuitId: circuitId,
       });
-      
-      toast.success('Document assigned to circuit successfully');
+
+      toast.success("Document assigned to circuit successfully");
       form.reset();
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      toast.error('Failed to assign document to circuit');
+      toast.error("Failed to assign document to circuit");
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -115,53 +120,91 @@ export default function AssignCircuitDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="circuitId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Circuit</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={isLoading}
+        {noCircuitsAvailable ? (
+          <div className="rounded-md bg-blue-900/20 p-4 border border-blue-800/50">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-blue-400" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-blue-300">
+                  No circuits available
+                </h3>
+                <div className="mt-2 text-sm text-blue-200">
+                  <p>
+                    There are no circuits with steps available for assignment.
+                    You need to create a circuit with at least one step before
+                    you can assign documents.
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-blue-500/50 text-blue-400 hover:bg-blue-500/20"
+                    asChild
                   >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a circuit" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {circuitsWithSteps?.map((circuit) => (
-                        <SelectItem key={circuit.id} value={circuit.id.toString()}>
-                          {circuit.circuitKey} - {circuit.title}
-                          {!circuit.isActive && " (Inactive)"}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <Link to="/circuits">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Manage Circuits
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="circuitId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Circuit</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isLoading}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a circuit" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {circuitsWithSteps?.map((circuit) => (
+                          <SelectItem
+                            key={circuit.id}
+                            value={circuit.id.toString()}
+                          >
+                            {circuit.circuitKey} - {circuit.title}
+                            {!circuit.isActive && " (Inactive)"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting || isLoading}>
-                {isSubmitting ? 'Assigning...' : 'Assign to Circuit'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting || isLoading}>
+                  {isSubmitting ? "Assigning..." : "Assign to Circuit"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        )}
       </DialogContent>
     </Dialog>
   );

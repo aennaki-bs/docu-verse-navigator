@@ -69,7 +69,7 @@ export default function SubTypeManagementPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <SubTypeManagementHeader documentType={documentType} />
+      {/* <SubTypeManagementHeader documentType={documentType} /> */}
       <SubTypesList documentType={documentType} />
     </div>
   );

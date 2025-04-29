@@ -1,9 +1,15 @@
-
-import { Link } from 'react-router-dom';
-import { Plus, AlertCircle, GitBranch } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import AddToCircuitButton from '@/components/circuits/AddToCircuitButton';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Plus, AlertCircle, GitBranch } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { CreateDocumentModal } from "@/components/create-document/CreateDocumentModal";
+import AddToCircuitButton from "@/components/circuits/AddToCircuitButton";
 
 interface DocumentsHeaderProps {
   useFakeData: boolean;
@@ -20,8 +26,10 @@ export default function DocumentsHeader({
   canManageDocuments,
   selectedDocuments,
   openDeleteDialog,
-  openAssignCircuitDialog
+  openAssignCircuitDialog,
 }: DocumentsHeaderProps) {
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div>
@@ -30,9 +38,9 @@ export default function DocumentsHeader({
       </div>
       <div className="flex flex-wrap gap-3">
         {useFakeData && (
-          <Button 
-            variant="outline" 
-            onClick={fetchDocuments} 
+          <Button
+            variant="outline"
+            onClick={fetchDocuments}
             className="border-amber-500/50 text-amber-500 hover:bg-amber-500/20"
           >
             <AlertCircle className="mr-2 h-4 w-4" />
@@ -41,15 +49,16 @@ export default function DocumentsHeader({
         )}
         {canManageDocuments ? (
           <>
-            <Button className="bg-blue-600 hover:bg-blue-700" asChild>
-              <Link to="/documents/create">
-                <Plus className="mr-2 h-4 w-4" /> New Document
-              </Link>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={() => setCreateModalOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" /> New Document
             </Button>
-            
+
             {selectedDocuments.length === 1 && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="border-blue-500/50 text-blue-500 hover:bg-blue-500/20"
                 onClick={() => openAssignCircuitDialog(selectedDocuments[0])}
               >
@@ -73,10 +82,18 @@ export default function DocumentsHeader({
         )}
         {canManageDocuments && selectedDocuments.length > 0 && (
           <Button variant="destructive" onClick={openDeleteDialog}>
-            <Plus className="mr-2 h-4 w-4" /> Delete Selected ({selectedDocuments.length})
+            <Plus className="mr-2 h-4 w-4" /> Delete Selected (
+            {selectedDocuments.length})
           </Button>
         )}
       </div>
+
+      {/* Create Document Modal */}
+      <CreateDocumentModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onDocumentCreated={fetchDocuments}
+      />
     </div>
   );
 }
