@@ -1,15 +1,41 @@
-
 import { Input } from "@/components/ui/input";
+import { SearchColumn } from "../hooks/useUserManagement";
 
-export function UserTableHeader({ searchQuery, setSearchQuery }: {
+export function UserTableHeader({
+  searchQuery,
+  setSearchQuery,
+  searchColumns,
+}: {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  searchColumns: SearchColumn[];
 }) {
+  const getPlaceholderText = () => {
+    if (searchColumns.length === 5) return "Search users...";
+
+    const columnNames = searchColumns.map((column) => {
+      switch (column) {
+        case "username":
+          return "Username";
+        case "email":
+          return "Email";
+        case "firstName":
+          return "First Name";
+        case "lastName":
+          return "Last Name";
+        case "role":
+          return "Role";
+      }
+    });
+
+    return `Search by ${columnNames.join(", ")}...`;
+  };
+
   return (
     <div className="mb-4">
       <div className="relative w-full">
         <Input
-          placeholder="Search users..."
+          placeholder={getPlaceholderText()}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="bg-[#0d1424] border-gray-700 text-white pl-10"

@@ -42,6 +42,7 @@ const circuitService = {
     const response = await api.get(`/Circuit/${circuitId}/validation`);
     return response.data;
   },
+  
   // Circuit Steps endpoints - these are part of the Circuit response now
   getCircuitDetailsByCircuitId: async (circuitId: number): Promise<CircuitDetail[]> => {
     if (circuitId === 0 || !circuitId) return [];

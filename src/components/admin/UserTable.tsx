@@ -1,17 +1,24 @@
-
-import { useState } from 'react';
-import { toast } from 'sonner';
-import adminService from '@/services/adminService';
-import { UserTableHeader } from './table/UserTableHeader';
-import { UserTableContent } from './table/UserTableContent';
-import { BulkActionsBar } from './table/BulkActionsBar';
-import { DeleteConfirmDialog } from './DeleteConfirmDialog';
-import { EditUserDialog } from './EditUserDialog';
-import { EditUserEmailDialog } from './EditUserEmailDialog';
-import { ViewUserLogsDialog } from './ViewUserLogsDialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useUserManagement } from './hooks/useUserManagement';
-import { AlertTriangle } from 'lucide-react';
+import { useState } from "react";
+import { toast } from "sonner";
+import adminService from "@/services/adminService";
+import { UserTableHeader } from "./table/UserTableHeader";
+import { UserTableContent } from "./table/UserTableContent";
+import { BulkActionsBar } from "./table/BulkActionsBar";
+import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
+import { EditUserDialog } from "./EditUserDialog";
+import { EditUserEmailDialog } from "./EditUserEmailDialog";
+import { ViewUserLogsDialog } from "./ViewUserLogsDialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useUserManagement } from "./hooks/useUserManagement";
+import { AlertTriangle, Bug } from "lucide-react";
+import { UserTableFilters } from "./table/UserTableFilters";
+import { Button } from "@/components/ui/button";
 
 export function UserTable() {
   const {
@@ -27,7 +34,7 @@ export function UserTable() {
     users: filteredUsers,
     isLoading,
     isError,
-    refetch, // Now properly destructured from the hook
+    refetch,
     setEditingUser,
     setEditEmailUser,
     setViewingUserLogs,
@@ -42,16 +49,34 @@ export function UserTable() {
     handleUserEmailEdited,
     handleUserDeleted,
     handleMultipleDeleted,
+    searchColumns,
+    toggleSearchColumn,
+    activeFilter,
+    setActiveFilter,
+    roleFilter,
+    setRoleFilter,
+    clearFilters,
+    debugUsers,
   } = useUserManagement();
 
-  const handleToggleUserStatus = async (userId: number, currentStatus: boolean) => {
+  // Check if any filters are applied
+  const hasFiltersApplied =
+    searchQuery !== "" ||
+    activeFilter !== "all" ||
+    roleFilter !== undefined ||
+    searchColumns.length < 4;
+
+  const handleToggleUserStatus = async (
+    userId: number,
+    currentStatus: boolean
+  ) => {
     try {
       const newStatus = !currentStatus;
       await adminService.updateUser(userId, { isActive: newStatus });
-      toast.success(`User ${newStatus ? 'activated' : 'blocked'} successfully`);
+      toast.success(`User ${newStatus ? "activated" : "blocked"} successfully`);
       refetch();
     } catch (error) {
-      toast.error(`Failed to ${currentStatus ? 'block' : 'activate'} user`);
+      toast.error(`Failed to ${currentStatus ? "block" : "activate"} user`);
       console.error(error);
     }
   };
@@ -62,29 +87,31 @@ export function UserTable() {
       toast.success(`User role changed to ${roleName}`);
       refetch();
     } catch (error) {
-      toast.error('Failed to change user role');
+      toast.error("Failed to change user role");
       console.error(error);
     }
   };
 
   const handleBulkRoleChange = async () => {
     if (!selectedRole || selectedUsers.length === 0) {
-      toast.error('Please select a role and at least one user');
+      toast.error("Please select a role and at least one user");
       return;
     }
 
     try {
-      const updatePromises = selectedUsers.map(userId => 
+      const updatePromises = selectedUsers.map((userId) =>
         adminService.updateUser(userId, { roleName: selectedRole })
       );
-      
+
       await Promise.all(updatePromises);
-      toast.success(`Role updated to ${selectedRole} for ${selectedUsers.length} users`);
+      toast.success(
+        `Role updated to ${selectedRole} for ${selectedUsers.length} users`
+      );
       refetch();
       setRoleChangeOpen(false);
-      setSelectedRole('');
+      setSelectedRole("");
     } catch (error) {
-      toast.error('Failed to update roles for selected users');
+      toast.error("Failed to update roles for selected users");
       console.error(error);
     }
   };
@@ -108,9 +135,37 @@ export function UserTable() {
 
   return (
     <div>
-      <UserTableHeader searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <UserTableHeader
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        searchColumns={searchColumns}
+      />
 
-      <UserTableContent 
+      <UserTableFilters
+        searchColumns={searchColumns}
+        toggleSearchColumn={toggleSearchColumn}
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+        roleFilter={roleFilter}
+        setRoleFilter={setRoleFilter}
+        hasFiltersApplied={hasFiltersApplied}
+        clearFilters={clearFilters}
+      />
+
+      {process.env.NODE_ENV === "development" && (
+        <div className="mb-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={debugUsers}
+            className="bg-amber-900/30 border-amber-600/50 text-amber-400 hover:bg-amber-900/50"
+          >
+            <Bug className="h-3.5 w-3.5 mr-2" /> Debug User Data
+          </Button>
+        </div>
+      )}
+
+      <UserTableContent
         users={filteredUsers}
         selectedUsers={selectedUsers}
         onSelectAll={() => handleSelectAll(filteredUsers || [])}
@@ -132,16 +187,16 @@ export function UserTable() {
       )}
 
       {editingUser && (
-        <EditUserDialog 
-          user={editingUser} 
-          open={!!editingUser} 
+        <EditUserDialog
+          user={editingUser}
+          open={!!editingUser}
           onOpenChange={(open) => !open && setEditingUser(null)}
           onSuccess={handleUserEdited}
         />
       )}
 
       {editEmailUser && (
-        <EditUserEmailDialog 
+        <EditUserEmailDialog
           user={editEmailUser}
           open={!!editEmailUser}
           onOpenChange={(open) => !open && setEditEmailUser(null)}
@@ -167,11 +222,11 @@ export function UserTable() {
             try {
               if (deletingUser) {
                 await adminService.deleteUser(deletingUser);
-                toast.success('User deleted successfully');
+                toast.success("User deleted successfully");
                 handleUserDeleted();
               }
             } catch (error) {
-              toast.error('Failed to delete user');
+              toast.error("Failed to delete user");
               console.error(error);
             }
           }}
@@ -187,10 +242,12 @@ export function UserTable() {
           onConfirm={async () => {
             try {
               await adminService.deleteMultipleUsers(selectedUsers);
-              toast.success(`${selectedUsers.length} users deleted successfully`);
+              toast.success(
+                `${selectedUsers.length} users deleted successfully`
+              );
               handleMultipleDeleted();
             } catch (error) {
-              toast.error('Failed to delete users');
+              toast.error("Failed to delete users");
               console.error(error);
             }
           }}
@@ -214,10 +271,10 @@ export function UserTable() {
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent className="bg-[#0a1033] border-blue-900/30">
-                {["Admin", "FullUser", "SimpleUser"].map(role => (
-                  <SelectItem 
-                    key={role} 
-                    value={role} 
+                {["Admin", "FullUser", "SimpleUser"].map((role) => (
+                  <SelectItem
+                    key={role}
+                    value={role}
                     className="text-white hover:bg-blue-900/20"
                   >
                     {role}
