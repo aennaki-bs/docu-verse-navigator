@@ -1,65 +1,43 @@
-
-import { 
-  FileText, 
-  GitBranch, 
-  CircleCheck, 
-  Users
-} from "lucide-react";
-import { StatsCard } from "./StatsCard";
+import { DashboardStats as DashboardStatsType } from '@/services/dashboardService';
 
 interface DashboardStatsProps {
-  documentsCount: number;
+  stats: DashboardStatsType | undefined;
 }
 
-export function DashboardStats({ documentsCount }: DashboardStatsProps) {
-  const stats = [
-    { 
-      id: 1, 
-      name: "Total Documents", 
-      value: documentsCount || 0, 
-      change: "+5%",
-      icon: FileText,
-      color: "bg-blue-600",
-      iconBg: "bg-blue-500/20 text-blue-500",
-      link: "/documents"
-    },
-    { 
-      id: 2, 
-      name: "Active Circuits", 
-      value: "5", 
-      change: "+12%",
-      icon: GitBranch,
-      color: "bg-purple-600",
-      iconBg: "bg-purple-500/20 text-purple-500",
-      link: "/circuits"
-    },
-    { 
-      id: 3, 
-      name: "Pending Approvals", 
-      value: "3", 
-      change: "-8%",
-      icon: CircleCheck,
-      color: "bg-green-600",
-      iconBg: "bg-green-500/20 text-green-500",
-      link: "/pending-approvals"
-    },
-    { 
-      id: 4, 
-      name: "Team Members", 
-      value: "12", 
-      change: "+16%",
-      icon: Users,
-      color: "bg-amber-600",
-      iconBg: "bg-amber-500/20 text-amber-500",
-      link: "/admin"
-    },
-  ];
-
+export function DashboardStats({ stats }: DashboardStatsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat) => (
-        <StatsCard key={stat.id} {...stat} />
-      ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="bg-[#0f1642] border border-blue-900/30 rounded-lg p-4">
+        <h4 className="text-sm text-blue-300">Total Documents</h4>
+        <div className="mt-2 flex justify-between items-end">
+          <span className="text-2xl font-semibold text-white">{stats?.totalDocuments || 0}</span>
+          <span className="text-xs text-green-400">+5%</span>
+        </div>
+      </div>
+
+      <div className="bg-[#0f1642] border border-blue-900/30 rounded-lg p-4">
+        <h4 className="text-sm text-blue-300">Active Circuits</h4>
+        <div className="mt-2 flex justify-between items-end">
+          <span className="text-2xl font-semibold text-white">{stats?.activeCircuits || 0}</span>
+          <span className="text-xs text-blue-400">+12%</span>
+        </div>
+      </div>
+
+      <div className="bg-[#0f1642] border border-blue-900/30 rounded-lg p-4">
+        <h4 className="text-sm text-blue-300">Pending Approvals</h4>
+        <div className="mt-2 flex justify-between items-end">
+          <span className="text-2xl font-semibold text-white">{stats?.pendingApprovals || 0}</span>
+          <span className="text-xs text-yellow-400">-9%</span>
+        </div>
+      </div>
+
+      <div className="bg-[#0f1642] border border-blue-900/30 rounded-lg p-4">
+        <h4 className="text-sm text-blue-300">Team Members</h4>
+        <div className="mt-2 flex justify-between items-end">
+          <span className="text-2xl font-semibold text-white">{stats?.teamMembers || 0}</span>
+          <span className="text-xs text-green-400">+15%</span>
+        </div>
+      </div>
     </div>
   );
 }

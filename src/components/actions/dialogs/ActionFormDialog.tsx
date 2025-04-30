@@ -1,102 +1,88 @@
-
-import * as React from 'react';
 import { useForm } from 'react-hook-form';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { ActionForm, Action } from '@/models/action';
-import { useActionManagement } from '@/hooks/useActionManagement';
+import { Action, CreateActionDto } from '@/models/action';
+
+const actionFormSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters'),
+  description: z.string().optional(),
+});
 
 interface ActionFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit?: (data: ActionForm) => void;
-  action?: Action;
+  action: Action | null;
+  onSubmit: (data: CreateActionDto) => Promise<void>;
 }
 
-export function ActionFormDialog({ 
-  open, 
-  onOpenChange, 
-  onSubmit, 
-  action 
-}: ActionFormDialogProps) {
-  const { createAction, updateAction } = useActionManagement();
-  const form = useForm<ActionForm>({
+export function ActionFormDialog({ open, onOpenChange, action, onSubmit }: ActionFormDialogProps) {
+  const form = useForm<CreateActionDto>({
+    resolver: zodResolver(actionFormSchema),
     defaultValues: {
       title: action?.title || '',
       description: action?.description || '',
     },
   });
 
-  const handleSubmit = async (data: ActionForm) => {
-    if (onSubmit) {
-      onSubmit(data);
-    } else {
-      // If no onSubmit provided, handle internally
-      try {
-        if (action) {
-          await updateAction({ id: action.id, data });
-        } else {
-          await createAction(data);
-        }
-      } catch (error) {
-        console.error('Error saving action:', error);
-      }
-    }
+  const handleSubmit = async (data: CreateActionDto) => {
+    await onSubmit(data);
     form.reset();
     onOpenChange(false);
   };
 
-  React.useEffect(() => {
-    if (action && open) {
-      form.reset({
-        title: action.title,
-        description: action.description || '',
-      });
-    } else if (!open) {
-      form.reset();
-    }
-  }, [action, open, form]);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-[#0f1642] text-white border-blue-900/30">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{action ? 'Edit Action' : 'Create New Action'}</DialogTitle>
+          <DialogTitle>{action ? 'Edit Action' : 'Create Action'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              {...form.register('title', { required: true })}
-              className="bg-[#1a2765] border-blue-900/30"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              {...form.register('description')}
-              className="bg-[#1a2765] border-blue-900/30 min-h-[100px]"
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Enter description" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              className="border-blue-900/30"
-            >
-              Cancel
-            </Button>
-            <Button type="submit">
-              {action ? 'Update' : 'Create'}
-            </Button>
-          </DialogFooter>
-        </form>
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">
+                {action ? 'Update' : 'Create'}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

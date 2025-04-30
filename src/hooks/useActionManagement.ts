@@ -1,59 +1,96 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import api from '@/services/api';
-import { Action, CreateActionDto } from '@/models/action';
+import { Action, ActionForm } from '@/models/action';
+import { actionService } from '@/services/actionService';
+import { toast } from '@/components/ui/use-toast';
 
 export function useActionManagement() {
   const queryClient = useQueryClient();
+  const queryKey = ['actions'];
 
   const { data: actions = [], isLoading } = useQuery({
-    queryKey: ['actions'],
-    queryFn: () => api.get('/Action').then(res => res.data),
+    queryKey,
+    queryFn: actionService.getActions,
   });
 
-  const { mutateAsync: createAction } = useMutation({
-    mutationFn: (data: CreateActionDto) => api.post('/Action', data),
+  const createActionMutation = useMutation({
+    mutationFn: actionService.createAction,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['actions'] });
-      toast.success('Action created successfully');
+      queryClient.invalidateQueries({ queryKey });
+      toast({
+        title: 'Success',
+        description: 'Action created successfully',
+      });
     },
-    onError: (error: any) => {
-      toast.error('Failed to create action');
-      console.error('Error creating action:', error);
-    },
-  });
-
-  const { mutateAsync: deleteAction } = useMutation({
-    mutationFn: (actionId: number) => api.delete(`/Action/${actionId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['actions'] });
-      toast.success('Action deleted successfully');
-    },
-    onError: (error: any) => {
-      toast.error('Failed to delete action');
-      console.error('Error deleting action:', error);
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to create action: ${error.message}`,
+        variant: 'destructive',
+      });
     },
   });
 
-  const { mutateAsync: updateAction } = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: CreateActionDto }) => 
-      api.put(`/Action/${id}`, data),
+  const updateActionMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: ActionForm }) =>
+      actionService.updateAction(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['actions'] });
-      toast.success('Action updated successfully');
+      queryClient.invalidateQueries({ queryKey });
+      toast({
+        title: 'Success',
+        description: 'Action updated successfully',
+      });
     },
-    onError: (error: any) => {
-      toast.error('Failed to update action');
-      console.error('Error updating action:', error);
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to update action: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const deleteActionMutation = useMutation({
+    mutationFn: actionService.deleteAction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+      toast({
+        title: 'Success',
+        description: 'Action deleted successfully',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to delete action: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const toggleActionStatusMutation = useMutation({
+    mutationFn: actionService.toggleActionStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+      toast({
+        title: 'Success',
+        description: 'Action status updated successfully',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to update action status: ${error.message}`,
+        variant: 'destructive',
+      });
     },
   });
 
   return {
     actions,
     isLoading,
-    createAction,
-    deleteAction,
-    updateAction,
+    createAction: createActionMutation.mutateAsync,
+    updateAction: updateActionMutation.mutateAsync,
+    deleteAction: deleteActionMutation.mutateAsync,
+    toggleActionStatus: toggleActionStatusMutation.mutateAsync,
   };
 }

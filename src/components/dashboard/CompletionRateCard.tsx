@@ -1,43 +1,36 @@
+import { CompletionRate } from '@/services/dashboardService';
 
-import { Card, CardContent } from "@/components/ui/card";
+interface CompletionRateCardProps {
+  completionRate: CompletionRate | undefined;
+}
 
-export function CompletionRateCard() {
+export function CompletionRateCard({ completionRate }: CompletionRateCardProps) {
   return (
-    <Card className="bg-[#0f1642] border-blue-900/30">
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-medium text-white">Completion Rate</h3>
-            <p className="text-xs text-blue-300/80">From all documents</p>
-          </div>
-          
-          <div className="flex justify-center py-4">
-            <div className="relative h-32 w-32 flex items-center justify-center">
-              <svg className="w-full h-full" viewBox="0 0 100 100">
-                <circle 
-                  cx="50" cy="50" r="45" 
-                  fill="none" 
-                  stroke="#1e3a8a" 
-                  strokeWidth="8" 
-                />
-                <circle 
-                  cx="50" cy="50" r="45" 
-                  fill="none" 
-                  stroke="#3b82f6" 
-                  strokeWidth="8" 
-                  strokeDasharray="283"
-                  strokeDashoffset="62" // ~78% completion (283 * 0.22)
-                  transform="rotate(-90 50 50)"
-                />
-              </svg>
-              <div className="absolute flex flex-col items-center">
-                <span className="text-3xl font-bold text-white">78%</span>
-                <span className="text-xs text-blue-300">(Based on tasks)</span>
-              </div>
-            </div>
-          </div>
+    <div className="bg-[#0f1642] border border-blue-900/30 rounded-lg p-4">
+      <h3 className="text-lg font-semibold text-white mb-4">Completion Rate</h3>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-3xl font-bold text-white">{completionRate?.rate || 0}%</p>
+          <p className="text-sm text-blue-300 mt-1">Documents processed</p>
         </div>
-      </CardContent>
-    </Card>
+        <div className="h-24 w-24 relative">
+          {/* Add a circular progress indicator here if needed */}
+        </div>
+      </div>
+      <div className="mt-4 space-y-2">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-blue-300">Completed</span>
+          <span className="text-sm text-white">{completionRate?.completed || 0}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-blue-300">In Progress</span>
+          <span className="text-sm text-white">{completionRate?.inProgress || 0}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-blue-300">Pending</span>
+          <span className="text-sm text-white">{completionRate?.pending || 0}</span>
+        </div>
+      </div>
+    </div>
   );
 }

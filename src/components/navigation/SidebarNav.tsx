@@ -8,6 +8,7 @@ import {
   Users,
   CalendarRange,
   Settings,
+  PlayCircle
 } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { UserProfileSection } from "./UserProfileSection";
@@ -122,6 +123,20 @@ export function SidebarNav() {
                 >
                   <GitBranch className="h-5 w-5" />
                   <span>Circuits</span>
+                </Link>
+              </li>
+              {/* Actions Management */}
+              <li>
+                <Link
+                  to="/actions"
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive("/actions")
+                      ? "bg-blue-600/40 text-blue-200"
+                      : "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                  }`}
+                >
+                  <PlayCircle className="h-5 w-5" />
+                  <span>Actions</span>
                 </Link>
               </li>
             </>
