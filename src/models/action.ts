@@ -5,30 +5,35 @@ export interface Action {
   actionId: number;
   actionKey: string;
   title: string;
-  description?: string;
+  description: string;
 }
 
 export interface CreateActionDto {
   title: string;
-  description?: string;
+  description: string;
+}
+
+export interface UpdateActionDto {
+  title: string;
+  description: string;
+}
+
+export interface StatusEffectDto {
+  statusId: number;
+  setsComplete: boolean;
 }
 
 export interface AssignActionToStepDto {
   stepId: number;
   actionId: number;
-  statusEffects?: Array<{
-    statusId: number;
-    setsComplete: boolean;
-  }>;
+  statusEffects?: StatusEffectDto[];
 }
 
-export interface ActionForm {
-  actionKey: string;
-  title: string;
-  description?: string;
-  category: ActionCategory;
-  priority: ActionPriority;
-  requiresComment: boolean;
+export interface ActionForm extends UpdateActionDto {
+  actionKey?: string;
+  category?: ActionCategory;
+  priority?: ActionPriority;
+  requiresComment?: boolean;
 }
 
 export const ACTION_CATEGORIES = [

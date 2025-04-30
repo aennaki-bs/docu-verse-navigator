@@ -80,6 +80,7 @@ const App = () => (
                 
                 {/* Document routes */}
                 <Route path="/documents" element={<DocumentsPageWrapper />} />
+                <Route path="/documents/:id" element={<ViewDocument />} />
                 
                 {/* Document Types Management routes */}
                 <Route path="/document-types" element={<DocumentTypes />} />

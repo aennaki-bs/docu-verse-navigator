@@ -131,12 +131,20 @@ const circuitService = {
 
   moveDocumentToStep: async (request: MoveDocumentStepRequest): Promise<void> => {
     console.log('Moving document to step:', request);
-    await api.post('/Workflow/return-to-previous', request);
+    await api.post('/Workflow/change-step', request);
   },
 
   moveDocumentToNextStep: async (request: MoveToNextStepRequest): Promise<void> => {
     console.log('Moving document to next step:', request);
-    await api.post('/Workflow/move-next', request);
+    await api.post('/Workflow/move-next', {
+      documentId: request.documentId,
+      comments: request.comments
+    });
+  },
+
+  returnToPreviousStep: async (request: { documentId: number, comments?: string }): Promise<void> => {
+    console.log('Returning document to previous step:', request);
+    await api.post('/Workflow/return-to-previous', request);
   },
 
   getDocumentCircuitHistory: async (documentId: number): Promise<DocumentCircuitHistory[]> => {
@@ -169,23 +177,14 @@ const circuitService = {
     await api.post('/Workflow/perform-action', request);
   },
   
-  // New method to get status using the correct API
-  getStepStatuses: async (stepId: number): Promise<DocumentStatus[]> => {
-    if (!stepId) return [];
-    const response = await api.get(`/Workflow/document/${stepId}/step-statuses`);
+  // Method to get step statuses
+  getStepStatuses: async (documentId: number): Promise<DocumentStatus[]> => {
+    if (!documentId) return [];
+    const response = await api.get(`/Workflow/document/${documentId}/step-statuses`);
     return response.data;
   },
 
-  // Method to update a step status
-  updateStepStatus: async (statusId: number, data: {
-    title: string; 
-    isRequired: boolean; 
-    isComplete: boolean; 
-  }): Promise<void> => {
-    await api.put(`/Status/${statusId}`, data);
-  },
-
-  // Add new method to handle status completion
+  // Method to complete status
   completeStatus: async (data: { 
     documentId: number;
     statusId: number;

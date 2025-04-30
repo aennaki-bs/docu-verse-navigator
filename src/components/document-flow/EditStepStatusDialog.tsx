@@ -34,7 +34,7 @@ export function EditStepStatusDialog({
   const [isRequired, setIsRequired] = useState(status.isRequired);
   const [isComplete, setIsComplete] = useState(status.isComplete);
   
-  const { completeStatus, updateStatus } = useWorkflowStepStatuses(documentId || 0);
+  const { completeStatus } = useWorkflowStepStatuses(documentId || 0);
 
   const handleSubmit = async () => {
     if (!documentId) {
@@ -44,22 +44,11 @@ export function EditStepStatusDialog({
 
     setIsSubmitting(true);
     try {
-      // If only completion status changed
-      if (title === status.title && isRequired === status.isRequired) {
-        await completeStatus({
-          statusId: status.statusId,
-          isComplete,
-          comments: `Status '${title}' marked as ${isComplete ? 'complete' : 'incomplete'}`
-        });
-      } else {
-        // If other fields changed
-        await updateStatus({
-          statusId: status.statusId,
-          title,
-          isRequired,
-          isComplete
-        });
-      }
+      await completeStatus({
+        statusId: status.statusId,
+        isComplete,
+        comments: `Status '${title}' marked as ${isComplete ? 'complete' : 'incomplete'}`
+      });
 
       onSuccess();
       onOpenChange(false);
@@ -82,8 +71,9 @@ export function EditStepStatusDialog({
             <Input
               id="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="col-span-3"
+              className="col-span-3 bg-gray-800/50"
+              disabled
+              readOnly
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -93,7 +83,7 @@ export function EditStepStatusDialog({
             <Switch
               id="required"
               checked={isRequired}
-              onCheckedChange={setIsRequired}
+              disabled
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">

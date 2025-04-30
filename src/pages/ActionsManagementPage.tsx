@@ -2,16 +2,19 @@ import { useState } from 'react';
 import { useActionManagement } from '@/hooks/useActionManagement';
 import { ActionFormDialog } from '@/components/actions/dialogs/ActionFormDialog';
 import { DeleteActionDialog } from '@/components/actions/dialogs/DeleteActionDialog';
+import { AssignActionDialog } from '@/components/actions/dialogs/AssignActionDialog';
 import { ActionsTable } from '@/components/actions/ActionsTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Action, ActionForm } from '@/models/action';
+import { Action, CreateActionDto, UpdateActionDto } from '@/models/action';
 import { Plus } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
 export default function ActionsManagementPage() {
   const { actions, isLoading, createAction, updateAction, deleteAction } = useActionManagement();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
 
   const handleEditAction = (action: Action) => {
@@ -24,20 +27,60 @@ export default function ActionsManagementPage() {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleAssignAction = (action: Action) => {
+    setSelectedAction(action);
+    setIsAssignDialogOpen(true);
+  };
+
   const handleDeleteConfirm = async () => {
-    if (selectedAction) {
-      await deleteAction(selectedAction.id);
-      setIsDeleteDialogOpen(false);
+    if (selectedAction?.actionId) {
+      try {
+        await deleteAction(selectedAction.actionId);
+        setIsDeleteDialogOpen(false);
+        toast({
+          title: "Success",
+          description: "Action deleted successfully",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete action",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Error",
+        description: "Cannot delete action: Invalid action ID",
+        variant: "destructive",
+      });
     }
   };
   
-  const handleSubmitAction = async (data: ActionForm) => {
-    if (selectedAction) {
-      await updateAction({ id: selectedAction.id, data });
-    } else {
-      await createAction(data);
+  const handleSubmitAction = async (data: CreateActionDto | UpdateActionDto) => {
+    try {
+      if (selectedAction) {
+        await updateAction({ id: selectedAction.actionId, data });
+        toast({
+          title: "Success",
+          description: "Action updated successfully",
+        });
+      } else {
+        await createAction(data);
+        toast({
+          title: "Success",
+          description: "Action created successfully",
+        });
+      }
+      setIsFormOpen(false);
+      setSelectedAction(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: selectedAction ? "Failed to update action" : "Failed to create action",
+        variant: "destructive",
+      });
     }
-    setIsFormOpen(false);
   };
 
   return (
@@ -75,6 +118,7 @@ export default function ActionsManagementPage() {
               actions={actions}
               onEditAction={handleEditAction}
               onDeleteAction={handleDeleteAction}
+              onAssignAction={handleAssignAction}
             />
           )}
         </CardContent>
@@ -92,6 +136,12 @@ export default function ActionsManagementPage() {
         onOpenChange={setIsDeleteDialogOpen}
         action={selectedAction}
         onConfirm={handleDeleteConfirm}
+      />
+
+      <AssignActionDialog
+        open={isAssignDialogOpen}
+        onOpenChange={setIsAssignDialogOpen}
+        action={selectedAction}
       />
     </div>
   );

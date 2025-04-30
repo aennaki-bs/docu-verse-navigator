@@ -1,4 +1,4 @@
-import { Action, ActionForm, CreateActionDto } from '@/models/action';
+import { Action, CreateActionDto, UpdateActionDto, AssignActionToStepDto } from '@/models/action';
 import { axiosInstance } from './axiosInstance';
 
 const BASE_URL = '/api/Action';
@@ -19,7 +19,7 @@ export const actionService = {
     return response.data;
   },
 
-  updateAction: async (id: number, data: ActionForm): Promise<Action> => {
+  updateAction: async (id: number, data: UpdateActionDto): Promise<Action> => {
     const response = await axiosInstance.put(`${BASE_URL}/${id}`, data);
     return response.data;
   },
@@ -33,14 +33,12 @@ export const actionService = {
     return response.data;
   },
 
-  assignActionToStep: async (data: {
-    stepId: number;
-    actionId: number;
-    statusEffects?: Array<{
-      statusId: number;
-      setsComplete: boolean;
-    }>;
-  }): Promise<void> => {
+  assignToStep: async (data: AssignActionToStepDto): Promise<void> => {
     await axiosInstance.post(`${BASE_URL}/assign-to-step`, data);
+  },
+
+  getStepActions: async (stepId: number): Promise<Action[]> => {
+    const response = await axiosInstance.get(`${BASE_URL}/by-step/${stepId}`);
+    return response.data;
   }
 }; 

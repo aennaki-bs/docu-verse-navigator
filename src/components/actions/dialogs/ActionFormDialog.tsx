@@ -1,35 +1,40 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Action, CreateActionDto } from '@/models/action';
+import { Action, CreateActionDto, UpdateActionDto } from '@/models/action';
 
-const actionFormSchema = z.object({
+const createActionSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
-  description: z.string().optional(),
+  description: z.string().min(1, 'Description is required'),
 });
+
+const updateActionSchema = createActionSchema;
 
 interface ActionFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   action: Action | null;
-  onSubmit: (data: CreateActionDto) => Promise<void>;
+  onSubmit: (data: CreateActionDto | UpdateActionDto) => Promise<void>;
 }
 
 export function ActionFormDialog({ open, onOpenChange, action, onSubmit }: ActionFormDialogProps) {
-  const form = useForm<CreateActionDto>({
-    resolver: zodResolver(actionFormSchema),
+  const isEditing = !!action;
+  const schema = isEditing ? updateActionSchema : createActionSchema;
+  
+  const form = useForm({
+    resolver: zodResolver(schema),
     defaultValues: {
       title: action?.title || '',
       description: action?.description || '',
     },
   });
 
-  const handleSubmit = async (data: CreateActionDto) => {
+  const handleSubmit = async (data: CreateActionDto | UpdateActionDto) => {
     await onSubmit(data);
     form.reset();
     onOpenChange(false);
@@ -40,6 +45,11 @@ export function ActionFormDialog({ open, onOpenChange, action, onSubmit }: Actio
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{action ? 'Edit Action' : 'Create Action'}</DialogTitle>
+          <DialogDescription>
+            {action 
+              ? 'Update the details of the existing action.' 
+              : 'Create a new action by filling out the form below.'}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">

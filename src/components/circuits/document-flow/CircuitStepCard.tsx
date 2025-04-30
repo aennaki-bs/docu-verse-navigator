@@ -1,9 +1,9 @@
-
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DocumentCircuitHistory } from '@/models/documentCircuit';
 import { CircuitStepHistory } from './CircuitStepHistory';
 import { CircuitStepFooter } from './CircuitStepFooter';
+import { StepAssignedActions } from './StepAssignedActions';
 
 interface CircuitStepCardProps {
   detail: any;
@@ -66,6 +66,9 @@ export const CircuitStepCard = ({
 
         {/* Document card if this is the current step */}
         {children}
+
+        {/* Display assigned actions */}
+        <StepAssignedActions stepId={detail.id} isCurrentStep={isCurrentStep} />
 
         {/* History items for this step */}
         {historyForStep.length > 0 && (

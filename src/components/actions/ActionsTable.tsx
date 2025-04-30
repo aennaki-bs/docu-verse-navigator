@@ -8,15 +8,16 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, Link } from 'lucide-react';
 
 interface ActionsTableProps {
   actions: Action[];
   onEditAction: (action: Action) => void;
   onDeleteAction: (action: Action) => void;
+  onAssignAction: (action: Action) => void;
 }
 
-export function ActionsTable({ actions, onEditAction, onDeleteAction }: ActionsTableProps) {
+export function ActionsTable({ actions, onEditAction, onDeleteAction, onAssignAction }: ActionsTableProps) {
   return (
     <div className="rounded-md border">
       <Table>
@@ -36,6 +37,14 @@ export function ActionsTable({ actions, onEditAction, onDeleteAction }: ActionsT
               <TableCell>{action.description}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onAssignAction(action)}
+                    className="h-8 w-8 text-blue-500 hover:text-blue-600"
+                  >
+                    <Link className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"

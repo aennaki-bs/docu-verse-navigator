@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
@@ -11,7 +10,7 @@ export function useWorkflowNavigation(documentId: number, onNavigationSuccess: (
     
     setIsNavigating(true);
     try {
-      await circuitService.moveDocumentToStep({
+      await circuitService.returnToPreviousStep({
         documentId,
         comments
       });

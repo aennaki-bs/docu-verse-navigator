@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import circuitService from '@/services/circuitService';
@@ -36,27 +35,30 @@ export function useDocumentMovement({ onMoveSuccess }: UseDocumentMovementProps 
         documentId,
         currentStepId,
         targetStepId,
-        direction: isMovingForward ? "forward" : (isMovingBackward ? "backward" : "unknown")
+        direction: isMovingForward ? "forward" : (isMovingBackward ? "backward" : "same")
       });
       
       if (isMovingForward) {
         // Moving forward - use move-next endpoint
         await circuitService.moveDocumentToNextStep({
           documentId,
-          currentStepId,
-          nextStepId: targetStepId,
-          comments: comments || `Moved document to next step #${targetStepId}`
+          comments: comments || `Moving document to next step`
         });
         toast.success('Document moved to next step successfully');
       } else if (isMovingBackward) {
         // Moving backward - use return-to-previous endpoint
-        await circuitService.moveDocumentToStep({
+        await circuitService.returnToPreviousStep({
           documentId,
-          comments: comments || `Returned document to previous step #${targetStepId}`
+          comments: comments || `Returning document to previous step`
         });
         toast.success('Document returned to previous step successfully');
       } else {
-        throw new Error("Could not determine direction of movement");
+        // Moving to same level - use move-next endpoint
+        await circuitService.moveDocumentToNextStep({
+          documentId,
+          comments: comments || `Moving document to step #${targetStepId}`
+        });
+        toast.success('Document moved successfully');
       }
       
       if (onMoveSuccess) {

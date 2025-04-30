@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Action, ActionForm } from '@/models/action';
+import { Action, CreateActionDto, UpdateActionDto } from '@/models/action';
 import { actionService } from '@/services/actionService';
 import { toast } from '@/components/ui/use-toast';
 
@@ -16,36 +16,20 @@ export function useActionManagement() {
     mutationFn: actionService.createAction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast({
-        title: 'Success',
-        description: 'Action created successfully',
-      });
     },
     onError: (error: Error) => {
-      toast({
-        title: 'Error',
-        description: `Failed to create action: ${error.message}`,
-        variant: 'destructive',
-      });
+      console.error('Failed to create action:', error);
     },
   });
 
   const updateActionMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: ActionForm }) =>
+    mutationFn: ({ id, data }: { id: number; data: UpdateActionDto }) =>
       actionService.updateAction(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast({
-        title: 'Success',
-        description: 'Action updated successfully',
-      });
     },
     onError: (error: Error) => {
-      toast({
-        title: 'Error',
-        description: `Failed to update action: ${error.message}`,
-        variant: 'destructive',
-      });
+      console.error('Failed to update action:', error);
     },
   });
 
@@ -53,17 +37,9 @@ export function useActionManagement() {
     mutationFn: actionService.deleteAction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast({
-        title: 'Success',
-        description: 'Action deleted successfully',
-      });
     },
     onError: (error: Error) => {
-      toast({
-        title: 'Error',
-        description: `Failed to delete action: ${error.message}`,
-        variant: 'destructive',
-      });
+      console.error('Failed to delete action:', error);
     },
   });
 
@@ -71,17 +47,9 @@ export function useActionManagement() {
     mutationFn: actionService.toggleActionStatus,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast({
-        title: 'Success',
-        description: 'Action status updated successfully',
-      });
     },
     onError: (error: Error) => {
-      toast({
-        title: 'Error',
-        description: `Failed to update action status: ${error.message}`,
-        variant: 'destructive',
-      });
+      console.error('Failed to update action status:', error);
     },
   });
 

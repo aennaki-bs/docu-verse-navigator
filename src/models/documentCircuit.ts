@@ -76,6 +76,7 @@ export interface MoveDocumentStepRequest {
   documentId: number;
   comments?: string;
   currentStepId?: number;
+  targetStepId?: number;
 }
 
 // Assign circuit request
@@ -88,8 +89,6 @@ export interface AssignCircuitRequest {
 // Move to next step request
 export interface MoveToNextStepRequest {
   documentId: number;
-  currentStepId: number;
-  nextStepId: number;
   comments?: string;
 }
 
@@ -104,4 +103,10 @@ export interface AssignActionToStepDto {
   stepId: number;
   actionId: number;
   statusEffects?: StatusEffectDto[];
+}
+
+// Circuit validation interface
+export interface CircuitValidation {
+  isValid: boolean;
+  errors: string[];
 }
