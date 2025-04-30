@@ -1,21 +1,28 @@
-import { useState } from 'react';
-import { useActionManagement } from '@/hooks/useActionManagement';
-import { ActionFormDialog } from '@/components/actions/dialogs/ActionFormDialog';
-import { DeleteActionDialog } from '@/components/actions/dialogs/DeleteActionDialog';
-import { AssignActionDialog } from '@/components/actions/dialogs/AssignActionDialog';
-import { ActionsTable } from '@/components/actions/ActionsTable';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Action, CreateActionDto, UpdateActionDto } from '@/models/action';
-import { Plus } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { useState } from "react";
+import { useActionManagement } from "@/hooks/useActionManagement";
+import { useActionFilters } from "@/hooks/useActionFilters";
+import { ActionFormDialog } from "@/components/actions/dialogs/ActionFormDialog";
+import { DeleteActionDialog } from "@/components/actions/dialogs/DeleteActionDialog";
+import { AssignActionDialog } from "@/components/actions/dialogs/AssignActionDialog";
+import { ActionsTable } from "@/components/actions/ActionsTable";
+import { ActionSearchBar } from "@/components/actions/ActionSearchBar";
+import { ActionsBulkBar } from "@/components/actions/ActionsBulkBar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Action, CreateActionDto, UpdateActionDto } from "@/models/action";
+import { Plus } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 export default function ActionsManagementPage() {
-  const { actions, isLoading, createAction, updateAction, deleteAction } = useActionManagement();
+  const { actions, isLoading, createAction, updateAction, deleteAction } =
+    useActionManagement();
+  const { filteredActions, filters, setFilters } = useActionFilters(actions);
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
+  const [selectedActions, setSelectedActions] = useState<Action[]>([]);
 
   const handleEditAction = (action: Action) => {
     setSelectedAction(action);
@@ -48,16 +55,12 @@ export default function ActionsManagementPage() {
           variant: "destructive",
         });
       }
-    } else {
-      toast({
-        title: "Error",
-        description: "Cannot delete action: Invalid action ID",
-        variant: "destructive",
-      });
     }
   };
-  
-  const handleSubmitAction = async (data: CreateActionDto | UpdateActionDto) => {
+
+  const handleSubmitAction = async (
+    data: CreateActionDto | UpdateActionDto
+  ) => {
     try {
       if (selectedAction) {
         await updateAction({ id: selectedAction.actionId, data });
@@ -66,7 +69,7 @@ export default function ActionsManagementPage() {
           description: "Action updated successfully",
         });
       } else {
-        await createAction(data);
+        await createAction(data as CreateActionDto);
         toast({
           title: "Success",
           description: "Action created successfully",
@@ -77,55 +80,118 @@ export default function ActionsManagementPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: selectedAction ? "Failed to update action" : "Failed to create action",
+        description: selectedAction
+          ? "Failed to update action"
+          : "Failed to create action",
         variant: "destructive",
       });
     }
   };
 
+  const handleBulkDelete = async () => {
+    try {
+      // Process deletions sequentially to avoid overwhelming the API
+      for (const action of selectedActions) {
+        await deleteAction(action.actionId);
+      }
+
+      setSelectedActions([]);
+      toast({
+        title: "Success",
+        description: `${selectedActions.length} actions deleted successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete some actions",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkAssign = () => {
+    // Open assign dialog for multiple actions
+    // For simplicity, we're using the existing dialog
+    if (selectedActions.length > 0) {
+      setSelectedAction(selectedActions[0]);
+      setIsAssignDialogOpen(true);
+    }
+  };
+
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="container mx-auto p-4 space-y-6 pb-20">
       <Card className="bg-[#0f1642] border-blue-900/30">
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-          <CardTitle className="text-xl font-bold text-white">Actions Management</CardTitle>
-          <Button 
-            onClick={() => { setSelectedAction(null); setIsFormOpen(true); }}
+          <CardTitle className="text-xl font-bold text-white">
+            Actions Management
+          </CardTitle>
+          <Button
+            onClick={() => {
+              setSelectedAction(null);
+              setIsFormOpen(true);
+            }}
             className="bg-blue-600 hover:bg-blue-700"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Action
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <ActionSearchBar
+            filters={filters}
+            onFiltersChange={setFilters}
+            className="mb-4"
+          />
+
           {isLoading ? (
             <div className="w-full flex justify-center p-12">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
             </div>
-          ) : actions.length === 0 ? (
+          ) : filteredActions.length === 0 &&
+            !filters.query &&
+            filters.field === "all" ? (
             <div className="text-center py-12 bg-blue-900/10 rounded-lg border border-blue-900/30">
-              <h3 className="text-xl font-medium mb-2 text-white">No Actions Found</h3>
-              <p className="text-blue-300 mb-4">Get started by creating your first action</p>
-              <Button 
-                onClick={() => { setSelectedAction(null); setIsFormOpen(true); }}
+              <h3 className="text-xl font-medium mb-2 text-white">
+                No Actions Found
+              </h3>
+              <p className="text-blue-300 mb-4">
+                Get started by creating your first action
+              </p>
+              <Button
+                onClick={() => {
+                  setSelectedAction(null);
+                  setIsFormOpen(true);
+                }}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Action
               </Button>
             </div>
+          ) : filteredActions.length === 0 ? (
+            <div className="text-center py-12 bg-blue-900/10 rounded-lg border border-blue-900/30">
+              <h3 className="text-xl font-medium mb-2 text-white">
+                No Matching Actions
+              </h3>
+              <p className="text-blue-300 mb-4">
+                Try adjusting your search filters
+              </p>
+            </div>
           ) : (
             <ActionsTable
-              actions={actions}
+              actions={filteredActions}
               onEditAction={handleEditAction}
               onDeleteAction={handleDeleteAction}
               onAssignAction={handleAssignAction}
+              selectedActions={selectedActions}
+              onSelectionChange={setSelectedActions}
             />
           )}
         </CardContent>
       </Card>
 
-      <ActionFormDialog 
-        open={isFormOpen} 
+      <ActionFormDialog
+        open={isFormOpen}
         onOpenChange={setIsFormOpen}
         action={selectedAction}
         onSubmit={handleSubmitAction}
@@ -143,6 +209,14 @@ export default function ActionsManagementPage() {
         onOpenChange={setIsAssignDialogOpen}
         action={selectedAction}
       />
+
+      {selectedActions.length > 0 && (
+        <ActionsBulkBar
+          selectedCount={selectedActions.length}
+          onDelete={handleBulkDelete}
+          onAssignToStep={handleBulkAssign}
+        />
+      )}
     </div>
   );
 }

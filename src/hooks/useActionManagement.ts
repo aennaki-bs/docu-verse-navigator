@@ -9,7 +9,7 @@ export function useActionManagement() {
 
   const { data: actions = [], isLoading } = useQuery({
     queryKey,
-    queryFn: actionService.getActions,
+    queryFn: actionService.getAllActions,
   });
 
   const createActionMutation = useMutation({
