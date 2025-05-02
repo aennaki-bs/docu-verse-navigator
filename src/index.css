@@ -4,44 +4,44 @@
 
 @layer base {
   :root {
-    /* Light theme variables */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Light theme variables - improved aesthetics */
+    --background: 210 45% 98%;
+    --foreground: 222 47% 11.2%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 222 47% 11.2%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 222 47% 11.2%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 11.2%;
+    --muted: 214 32% 91%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 214 32% 91%;
+    --accent-foreground: 222 47% 11.2%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5% 64.9%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
     --radius: 0.4rem;
 
     /* Sidebar variables for light mode */
-    --sidebar-background: 210 40% 98%;
-    --sidebar-foreground: 222.2 47.4% 11.2%;
-    --sidebar-primary: 222.2 47.4% 11.2%;
+    --sidebar-background: 220 33% 96%;
+    --sidebar-foreground: 222 47% 11.2%;
+    --sidebar-primary: 221 83% 53%;
     --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-secondary: 210 40% 98%;
-    --sidebar-secondary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-muted: 215.4 16.3% 46.9%;
-    --sidebar-muted-foreground: 215.4 16.3% 56.9%;
-    --sidebar-accent: 210 40% 96.1%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+    --sidebar-secondary: 214 32% 91%;
+    --sidebar-secondary-foreground: 222 47% 11.2%;
+    --sidebar-muted: 215 16% 47%;
+    --sidebar-muted-foreground: 215 16% 57%;
+    --sidebar-accent: 214 32% 91%;
+    --sidebar-accent-foreground: 222 47% 11.2%;
     --sidebar-destructive: 0 84.2% 60.2%;
     --sidebar-destructive-foreground: 210 40% 98%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-input: 214.3 31.8% 91.4%;
-    --sidebar-ring: 215.4 16.3% 46.9%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-input: 214 32% 91%;
+    --sidebar-ring: 221 83% 53%;
     --sidebar-radius: 0.4rem;
 
     /* Document UI specific variables */
@@ -55,42 +55,42 @@
 
   .dark {
     /* Dark theme variables */
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 4%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 4%;
+    --secondary: 222 47% 12%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 47% 12%;
+    --muted-foreground: 210 40% 64%;
+    --accent: 222 47% 12%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 84.6% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 72.2% 50.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 222 47% 12%;
+    --input: 222 47% 12%;
+    --ring: 217 91% 60%;
 
     /* Sidebar variables for dark mode */
-    --sidebar-background: 222.2 84% 4.9%;
+    --sidebar-background: 222 84% 4.9%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 210 40% 98%;
-    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-secondary: 222.2 47.4% 11.2%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 222 47% 4%;
+    --sidebar-secondary: 222 47% 12%;
     --sidebar-secondary-foreground: 210 40% 98%;
-    --sidebar-muted: 210 40% 98%;
-    --sidebar-muted-foreground: 215.4 16.3% 56.9%;
-    --sidebar-accent: 222.2 47.4% 11.2%;
+    --sidebar-muted: 210 40% 64%;
+    --sidebar-muted-foreground: 215 16% 57%;
+    --sidebar-accent: 222 47% 12%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-destructive: 0 62.8% 30.6%;
     --sidebar-destructive-foreground: 210 40% 98%;
-    --sidebar-border: 214.3 31.8% 9.1%;
-    --sidebar-input: 214.3 31.8% 9.1%;
-    --sidebar-ring: 222.2 84% 4.9%;
+    --sidebar-border: 214 32% 9.1%;
+    --sidebar-input: 214 32% 9.1%;
+    --sidebar-ring: 217 91% 60%;
     --sidebar-radius: 0.4rem;
   }
 
@@ -144,6 +144,41 @@
     @apply bg-background text-foreground transition-colors duration-300;
     font-size: 14px;
   }
+
+  /* Light theme specific styles - enhanced */
+  .light .glass-card {
+    @apply bg-white border border-blue-100 shadow-sm;
+  }
+
+  .light .input-dark {
+    @apply bg-white border-blue-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-blue-950 rounded-md text-sm h-9;
+  }
+
+  /* Dark theme specific styles */
+  .dark .glass-card {
+    @apply bg-gradient-to-b from-[#0a1033] to-[#0d1541] border border-blue-900/30 backdrop-blur-md;
+  }
+
+  .dark .input-dark {
+    @apply bg-[#0d1541]/70 border-blue-900/50 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-md text-sm h-9;
+  }
+
+  /* Light mode theme styles for layout */
+  .light .main-content {
+    @apply bg-white;
+  }
+
+  .light .sidebar {
+    @apply bg-blue-50 border-r border-blue-100;
+  }
+
+  .light .navbar {
+    @apply bg-white border-b border-blue-100 shadow-sm;
+  }
+
+  .light .stat-card {
+    @apply bg-white border border-blue-100 shadow-sm;
+  }
 }
 
 /* Global custom scrollbar styling */
@@ -152,18 +187,33 @@
   height: 4px;
 }
 
-::-webkit-scrollbar-track {
+.light ::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.5);
+  border-radius: 6px;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.4);
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.6);
+}
+
+.dark ::-webkit-scrollbar-track {
   background: rgba(30, 41, 59, 0.2);
   border-radius: 6px;
 }
 
-::-webkit-scrollbar-thumb {
+.dark ::-webkit-scrollbar-thumb {
   background: rgba(59, 130, 246, 0.5);
   border-radius: 6px;
   border: 1px solid transparent;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(59, 130, 246, 0.7);
 }
 
@@ -173,10 +223,18 @@
   scrollbar-color: rgba(59, 130, 246, 0.5) rgba(30, 41, 59, 0.2);
 }
 
+.light * {
+  scrollbar-color: rgba(59, 130, 246, 0.4) rgba(224, 231, 244, 0.5);
+}
+
+.dark * {
+  scrollbar-color: rgba(59, 130, 246, 0.5) rgba(30, 41, 59, 0.2);
+}
+
 /* Layout utility classes */
 @layer components {
   .glass-card {
-    @apply bg-gradient-to-b from-[#0a1033] to-[#0d1541] border border-blue-900/30 backdrop-blur-md shadow-md rounded-lg;
+    @apply shadow-md rounded-lg backdrop-blur-md;
   }
 
   .flex-center {
@@ -189,10 +247,6 @@
 
   .flex-col-center {
     @apply flex flex-col items-center justify-center;
-  }
-
-  .input-dark {
-    @apply bg-[#0d1541]/70 border-blue-900/50 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-md text-sm h-9;
   }
 
   .btn-gradient {
@@ -209,18 +263,43 @@
     @apply w-full max-w-7xl mx-auto px-2 sm:px-3 lg:px-4;
   }
 
-  /* Compact card styling */
-  .compact-card {
+  /* Compact card styling - improved for light mode */
+  .light .compact-card {
+    @apply p-2 rounded-lg border border-blue-100 bg-white shadow-sm;
+  }
+
+  .dark .compact-card {
     @apply p-2 rounded-lg border border-blue-900/30 bg-[#0a1033]/90;
   }
 
-  /* Compact form elements */
-  .form-label {
+  /* Compact form elements - improved for light mode */
+  .light .form-label {
+    @apply text-xs font-medium text-blue-800 mb-1;
+  }
+
+  .dark .form-label {
     @apply text-xs font-medium text-gray-300 mb-1;
   }
 
-  .form-input {
+  .light .form-input {
+    @apply h-8 text-sm px-2 bg-white border-blue-200;
+  }
+
+  .dark .form-input {
     @apply h-8 text-sm px-2 bg-[#0d1541]/70 border-blue-900/50;
+  }
+
+  /* Improved Dashboard Cards for Light Mode */
+  .light .dashboard-stat-card {
+    @apply bg-white border border-blue-100 shadow-sm rounded-lg p-4;
+  }
+
+  .light .dashboard-stat-title {
+    @apply text-blue-800 font-medium text-sm;
+  }
+
+  .light .dashboard-stat-value {
+    @apply text-blue-950 font-bold text-2xl;
   }
 
   /* Scrollbar classes */
@@ -248,18 +327,24 @@
 }
 
 /* Step form animations */
-.animation-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
 @keyframes fadeIn {
   from {
-    opacity: 0.5;
-    transform: translateY(8px);
+    opacity: 0;
   }
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+
+  to {
     transform: translateY(0);
+    opacity: 1;
   }
 }

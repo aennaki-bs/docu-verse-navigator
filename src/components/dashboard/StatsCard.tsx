@@ -1,44 +1,77 @@
-
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { useSettings } from "@/context/SettingsContext";
 
 interface StatsCardProps {
-  id: number;
-  name: string;
-  value: string | number;
-  change: string;
-  icon: LucideIcon;
-  color: string;
-  iconBg: string;
-  link: string;
+  title: string;
+  value: ReactNode;
+  icon?: ReactNode;
+  change?: string;
+  changeType?: "positive" | "negative" | "neutral";
+  className?: string;
 }
 
-export function StatsCard({ name, value, change, icon: Icon, color, iconBg, link }: StatsCardProps) {
-  const navigate = useNavigate();
-  
+export function StatsCard({
+  title,
+  value,
+  icon,
+  change,
+  changeType = "neutral",
+  className,
+}: StatsCardProps) {
+  const { theme } = useSettings();
+
+  const changeColorClass = {
+    positive: theme === "dark" ? "text-green-400" : "text-green-500",
+    negative: theme === "dark" ? "text-red-400" : "text-red-500",
+    neutral: theme === "dark" ? "text-blue-400" : "text-blue-500",
+  };
+
   return (
-    <Card 
-      className="cursor-pointer glass-card overflow-hidden hover:shadow-md hover:shadow-blue-900/20 transition-shadow"
-      onClick={() => navigate(link)}
+    <div
+      className={cn(
+        "rounded-lg p-6 h-full",
+        theme === "dark"
+          ? "bg-[#0a1033] border border-blue-900/30"
+          : "bg-white border border-blue-100 shadow-sm",
+        className
+      )}
     >
-      <div className={`h-1 w-full ${color}`}></div>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-blue-300">{name}</p>
-            <div className="flex items-baseline gap-2">
-              <p className="text-3xl font-semibold text-white">{value}</p>
-              <span className={`text-xs ${change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
-                {change}
-              </span>
-            </div>
-          </div>
-          <div className={`p-3 rounded-md ${iconBg}`}>
-            <Icon className="h-5 w-5" />
+      <div className="flex justify-between items-start">
+        <div>
+          <h3
+            className={
+              theme === "dark"
+                ? "text-blue-300 text-sm font-medium"
+                : "text-blue-700 text-sm font-medium"
+            }
+          >
+            {title}
+          </h3>
+          <div
+            className={`mt-2 ${
+              theme === "dark" ? "text-white" : "text-blue-900"
+            } text-3xl font-bold`}
+          >
+            {value}
           </div>
         </div>
-      </CardContent>
-    </Card>
+        {icon && (
+          <div className={theme === "dark" ? "text-blue-400" : "text-blue-500"}>
+            {icon}
+          </div>
+        )}
+      </div>
+
+      {change && (
+        <div className="mt-4">
+          <span
+            className={`text-xs font-medium ${changeColorClass[changeType]}`}
+          >
+            {change}
+          </span>
+        </div>
+      )}
+    </div>
   );
 }

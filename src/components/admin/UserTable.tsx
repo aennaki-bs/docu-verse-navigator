@@ -152,7 +152,7 @@ export function UserTable() {
         clearFilters={clearFilters}
       />
 
-      {process.env.NODE_ENV === "development" && (
+      {/* {process.env.NODE_ENV === "development" && (
         <div className="mb-3">
           <Button
             variant="outline"
@@ -163,7 +163,7 @@ export function UserTable() {
             <Bug className="h-3.5 w-3.5 mr-2" /> Debug User Data
           </Button>
         </div>
-      )}
+      )} */}
 
       <UserTableContent
         users={filteredUsers}

@@ -128,7 +128,7 @@ export function ActionsTable({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button
+                    {/* <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => onAssignAction(action)}
@@ -136,7 +136,7 @@ export function ActionsTable({
                       title="Assign to Step"
                     >
                       <Link className="h-4 w-4" />
-                    </Button>
+                    </Button> */}
                     <Button
                       variant="ghost"
                       size="icon"

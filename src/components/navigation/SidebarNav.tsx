@@ -8,14 +8,16 @@ import {
   Users,
   CalendarRange,
   Settings,
-  PlayCircle
+  PlayCircle,
 } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { UserProfileSection } from "./UserProfileSection";
+import { useSettings } from "@/context/SettingsContext";
 
 export function SidebarNav() {
   const { user } = useAuth();
   const location = useLocation();
+  const { theme } = useSettings();
   const isAdmin = user?.role === "Admin";
   const isSimpleUser = user?.role === "SimpleUser";
 
@@ -26,12 +28,22 @@ export function SidebarNav() {
   };
 
   return (
-    <div className="h-full w-full bg-[#0a1033]/95 backdrop-blur-lg border-r border-blue-900/30 overflow-y-auto">
+    <div
+      className={`h-full w-full overflow-y-auto 
+      ${
+        theme === "dark"
+          ? "bg-[#0a1033]/95 backdrop-blur-lg border-r border-blue-900/30"
+          : "bg-blue-50 border-r border-blue-100"
+      }`}
+    >
       {/* User Profile Section */}
       <UserProfileSection />
 
       <div className="px-4 py-2">
-        <p className="text-xs font-medium text-blue-400/80 px-2 py-2">
+        <p
+          className={`text-xs font-medium px-2 py-2
+          ${theme === "dark" ? "text-blue-400/80" : "text-blue-600"}`}
+        >
           MAIN NAVIGATION
         </p>
         <ul className="space-y-1">
@@ -41,8 +53,12 @@ export function SidebarNav() {
               to="/dashboard"
               className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 isActive("/dashboard")
-                  ? "bg-blue-600/40 text-blue-200"
-                  : "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                  ? theme === "dark"
+                    ? "bg-blue-600/40 text-blue-200"
+                    : "bg-blue-100 text-blue-800"
+                  : theme === "dark"
+                  ? "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                  : "text-blue-700 hover:bg-blue-100/50 hover:text-blue-900"
               }`}
             >
               <LayoutDashboard className="h-5 w-5" />
@@ -57,8 +73,12 @@ export function SidebarNav() {
                 to="/user-management"
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive("/user-management")
-                    ? "bg-blue-600/40 text-blue-200"
-                    : "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                    ? theme === "dark"
+                      ? "bg-blue-600/40 text-blue-200"
+                      : "bg-blue-100 text-blue-800"
+                    : theme === "dark"
+                    ? "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                    : "text-blue-700 hover:bg-blue-100/50 hover:text-blue-900"
                 }`}
               >
                 <Users className="h-5 w-5" />
@@ -73,8 +93,12 @@ export function SidebarNav() {
               to="/documents"
               className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 isActive("/documents")
-                  ? "bg-blue-600/40 text-blue-200"
-                  : "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                  ? theme === "dark"
+                    ? "bg-blue-600/40 text-blue-200"
+                    : "bg-blue-100 text-blue-800"
+                  : theme === "dark"
+                  ? "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                  : "text-blue-700 hover:bg-blue-100/50 hover:text-blue-900"
               }`}
             >
               <FileText className="h-5 w-5" />
@@ -90,8 +114,12 @@ export function SidebarNav() {
                   to="/document-types-management"
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive("/document-types-management")
-                      ? "bg-blue-600/40 text-blue-200"
-                      : "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                      ? theme === "dark"
+                        ? "bg-blue-600/40 text-blue-200"
+                        : "bg-blue-100 text-blue-800"
+                      : theme === "dark"
+                      ? "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                      : "text-blue-700 hover:bg-blue-100/50 hover:text-blue-900"
                   }`}
                 >
                   <Layers className="h-5 w-5" />
@@ -117,8 +145,12 @@ export function SidebarNav() {
                   to="/circuits"
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive("/circuits")
-                      ? "bg-blue-600/40 text-blue-200"
-                      : "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                      ? theme === "dark"
+                        ? "bg-blue-600/40 text-blue-200"
+                        : "bg-blue-100 text-blue-800"
+                      : theme === "dark"
+                      ? "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                      : "text-blue-700 hover:bg-blue-100/50 hover:text-blue-900"
                   }`}
                 >
                   <GitBranch className="h-5 w-5" />
@@ -131,8 +163,12 @@ export function SidebarNav() {
                   to="/actions"
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive("/actions")
-                      ? "bg-blue-600/40 text-blue-200"
-                      : "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                      ? theme === "dark"
+                        ? "bg-blue-600/40 text-blue-200"
+                        : "bg-blue-100 text-blue-800"
+                      : theme === "dark"
+                      ? "text-blue-100 hover:bg-blue-800/30 hover:text-blue-50"
+                      : "text-blue-700 hover:bg-blue-100/50 hover:text-blue-900"
                   }`}
                 >
                   <PlayCircle className="h-5 w-5" />

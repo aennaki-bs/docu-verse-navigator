@@ -1,27 +1,27 @@
-import { useQuery } from '@tanstack/react-query';
-import { ListTodo, CheckCircle2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { actionService } from '@/services/actionService';
-import { toast } from 'sonner';
+import { useQuery } from "@tanstack/react-query";
+import { ListTodo, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { actionService } from "@/services/actionService";
+import { toast } from "sonner";
 
 interface StepAssignedActionsProps {
   stepId: number;
   isCurrentStep?: boolean;
 }
 
-export const StepAssignedActions = ({ 
+export const StepAssignedActions = ({
   stepId,
-  isCurrentStep = false 
+  isCurrentStep = false,
 }: StepAssignedActionsProps) => {
   const {
     data: assignedActions,
     isLoading,
-    error
+    error,
   } = useQuery({
-    queryKey: ['step-actions', stepId],
-    queryFn: () => actionService.getStepActions(stepId),
-    enabled: !!stepId
+    queryKey: ["step-actions", stepId],
+    queryFn: () => actionService.getActionsByStep(stepId),
+    enabled: !!stepId,
   });
 
   const handleActionClick = (actionId: number, actionTitle: string) => {
@@ -62,7 +62,7 @@ export const StepAssignedActions = ({
         <span>Assigned Actions</span>
       </div>
       <div className="flex flex-wrap gap-1">
-        {assignedActions.map((action) => (
+        {assignedActions.map((action) =>
           isCurrentStep ? (
             <Button
               key={action.actionId}
@@ -82,8 +82,8 @@ export const StepAssignedActions = ({
               {action.title}
             </div>
           )
-        ))}
+        )}
       </div>
     </div>
   );
-}; 
+};
