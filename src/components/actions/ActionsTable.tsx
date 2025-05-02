@@ -1,167 +1,109 @@
-import { useState } from "react";
-import { Action } from "@/models/action";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Edit2, Trash2, Link } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Pencil, Trash2, Eye } from "lucide-react";
+import { Column, Action, BulkAction } from "@/components/table/DataTable";
+import { createDataTable } from "@/components/table/create-data-table";
+
+interface ActionItem {
+  id: number;
+  actionKey: string;
+  title: string;
+  description: string;
+}
+
+// Create a typed DataTable for ActionItem
+const ActionItemTable = createDataTable<ActionItem>();
 
 interface ActionsTableProps {
-  actions: Action[];
-  onEditAction: (action: Action) => void;
-  onDeleteAction: (action: Action) => void;
-  onAssignAction: (action: Action) => void;
-  selectedActions?: Action[];
-  onSelectionChange?: (selectedActions: Action[]) => void;
+  actions: ActionItem[];
+  onEdit?: (action: ActionItem) => void;
+  onDelete?: (action: ActionItem) => void;
+  onView?: (action: ActionItem) => void;
+  isSimpleUser?: boolean;
 }
 
 export function ActionsTable({
   actions,
-  onEditAction,
-  onDeleteAction,
-  onAssignAction,
-  selectedActions = [],
-  onSelectionChange,
+  onEdit,
+  onDelete,
+  onView,
+  isSimpleUser = false,
 }: ActionsTableProps) {
-  const [selected, setSelected] = useState<Action[]>(selectedActions);
+  // Define columns
+  const columns: Column<ActionItem>[] = [
+    {
+      header: "Action Key",
+      key: "actionKey",
+      cell: (item) => (
+        <span className="font-mono text-xs px-2.5 py-1 rounded-md bg-blue-100/70 border border-blue-200/60 text-blue-700">
+          {item.actionKey}
+        </span>
+      ),
+    },
+    {
+      header: "Title",
+      key: "title",
+      cell: (item) => <span className="font-medium">{item.title}</span>,
+    },
+    {
+      header: "Description",
+      key: "description",
+      cell: (item) => (
+        <span className="text-muted-foreground max-w-md truncate block">
+          {item.description || "No description"}
+        </span>
+      ),
+    },
+    {
+      header: "Actions",
+      key: "actions",
+      width: "w-20",
+    },
+  ];
 
-  const isSelected = (actionId: number) =>
-    selected.some((action) => action.actionId === actionId);
+  // Define row actions
+  const tableActions: Action<ActionItem>[] = [
+    {
+      label: "View Details",
+      icon: <Eye className="h-4 w-4 mr-2" />,
+      onClick: onView || (() => {}),
+      color: "blue",
+      show: () => !!onView,
+    },
+    {
+      label: "Edit Action",
+      icon: <Pencil className="h-4 w-4 mr-2" />,
+      onClick: onEdit || (() => {}),
+      color: "amber",
+      show: () => !isSimpleUser && !!onEdit,
+    },
+    {
+      label: "Delete Action",
+      icon: <Trash2 className="h-4 w-4 mr-2" />,
+      onClick: onDelete || (() => {}),
+      color: "red",
+      show: () => !isSimpleUser && !!onDelete,
+    },
+  ];
 
-  const handleSelectAll = () => {
-    if (selected.length === actions.length) {
-      setSelected([]);
-      onSelectionChange?.([]);
-    } else {
-      setSelected([...actions]);
-      onSelectionChange?.([...actions]);
-    }
-  };
-
-  const handleSelectAction = (action: Action) => {
-    const isAlreadySelected = isSelected(action.actionId);
-    let newSelected: Action[];
-
-    if (isAlreadySelected) {
-      newSelected = selected.filter((a) => a.actionId !== action.actionId);
-    } else {
-      newSelected = [...selected, action];
-    }
-
-    setSelected(newSelected);
-    onSelectionChange?.(newSelected);
-  };
+  // Define bulk actions
+  const bulkActions: BulkAction[] = !isSimpleUser
+    ? [
+        {
+          label: "Delete Selected",
+          icon: <Trash2 className="h-3.5 w-3.5 mr-1.5" />,
+          onClick: (ids) => console.log("Delete actions", ids),
+          color: "red",
+        },
+      ]
+    : [];
 
   return (
-    <div className="bg-[#0f1642] border border-blue-900/30 rounded-md overflow-hidden">
-      <Table>
-        <TableHeader className="bg-blue-900/20">
-          <TableRow className="hover:bg-blue-900/30 border-b border-blue-900/30">
-            {onSelectionChange && (
-              <TableHead className="w-[50px] text-center">
-                <Checkbox
-                  checked={
-                    selected.length > 0 && selected.length === actions.length
-                  }
-                  indeterminate={
-                    selected.length > 0 && selected.length < actions.length
-                  }
-                  onCheckedChange={handleSelectAll}
-                  aria-label="Select all"
-                  className="translate-y-[2px]"
-                />
-              </TableHead>
-            )}
-            <TableHead className="text-blue-300 font-semibold">
-              Action Key
-            </TableHead>
-            <TableHead className="text-blue-300 font-semibold">Title</TableHead>
-            <TableHead className="text-blue-300 font-semibold">
-              Description
-            </TableHead>
-            <TableHead className="text-right text-blue-300 font-semibold">
-              Actions
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {actions.length === 0 ? (
-            <TableRow className="hover:bg-blue-900/10 border-b border-blue-900/20">
-              <TableCell
-                colSpan={onSelectionChange ? 5 : 4}
-                className="h-24 text-center text-blue-400"
-              >
-                No actions found.
-              </TableCell>
-            </TableRow>
-          ) : (
-            actions.map((action) => (
-              <TableRow
-                key={action.actionId}
-                className={`border-b border-blue-900/20 ${
-                  isSelected(action.actionId)
-                    ? "bg-blue-900/30 hover:bg-blue-900/40"
-                    : "hover:bg-blue-900/10"
-                }`}
-              >
-                {onSelectionChange && (
-                  <TableCell className="text-center">
-                    <Checkbox
-                      checked={isSelected(action.actionId)}
-                      onCheckedChange={() => handleSelectAction(action)}
-                      aria-label={`Select ${action.title}`}
-                    />
-                  </TableCell>
-                )}
-                <TableCell className="font-mono text-sm text-blue-400">
-                  {action.actionKey}
-                </TableCell>
-                <TableCell className="font-medium">{action.title}</TableCell>
-                <TableCell className="max-w-[400px] truncate text-gray-300">
-                  {action.description}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    {/* <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onAssignAction(action)}
-                      className="h-8 w-8 text-blue-500 hover:text-blue-400 hover:bg-blue-900/50 transition-colors"
-                      title="Assign to Step"
-                    >
-                      <Link className="h-4 w-4" />
-                    </Button> */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEditAction(action)}
-                      className="h-8 w-8 text-yellow-500 hover:text-yellow-400 hover:bg-blue-900/50 transition-colors"
-                      title="Edit Action"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onDeleteAction(action)}
-                      className="h-8 w-8 text-red-500 hover:text-red-400 hover:bg-blue-900/50 transition-colors"
-                      title="Delete Action"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
+    <ActionItemTable
+      data={actions}
+      columns={columns}
+      getRowId={(item) => item.id}
+      actions={tableActions}
+      bulkActions={bulkActions}
+      isSimpleUser={isSimpleUser}
+    />
   );
 }

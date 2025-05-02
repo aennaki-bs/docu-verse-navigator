@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { DocumentCircuitHistory } from '@/models/documentCircuit';
-import { Trash2, MoveRight, Play } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ReactNode } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { DocumentCircuitHistory } from "@/models/documentCircuit";
+import { Trash2, MoveRight, Play } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CircuitStepCardProps {
   detail: any;
@@ -26,18 +26,18 @@ export const CircuitStepCard = ({
   onProcessClick,
   onDeleteStep,
   isDraggedOver = false,
-  children
+  children,
 }: CircuitStepCardProps) => {
   const isCurrentStep = detail.id === currentStepId;
   const hasHistory = historyForStep.length > 0;
 
   return (
-    <Card 
+    <Card
       className={cn(
-        'relative border-2',
-        isCurrentStep ? 'border-primary' : 'border-muted',
-        isDraggedOver ? 'border-dashed border-primary' : '',
-        'transition-all duration-300'
+        "relative border-2",
+        isCurrentStep ? "border-primary" : "border-muted",
+        isDraggedOver ? "border-dashed border-primary" : "",
+        "transition-all duration-300"
       )}
     >
       <CardHeader className="relative pb-2">
@@ -84,10 +84,13 @@ export const CircuitStepCard = ({
         {children}
         {hasHistory && (
           <div className="mt-2 text-sm text-muted-foreground">
-            <p>Last updated: {new Date(historyForStep[0].createdAt).toLocaleString()}</p>
+            <p>
+              Last updated:{" "}
+              {new Date(historyForStep[0].createdAt).toLocaleString()}
+            </p>
           </div>
         )}
       </CardContent>
     </Card>
   );
-}; 
+};

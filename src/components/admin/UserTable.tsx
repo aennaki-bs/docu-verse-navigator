@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import adminService from "@/services/adminService";
-import { UserTableHeader } from "./table/UserTableHeader";
-import { UserTableContent } from "./table/UserTableContent";
-import { BulkActionsBar } from "./table/BulkActionsBar";
-import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
-import { EditUserDialog } from "./EditUserDialog";
-import { EditUserEmailDialog } from "./EditUserEmailDialog";
-import { ViewUserLogsDialog } from "./ViewUserLogsDialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -15,275 +17,482 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUserManagement } from "./hooks/useUserManagement";
-import { AlertTriangle, Bug } from "lucide-react";
-import { UserTableFilters } from "./table/UserTableFilters";
-import { Button } from "@/components/ui/button";
+import {
+  Pencil,
+  Trash2,
+  Eye,
+  Mail,
+  UserCog,
+  History,
+  MoreVertical,
+  FileText,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { TablePagination } from "./TablePagination";
+import { useSettings } from "@/context/SettingsContext";
 
-export function UserTable() {
-  const {
-    selectedUsers,
-    editingUser,
-    editEmailUser,
-    viewingUserLogs,
-    deletingUser,
-    deleteMultipleOpen,
-    searchQuery,
-    roleChangeOpen,
-    selectedRole,
-    users: filteredUsers,
-    isLoading,
-    isError,
-    refetch,
-    setEditingUser,
-    setEditEmailUser,
-    setViewingUserLogs,
-    setDeletingUser,
-    setDeleteMultipleOpen,
-    setSearchQuery,
-    setRoleChangeOpen,
-    setSelectedRole,
-    handleSelectUser,
-    handleSelectAll,
-    handleUserEdited,
-    handleUserEmailEdited,
-    handleUserDeleted,
-    handleMultipleDeleted,
-    searchColumns,
-    toggleSearchColumn,
-    activeFilter,
-    setActiveFilter,
-    roleFilter,
-    setRoleFilter,
-    clearFilters,
-    debugUsers,
-  } = useUserManagement();
+interface User {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  role: string | { roleId: number; roleName: string };
+  isActive: boolean;
+  avatar?: string;
+  initials: string;
+}
 
-  // Check if any filters are applied
-  const hasFiltersApplied =
-    searchQuery !== "" ||
-    activeFilter !== "all" ||
-    roleFilter !== undefined ||
-    searchColumns.length < 4;
+interface UserTableProps {
+  users: User[];
+  onEdit?: (user: User) => void;
+  onDelete?: (user: User) => void;
+  onViewLogs?: (user: User) => void;
+  onEditEmail?: (user: User) => void;
+  onToggleStatus?: (user: User, isActive: boolean) => void;
+  onRoleChange?: (user: User, role: string) => void;
+  onView?: (user: User) => void;
+  selectedUsers?: number[];
+  onSelectUser?: (userId: number, selected: boolean) => void;
+  onSelectAll?: (selected: boolean) => void;
+  isSimpleUser?: boolean;
+  // Pagination props
+  page?: number;
+  pageSize?: number;
+  totalPages?: number;
+  totalItems?: number;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  // Available roles prop
+  availableRoles?: Array<{
+    id?: number;
+    name?: string;
+    roleId?: number;
+    roleName?: string;
+  }>;
+}
 
-  const handleToggleUserStatus = async (
-    userId: number,
-    currentStatus: boolean
-  ) => {
-    try {
-      const newStatus = !currentStatus;
-      await adminService.updateUser(userId, { isActive: newStatus });
-      toast.success(`User ${newStatus ? "activated" : "blocked"} successfully`);
-      refetch();
-    } catch (error) {
-      toast.error(`Failed to ${currentStatus ? "block" : "activate"} user`);
-      console.error(error);
+export function UserTable({
+  users,
+  onEdit,
+  onDelete,
+  onViewLogs,
+  onEditEmail,
+  onToggleStatus,
+  onRoleChange,
+  onView,
+  selectedUsers: externalSelectedUsers = [],
+  onSelectUser,
+  onSelectAll,
+  isSimpleUser = false,
+  // Pagination props
+  page = 1,
+  pageSize = 10,
+  totalPages = 1,
+  totalItems = 0,
+  onPageChange,
+  onPageSizeChange,
+  // Available roles
+  availableRoles = [],
+}: UserTableProps) {
+  const [selected, setSelected] = useState<number[]>(externalSelectedUsers);
+  const { theme } = useSettings();
+  const isLightMode = theme === "light";
+
+  // Helper function to safely get role name from a string or object
+  const getRoleName = (role: any): string => {
+    if (typeof role === "string") {
+      return role;
+    }
+    if (role && typeof role === "object") {
+      if ("roleName" in role) return role.roleName;
+      if ("name" in role) return role.name;
+    }
+    return "Unknown";
+  };
+
+  // Helper function to safely get role ID from a role object
+  const getRoleId = (role: any): number | string => {
+    if (typeof role === "string") return role; // Use string as ID for string roles
+    if (role && typeof role === "object") {
+      if ("id" in role && role.id !== undefined) return role.id;
+      if ("roleId" in role && role.roleId !== undefined) return role.roleId;
+    }
+    return 0;
+  };
+
+  // Get the CSS class for a role badge based on role name
+  const getRoleBadgeClass = (roleName: string): string => {
+    const roleNameLower = roleName.toLowerCase();
+    if (isLightMode) {
+      if (roleNameLower.includes("admin")) {
+        return "bg-red-100 border-red-300 text-red-700";
+      } else if (
+        roleNameLower.includes("manager") ||
+        roleNameLower.includes("full")
+      ) {
+        return "bg-amber-100 border-amber-300 text-amber-700";
+      } else {
+        return "bg-blue-100 border-blue-300 text-blue-700";
+      }
+    } else {
+      // Dark mode styles
+      if (roleNameLower.includes("admin")) {
+        return "bg-red-900/30 border-red-700/50 text-red-400";
+      } else if (
+        roleNameLower.includes("manager") ||
+        roleNameLower.includes("full")
+      ) {
+        return "bg-amber-900/30 border-amber-700/50 text-amber-400";
+      } else {
+        return "bg-blue-900/30 border-blue-700/50 text-blue-400";
+      }
     }
   };
 
-  const handleUserRoleChange = async (userId: number, roleName: string) => {
-    try {
-      await adminService.updateUser(userId, { roleName });
-      toast.success(`User role changed to ${roleName}`);
-      refetch();
-    } catch (error) {
-      toast.error("Failed to change user role");
-      console.error(error);
+  const isSelected = (userId: number) => selected.includes(userId);
+
+  const handleSelectAll = () => {
+    if (selected.length === users.length) {
+      setSelected([]);
+      onSelectAll?.(false);
+    } else {
+      const allUserIds = users.map((user) => user.id);
+      setSelected(allUserIds);
+      onSelectAll?.(true);
     }
   };
 
-  const handleBulkRoleChange = async () => {
-    if (!selectedRole || selectedUsers.length === 0) {
-      toast.error("Please select a role and at least one user");
-      return;
+  const handleSelectUser = (userId: number) => {
+    const isAlreadySelected = isSelected(userId);
+    let newSelected: number[];
+
+    if (isAlreadySelected) {
+      newSelected = selected.filter((id) => id !== userId);
+    } else {
+      newSelected = [...selected, userId];
     }
 
-    try {
-      const updatePromises = selectedUsers.map((userId) =>
-        adminService.updateUser(userId, { roleName: selectedRole })
-      );
-
-      await Promise.all(updatePromises);
-      toast.success(
-        `Role updated to ${selectedRole} for ${selectedUsers.length} users`
-      );
-      refetch();
-      setRoleChangeOpen(false);
-      setSelectedRole("");
-    } catch (error) {
-      toast.error("Failed to update roles for selected users");
-      console.error(error);
-    }
+    setSelected(newSelected);
+    onSelectUser?.(userId, !isAlreadySelected);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-10">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  const hasSelectionFeature = onSelectUser || onSelectAll;
+  const hasPagination = onPageChange && onPageSizeChange;
 
-  if (isError) {
-    return (
-      <div className="text-red-500 py-10 text-center">
-        <AlertTriangle className="h-10 w-10 mx-auto mb-2" />
-        Error loading users. Please try again.
-      </div>
-    );
-  }
+  // Default roles if none provided from API
+  const roleOptions =
+    availableRoles.length > 0
+      ? availableRoles
+      : [
+          { id: 1, name: "Admin" },
+          { id: 2, name: "FullUser" },
+          { id: 3, name: "SimpleUser" },
+        ];
+
+  // Configure table styles based on theme
+  const tableStyles = isLightMode
+    ? {
+        container:
+          "bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden",
+        header: "bg-gray-50",
+        headerRow: "hover:bg-gray-100 border-b border-gray-200",
+        headerText: "text-gray-700 font-semibold",
+        row: "border-b border-gray-200 hover:bg-gray-50",
+        selectedRow: "bg-blue-50 hover:bg-blue-100",
+        cell: "text-gray-800",
+        mutedText: "text-gray-500",
+      }
+    : {
+        container:
+          "bg-[#0f1642] border border-blue-900/30 rounded-md overflow-hidden",
+        header: "bg-blue-900/20",
+        headerRow: "hover:bg-blue-900/30 border-b border-blue-900/30",
+        headerText: "text-blue-300 font-semibold",
+        row: "border-b border-blue-900/20 hover:bg-blue-900/10",
+        selectedRow: "bg-blue-900/30 hover:bg-blue-900/40",
+        cell: "text-white",
+        mutedText: "text-muted-foreground",
+      };
 
   return (
-    <div>
-      <UserTableHeader
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        searchColumns={searchColumns}
-      />
+    <div className={tableStyles.container}>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader className={tableStyles.header}>
+            <TableRow className={tableStyles.headerRow}>
+              {hasSelectionFeature && (
+                <TableHead className="w-[50px] text-center">
+                  <Checkbox
+                    checked={
+                      selected.length > 0 && selected.length === users.length
+                    }
+                    indeterminate={
+                      selected.length > 0 && selected.length < users.length
+                    }
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all"
+                    className="translate-y-[2px]"
+                  />
+                </TableHead>
+              )}
+              <TableHead className={tableStyles.headerText}>User</TableHead>
+              <TableHead className={tableStyles.headerText}>Email</TableHead>
+              <TableHead className={tableStyles.headerText}>Role</TableHead>
+              <TableHead className={tableStyles.headerText}>Status</TableHead>
+              {!isSimpleUser && (
+                <TableHead className={tableStyles.headerText}>Active</TableHead>
+              )}
+              <TableHead className={`text-right ${tableStyles.headerText}`}>
+                Actions
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.length === 0 ? (
+              <TableRow className={tableStyles.row}>
+                <TableCell
+                  colSpan={hasSelectionFeature ? 7 : 6}
+                  className="h-24 text-center"
+                >
+                  No users found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map((user) => (
+                <TableRow
+                  key={user.id}
+                  className={`${
+                    isSelected(user.id)
+                      ? tableStyles.selectedRow
+                      : tableStyles.row
+                  }`}
+                >
+                  {hasSelectionFeature && (
+                    <TableCell className="text-center">
+                      <Checkbox
+                        checked={isSelected(user.id)}
+                        onCheckedChange={() => handleSelectUser(user.id)}
+                        aria-label={`Select ${user.name}`}
+                      />
+                    </TableCell>
+                  )}
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        {user.avatar && (
+                          <AvatarImage src={user.avatar} alt={user.name} />
+                        )}
+                        <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
+                          {user.initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{user.name}</span>
+                        <span className={`text-xs ${tableStyles.mutedText}`}>
+                          @{user.username}
+                        </span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className={tableStyles.mutedText}>
+                    {user.email}
+                  </TableCell>
+                  <TableCell>
+                    {onRoleChange ? (
+                      <Select
+                        defaultValue={getRoleName(user.role)}
+                        onValueChange={(value) => onRoleChange(user, value)}
+                      >
+                        <SelectTrigger className="w-32 h-8 text-xs bg-transparent">
+                          <SelectValue>
+                            <Badge
+                              variant="outline"
+                              className={getRoleBadgeClass(
+                                getRoleName(user.role)
+                              )}
+                            >
+                              {getRoleName(user.role)}
+                            </Badge>
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent
+                          className={
+                            isLightMode
+                              ? "bg-white border-gray-200"
+                              : "bg-[#0a1033] border-blue-900/30 text-white"
+                          }
+                        >
+                          {roleOptions.map((role) => (
+                            <SelectItem
+                              key={getRoleId(role)}
+                              value={getRoleName(role)}
+                              className={
+                                isLightMode
+                                  ? "hover:bg-gray-100"
+                                  : "hover:bg-blue-900/30"
+                              }
+                            >
+                              <Badge
+                                variant="outline"
+                                className={getRoleBadgeClass(getRoleName(role))}
+                              >
+                                {getRoleName(role)}
+                              </Badge>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className={getRoleBadgeClass(getRoleName(user.role))}
+                      >
+                        {getRoleName(user.role)}
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className={
+                        user.isActive
+                          ? isLightMode
+                            ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                            : "bg-emerald-900/20 text-emerald-400 border-emerald-700/30"
+                          : isLightMode
+                          ? "bg-gray-100 text-gray-700 border-gray-200"
+                          : "bg-gray-700/20 text-gray-400 border-gray-600/30"
+                      }
+                    >
+                      {user.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </TableCell>
+                  {!isSimpleUser && (
+                    <TableCell>
+                      <Switch
+                        checked={user.isActive}
+                        onCheckedChange={(checked) => {
+                          if (onToggleStatus) {
+                            onToggleStatus(user, checked);
+                          }
+                        }}
+                        className="data-[state=checked]:bg-emerald-500"
+                      />
+                    </TableCell>
+                  )}
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={`h-8 w-8 ${
+                            isLightMode
+                              ? "text-gray-600 hover:bg-gray-100"
+                              : "text-blue-400 hover:bg-blue-900/50"
+                          }`}
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className={
+                          isLightMode
+                            ? "bg-white border-gray-200"
+                            : "bg-[#0a1033] border-blue-900/30"
+                        }
+                      >
+                        {onView && (
+                          <DropdownMenuItem
+                            onClick={() => onView(user)}
+                            className={
+                              isLightMode
+                                ? "hover:bg-gray-100"
+                                : "text-blue-300 hover:bg-blue-900/50"
+                            }
+                          >
+                            <Eye className="h-4 w-4 mr-2" /> View Details
+                          </DropdownMenuItem>
+                        )}
+                        {onEdit && (
+                          <DropdownMenuItem
+                            onClick={() => onEdit(user)}
+                            className={
+                              isLightMode
+                                ? "hover:bg-gray-100"
+                                : "text-yellow-300 hover:bg-blue-900/50"
+                            }
+                          >
+                            <Pencil className="h-4 w-4 mr-2" /> Edit User
+                          </DropdownMenuItem>
+                        )}
+                        {onEditEmail && (
+                          <DropdownMenuItem
+                            onClick={() => onEditEmail(user)}
+                            className={
+                              isLightMode
+                                ? "hover:bg-gray-100"
+                                : "text-indigo-300 hover:bg-blue-900/50"
+                            }
+                          >
+                            <Mail className="h-4 w-4 mr-2" /> Change Email
+                          </DropdownMenuItem>
+                        )}
+                        {onViewLogs && (
+                          <DropdownMenuItem
+                            onClick={() => onViewLogs(user)}
+                            className={
+                              isLightMode
+                                ? "hover:bg-gray-100"
+                                : "text-purple-300 hover:bg-blue-900/50"
+                            }
+                          >
+                            <History className="h-4 w-4 mr-2" /> View Logs
+                          </DropdownMenuItem>
+                        )}
+                        {onDelete && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => onDelete(user)}
+                              className={
+                                isLightMode
+                                  ? "text-red-600 hover:bg-red-50"
+                                  : "text-red-400 hover:bg-red-900/20"
+                              }
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Delete User
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-      <UserTableFilters
-        searchColumns={searchColumns}
-        toggleSearchColumn={toggleSearchColumn}
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
-        roleFilter={roleFilter}
-        setRoleFilter={setRoleFilter}
-        hasFiltersApplied={hasFiltersApplied}
-        clearFilters={clearFilters}
-      />
-
-      {/* {process.env.NODE_ENV === "development" && (
-        <div className="mb-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={debugUsers}
-            className="bg-amber-900/30 border-amber-600/50 text-amber-400 hover:bg-amber-900/50"
-          >
-            <Bug className="h-3.5 w-3.5 mr-2" /> Debug User Data
-          </Button>
-        </div>
-      )} */}
-
-      <UserTableContent
-        users={filteredUsers}
-        selectedUsers={selectedUsers}
-        onSelectAll={() => handleSelectAll(filteredUsers || [])}
-        onSelectUser={handleSelectUser}
-        onToggleStatus={handleToggleUserStatus}
-        onRoleChange={handleUserRoleChange}
-        onEdit={setEditingUser}
-        onEditEmail={setEditEmailUser}
-        onViewLogs={setViewingUserLogs}
-        onDelete={setDeletingUser}
-      />
-
-      {selectedUsers.length > 0 && (
-        <BulkActionsBar
-          selectedCount={selectedUsers.length}
-          onChangeRole={() => setRoleChangeOpen(true)}
-          onDelete={() => setDeleteMultipleOpen(true)}
+      {hasPagination && (
+        <TablePagination
+          currentPage={page}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
         />
-      )}
-
-      {editingUser && (
-        <EditUserDialog
-          user={editingUser}
-          open={!!editingUser}
-          onOpenChange={(open) => !open && setEditingUser(null)}
-          onSuccess={handleUserEdited}
-        />
-      )}
-
-      {editEmailUser && (
-        <EditUserEmailDialog
-          user={editEmailUser}
-          open={!!editEmailUser}
-          onOpenChange={(open) => !open && setEditEmailUser(null)}
-          onSuccess={handleUserEmailEdited}
-        />
-      )}
-
-      {viewingUserLogs !== null && (
-        <ViewUserLogsDialog
-          userId={viewingUserLogs}
-          open={viewingUserLogs !== null}
-          onOpenChange={(open) => !open && setViewingUserLogs(null)}
-        />
-      )}
-
-      {deletingUser !== null && (
-        <DeleteConfirmDialog
-          title="Delete User"
-          description="Are you sure you want to delete this user? This action cannot be undone."
-          open={deletingUser !== null}
-          onOpenChange={(open) => !open && setDeletingUser(null)}
-          onConfirm={async () => {
-            try {
-              if (deletingUser) {
-                await adminService.deleteUser(deletingUser);
-                toast.success("User deleted successfully");
-                handleUserDeleted();
-              }
-            } catch (error) {
-              toast.error("Failed to delete user");
-              console.error(error);
-            }
-          }}
-        />
-      )}
-
-      {deleteMultipleOpen && (
-        <DeleteConfirmDialog
-          title="Delete Multiple Users"
-          description={`Are you sure you want to delete ${selectedUsers.length} users? This action cannot be undone.`}
-          open={deleteMultipleOpen}
-          onOpenChange={setDeleteMultipleOpen}
-          onConfirm={async () => {
-            try {
-              await adminService.deleteMultipleUsers(selectedUsers);
-              toast.success(
-                `${selectedUsers.length} users deleted successfully`
-              );
-              handleMultipleDeleted();
-            } catch (error) {
-              toast.error("Failed to delete users");
-              console.error(error);
-            }
-          }}
-        />
-      )}
-
-      {roleChangeOpen && (
-        <DeleteConfirmDialog
-          title="Change Role for Selected Users"
-          description={`Select the role to assign to ${selectedUsers.length} users:`}
-          open={roleChangeOpen}
-          onOpenChange={setRoleChangeOpen}
-          onConfirm={handleBulkRoleChange}
-          confirmText="Change Role"
-          cancelText="Cancel"
-          destructive={false}
-        >
-          <div className="py-4">
-            <Select value={selectedRole} onValueChange={setSelectedRole}>
-              <SelectTrigger className="w-full bg-[#0a1033] border-blue-900/30 text-white">
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#0a1033] border-blue-900/30">
-                {["Admin", "FullUser", "SimpleUser"].map((role) => (
-                  <SelectItem
-                    key={role}
-                    value={role}
-                    className="text-white hover:bg-blue-900/20"
-                  >
-                    {role}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </DeleteConfirmDialog>
       )}
     </div>
   );

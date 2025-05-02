@@ -10,6 +10,7 @@ import {
   Filter,
   CalendarDays,
   Columns,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
@@ -33,12 +34,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useSettings } from "@/context/SettingsContext";
 
 // Available search columns
 type SearchColumn = "code" | "title" | "description";
 
 export default function CircuitsPage() {
   const { user } = useAuth();
+  const { theme } = useSettings();
   const [apiError, setApiError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -89,6 +92,9 @@ export default function CircuitsPage() {
     });
   };
 
+  // Check if any filters are active
+  const hasActiveFilters = searchQuery || dateRange || flowType;
+
   return (
     <div className="p-6 space-y-6">
       <CreateCircuitDialog
@@ -99,10 +105,16 @@ export default function CircuitsPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-semibold mb-2 bg-gradient-to-r from-blue-200 to-purple-200 text-transparent bg-clip-text">
+          <h1
+            className={`text-3xl font-semibold mb-2 ${
+              theme === "dark"
+                ? "bg-gradient-to-r from-blue-200 to-purple-200 text-transparent bg-clip-text"
+                : "bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text"
+            }`}
+          >
             Circuit Management
           </h1>
-          <p className="text-gray-400">
+          <p className={theme === "dark" ? "text-gray-400" : "text-gray-600"}>
             {isSimpleUser
               ? "View document workflow circuits"
               : "Create and manage document workflow circuits"}
@@ -111,7 +123,11 @@ export default function CircuitsPage() {
 
         {!isSimpleUser && (
           <Button
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+            className={`${
+              theme === "dark"
+                ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+            }`}
             onClick={() => setCreateOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" /> New Circuit
@@ -122,7 +138,11 @@ export default function CircuitsPage() {
       {apiError && (
         <Alert
           variant="destructive"
-          className="mb-4 border-red-800 bg-red-950/50 text-red-300"
+          className={
+            theme === "dark"
+              ? "mb-4 border-red-800 bg-red-950/50 text-red-300"
+              : "mb-4 border-red-300 bg-red-50 text-red-700"
+          }
         >
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
@@ -130,11 +150,27 @@ export default function CircuitsPage() {
         </Alert>
       )}
 
-      <div className="flex flex-col gap-4 bg-blue-900/20 p-4 rounded-lg border border-blue-800/30">
+      <div
+        className={`flex flex-col gap-4 rounded-lg border p-4 ${
+          theme === "dark"
+            ? "bg-blue-900/20 border-blue-800/30"
+            : "bg-blue-50 border-blue-200/40"
+        }`}
+      >
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex items-center space-x-2 w-full md:w-auto">
-            <Search className="h-4 w-4 text-blue-400" />
-            <h2 className="text-blue-300 font-medium">Search Circuits</h2>
+            <Search
+              className={`h-4 w-4 ${
+                theme === "dark" ? "text-blue-400" : "text-blue-500"
+              }`}
+            />
+            <h2
+              className={`font-medium ${
+                theme === "dark" ? "text-blue-300" : "text-blue-600"
+              }`}
+            >
+              Search Circuits
+            </h2>
           </div>
           <div className="flex items-center gap-2 w-full md:w-auto">
             <div className="relative flex-1 max-w-xl w-full">
@@ -148,10 +184,29 @@ export default function CircuitsPage() {
                       : "Description"
                   )
                   .join(", ")}...`}
-                className="bg-[#0a1033]/80 border-blue-800/50 text-blue-100 pl-4 pr-10 focus:border-blue-500 focus:ring-blue-500/30"
+                className={`
+                  pr-10 
+                  ${
+                    theme === "dark"
+                      ? "bg-[#0a1033]/80 border-blue-800/50 text-blue-100 focus:border-blue-500 focus:ring-blue-500/30"
+                      : "bg-white border-blue-200 text-blue-900 focus:border-blue-500 focus:ring-blue-500/30"
+                  }
+                `}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full ${
+                    theme === "dark"
+                      ? "text-blue-400 hover:bg-blue-900/50"
+                      : "text-blue-500 hover:bg-blue-100"
+                  }`}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
             </div>
 
             <Popover>
@@ -159,14 +214,30 @@ export default function CircuitsPage() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="text-blue-400 border-blue-500 hover:text-blue-300"
+                  className={`
+                    ${
+                      theme === "dark"
+                        ? "text-blue-400 border-blue-500 hover:text-blue-300 hover:bg-blue-900/30"
+                        : "text-blue-600 border-blue-300 hover:text-blue-700 hover:bg-blue-50"
+                    }
+                  `}
                 >
                   <Columns className="h-4 w-4" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 p-3 bg-[#111633] border-blue-900/50">
+              <PopoverContent
+                className={`w-48 p-3 ${
+                  theme === "dark"
+                    ? "bg-[#111633] border-blue-900/50"
+                    : "bg-white border-blue-200"
+                }`}
+              >
                 <div className="space-y-4">
-                  <h4 className="font-medium text-blue-300 mb-2">
+                  <h4
+                    className={`font-medium mb-2 ${
+                      theme === "dark" ? "text-blue-300" : "text-blue-700"
+                    }`}
+                  >
                     Search In Columns
                   </h4>
                   <div className="space-y-2">
@@ -175,11 +246,19 @@ export default function CircuitsPage() {
                         id="search-code"
                         checked={searchColumns.includes("code")}
                         onCheckedChange={() => toggleSearchColumn("code")}
-                        className="border-blue-500/50 data-[state=checked]:bg-blue-600"
+                        className={`
+                          ${
+                            theme === "dark"
+                              ? "border-blue-500/50 data-[state=checked]:bg-blue-600"
+                              : "border-blue-300 data-[state=checked]:bg-blue-500"
+                          }
+                        `}
                       />
                       <label
                         htmlFor="search-code"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-100"
+                        className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+                          theme === "dark" ? "text-blue-100" : "text-blue-800"
+                        }`}
                       >
                         Circuit Code
                       </label>
@@ -189,11 +268,19 @@ export default function CircuitsPage() {
                         id="search-title"
                         checked={searchColumns.includes("title")}
                         onCheckedChange={() => toggleSearchColumn("title")}
-                        className="border-blue-500/50 data-[state=checked]:bg-blue-600"
+                        className={`
+                          ${
+                            theme === "dark"
+                              ? "border-blue-500/50 data-[state=checked]:bg-blue-600"
+                              : "border-blue-300 data-[state=checked]:bg-blue-500"
+                          }
+                        `}
                       />
                       <label
                         htmlFor="search-title"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-100"
+                        className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+                          theme === "dark" ? "text-blue-100" : "text-blue-800"
+                        }`}
                       >
                         Title
                       </label>
@@ -205,11 +292,19 @@ export default function CircuitsPage() {
                         onCheckedChange={() =>
                           toggleSearchColumn("description")
                         }
-                        className="border-blue-500/50 data-[state=checked]:bg-blue-600"
+                        className={`
+                          ${
+                            theme === "dark"
+                              ? "border-blue-500/50 data-[state=checked]:bg-blue-600"
+                              : "border-blue-300 data-[state=checked]:bg-blue-500"
+                          }
+                        `}
                       />
                       <label
                         htmlFor="search-description"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-100"
+                        className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+                          theme === "dark" ? "text-blue-100" : "text-blue-800"
+                        }`}
                       >
                         Description
                       </label>
@@ -228,11 +323,17 @@ export default function CircuitsPage() {
               <Button
                 variant="outline"
                 size="icon"
-                className={`${
-                  dateRange
-                    ? "text-blue-400 border-blue-500"
-                    : "text-gray-400 border-blue-900/30"
-                } hover:text-blue-300`}
+                className={`
+                  ${
+                    dateRange
+                      ? theme === "dark"
+                        ? "text-blue-400 border-blue-500 hover:text-blue-300 hover:bg-blue-900/30"
+                        : "text-blue-600 border-blue-300 hover:text-blue-700 hover:bg-blue-50"
+                      : theme === "dark"
+                      ? "text-gray-400 border-blue-900/30 hover:text-blue-300 hover:bg-blue-900/30"
+                      : "text-gray-500 border-gray-300 hover:text-blue-700 hover:bg-blue-50"
+                  }
+                `}
               >
                 <Calendar className="h-4 w-4" />
               </Button>
@@ -242,117 +343,125 @@ export default function CircuitsPage() {
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className={`${
-                    flowType
-                      ? "text-blue-400 border-blue-500"
-                      : "text-gray-400 border-blue-900/30"
-                  } hover:text-blue-300`}
+                  className={`
+                    ${
+                      flowType
+                        ? theme === "dark"
+                          ? "text-blue-400 border-blue-500 hover:text-blue-300 hover:bg-blue-900/30"
+                          : "text-blue-600 border-blue-300 hover:text-blue-700 hover:bg-blue-50"
+                        : theme === "dark"
+                        ? "text-gray-400 border-blue-900/30 hover:text-blue-300 hover:bg-blue-900/30"
+                        : "text-gray-500 border-gray-300 hover:text-blue-700 hover:bg-blue-50"
+                    }
+                  `}
                   size="icon"
                 >
                   <Filter className="h-4 w-4" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 p-3 bg-[#111633] border-blue-900/50">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-blue-300 mb-2">Flow Type</h4>
+              <PopoverContent
+                className={`w-48 p-3 ${
+                  theme === "dark"
+                    ? "bg-[#111633] border-blue-900/50"
+                    : "bg-white border-blue-200"
+                }`}
+              >
+                <div className="space-y-4">
+                  <h4
+                    className={`font-medium mb-2 ${
+                      theme === "dark" ? "text-blue-300" : "text-blue-700"
+                    }`}
+                  >
+                    Filter by Flow Type
+                  </h4>
                   <Select value={flowType} onValueChange={setFlowType}>
-                    <SelectTrigger className="bg-blue-900/30 border-blue-800/60 text-blue-200">
-                      <SelectValue placeholder="Select type" />
+                    <SelectTrigger
+                      className={`
+                      ${
+                        theme === "dark"
+                          ? "bg-[#0d1541]/70 border-blue-900/50 text-white"
+                          : "bg-white border-blue-200 text-blue-900"
+                      }
+                    `}
+                    >
+                      <SelectValue placeholder="Select Flow Type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#111633] border-blue-900/50">
+                    <SelectContent>
                       <SelectItem value="sequential">Sequential</SelectItem>
                       <SelectItem value="parallel">Parallel</SelectItem>
                     </SelectContent>
                   </Select>
-
-                  <Button
-                    variant="ghost"
-                    className="w-full mt-2 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
-                    onClick={() => setFlowType(undefined)}
-                  >
-                    Clear selection
-                  </Button>
                 </div>
               </PopoverContent>
             </Popover>
 
-            {(searchQuery || dateRange || flowType) && (
+            {hasActiveFilters && (
               <Button
-                variant="ghost"
-                size="sm"
+                variant="outline"
+                size="icon"
                 onClick={clearFilters}
-                className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
+                className={`
+                  ${
+                    theme === "dark"
+                      ? "text-blue-400 border-blue-500 hover:text-blue-300 hover:bg-blue-900/30"
+                      : "text-blue-600 border-blue-300 hover:text-blue-700 hover:bg-blue-50"
+                  }
+                `}
               >
-                Clear filters
+                <X className="h-4 w-4" />
               </Button>
             )}
           </div>
         </div>
 
-        {/* Active Filters */}
-        <div className="flex flex-wrap gap-2">
-          {searchColumns.length < 3 && (
-            <Badge
-              variant="outline"
-              className="bg-blue-900/20 text-blue-300 border-blue-500/30 flex gap-1"
-            >
-              <Columns className="h-3.5 w-3.5" />
-              Searching in:{" "}
-              {searchColumns
-                .map((c) =>
-                  c === "code"
-                    ? "Code"
-                    : c === "title"
-                    ? "Title"
-                    : "Description"
-                )
-                .join(", ")}
-            </Badge>
-          )}
-
-          {dateRange && (
-            <Badge
-              variant="outline"
-              className="bg-blue-900/20 text-blue-300 border-blue-500/30 flex gap-1"
-            >
-              <CalendarDays className="h-3.5 w-3.5" />
-              {dateRange.from ? (
-                dateRange.to ? (
-                  <>
-                    {format(dateRange.from, "MMM d, yyyy")} -{" "}
-                    {format(dateRange.to, "MMM d, yyyy")}
-                  </>
-                ) : (
-                  format(dateRange.from, "MMM d, yyyy")
-                )
-              ) : (
-                <span>Date Range</span>
-              )}
-              <button
-                onClick={() => setDateRange(undefined)}
-                className="ml-1 hover:text-blue-200"
+        {(dateRange || flowType) && (
+          <div className="flex flex-wrap gap-2">
+            {dateRange && (
+              <Badge
+                variant="outline"
+                className={`
+                  px-3 py-1 ${
+                    theme === "dark"
+                      ? "bg-blue-900/30 text-blue-200 border-blue-700/50"
+                      : "bg-blue-100 text-blue-700 border-blue-200"
+                  }
+                `}
               >
-                ×
-              </button>
-            </Badge>
-          )}
+                <CalendarDays className="h-3 w-3 mr-1" />
+                {format(dateRange.from!, "MMM d, yyyy")}
+                {dateRange.to && ` - ${format(dateRange.to, "MMM d, yyyy")}`}
+                <button
+                  onClick={() => setDateRange(undefined)}
+                  className="ml-2 rounded-full"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
 
-          {flowType && (
-            <Badge
-              variant="outline"
-              className="bg-blue-900/20 text-blue-300 border-blue-500/30 flex gap-1"
-            >
-              <Filter className="h-3.5 w-3.5" />
-              {flowType === "sequential" ? "Sequential" : "Parallel"}
-              <button
-                onClick={() => setFlowType(undefined)}
-                className="ml-1 hover:text-blue-200"
+            {flowType && (
+              <Badge
+                variant="outline"
+                className={`
+                  px-3 py-1 ${
+                    theme === "dark"
+                      ? "bg-blue-900/30 text-blue-200 border-blue-700/50"
+                      : "bg-blue-100 text-blue-700 border-blue-200"
+                  }
+                `}
               >
-                ×
-              </button>
-            </Badge>
-          )}
-        </div>
+                <Filter className="h-3 w-3 mr-1" />
+                Flow: {flowType === "sequential" ? "Sequential" : "Parallel"}
+                <button
+                  onClick={() => setFlowType(undefined)}
+                  className="ml-2 rounded-full"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+          </div>
+        )}
       </div>
 
       <CircuitsList
@@ -361,7 +470,6 @@ export default function CircuitsPage() {
         dateRange={dateRange}
         flowType={flowType}
         searchColumns={searchColumns}
-        key={refreshCircuits}
       />
     </div>
   );

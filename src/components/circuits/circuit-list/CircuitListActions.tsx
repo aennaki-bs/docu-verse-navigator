@@ -19,7 +19,7 @@ export function CircuitListActions({
   onViewDetails
 }: CircuitListActionsProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center justify-end gap-2">
       <Link to={`/circuits/${circuit.id}/steps`}>
         <Button 
           variant="ghost" 

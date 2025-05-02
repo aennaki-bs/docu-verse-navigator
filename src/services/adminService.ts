@@ -149,10 +149,18 @@ const adminService = {
   getAllRoles: async (): Promise<Role[]> => {
     try {
       const response = await api.get('/Admin/roles');
+      console.log('Roles API response:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching roles:', error);
-      throw error;
+      // Return default roles if the API call fails
+      const defaultRoles = [
+        { id: 1, name: 'Admin' },
+        { id: 2, name: 'FullUser' },
+        { id: 3, name: 'SimpleUser' }
+      ];
+      console.log('I have error, So i return default roles:', defaultRoles);
+      return defaultRoles;
     }
   }
 };

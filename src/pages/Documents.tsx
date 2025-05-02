@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useSettings } from "@/context/SettingsContext";
 import {
   Table,
   TableBody,
@@ -64,6 +65,7 @@ import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import AssignCircuitDialog from "@/components/circuits/AssignCircuitDialog";
+import DocumentsWrapper from "@/components/document/DocumentsWrapper";
 
 const mockDocuments: Document[] = [
   {
@@ -185,6 +187,7 @@ const mockDocuments: Document[] = [
 
 const Documents = () => {
   const { user, logout } = useAuth();
+  const { theme } = useSettings();
   const navigate = useNavigate();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
@@ -205,6 +208,7 @@ const Documents = () => {
   const [documentToAssign, setDocumentToAssign] = useState<Document | null>(
     null
   );
+  const [showFilters, setShowFilters] = useState(false);
 
   const canManageDocuments =
     user?.role === "Admin" || user?.role === "FullUser";
@@ -501,12 +505,28 @@ const Documents = () => {
     </div>
   );
 
+  const changePageSize = (newSize: number) => {
+    setPage(1); // Reset to first page when changing page size
+  };
+
   return (
-    <div className="p-6 space-y-6">
+    <div className={`p-6 space-y-6 ${theme === "light" ? "light" : ""}`}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Documents</h1>
-          <p className="text-blue-300/80">Manage your documents and files</p>
+          <h1
+            className={`text-2xl font-bold ${
+              theme === "light" ? "text-slate-900" : "text-white"
+            } mb-1`}
+          >
+            Documents
+          </h1>
+          <p
+            className={
+              theme === "light" ? "text-slate-500" : "text-blue-300/80"
+            }
+          >
+            Manage your documents and files
+          </p>
         </div>
         <div className="flex flex-wrap gap-3">
           {useFakeData && (
@@ -567,380 +587,32 @@ const Documents = () => {
         </div>
       </div>
 
-      <Card className="border-blue-900/30 bg-[#0a1033]/80 backdrop-blur-sm shadow-lg overflow-hidden">
-        <CardHeader className="p-4 border-b border-blue-900/30">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle className="text-lg text-white">Document List</CardTitle>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <div className="relative flex-1 sm:w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-300/70" />
-                <Input
-                  placeholder="Search documents..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 bg-blue-900/20 border-blue-800/30 text-white placeholder:text-blue-300/50 w-full focus:border-blue-500"
-                />
-              </div>
-              <DateRangePicker
-                date={dateRange}
-                onDateChange={setDateRange}
-                className="w-auto"
-                align="end"
-              >
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className={`${
-                    dateRange
-                      ? "text-blue-400 border-blue-500"
-                      : "text-gray-400 border-blue-900/30"
-                  } hover:text-blue-300`}
-                >
-                  <Calendar className="h-4 w-4" />
-                </Button>
-              </DateRangePicker>
-            </div>
-          </div>
-
-          {dateRange && (
-            <div className="mt-2 flex items-center gap-2">
-              <Badge
-                variant="outline"
-                className="bg-blue-900/20 text-blue-300 border-blue-500/30 flex gap-1"
-              >
-                <CalendarDays className="h-3.5 w-3.5" />
-                {dateRange.from ? (
-                  dateRange.to ? (
-                    <>
-                      {format(dateRange.from, "MMM d, yyyy")} -{" "}
-                      {format(dateRange.to, "MMM d, yyyy")}
-                    </>
-                  ) : (
-                    format(dateRange.from, "MMM d, yyyy")
-                  )
-                ) : (
-                  <span>Date Range</span>
-                )}
-                <button
-                  onClick={() => setDateRange(undefined)}
-                  className="ml-1 hover:text-blue-200"
-                >
-                  ×
-                </button>
-              </Badge>
-            </div>
-          )}
-        </CardHeader>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-8 space-y-4">
-              <div className="h-10 bg-blue-900/20 rounded animate-pulse"></div>
-              {[...Array(5)].map((_, index) => (
-                <div
-                  key={index}
-                  className="h-16 bg-blue-900/10 rounded animate-pulse"
-                ></div>
-              ))}
-            </div>
-          ) : getPageDocuments().length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-blue-900/20">
-                  <TableRow className="border-blue-900/50 hover:bg-blue-900/30">
-                    <TableHead className="w-12 text-blue-300">
-                      {canManageDocuments ? (
-                        <Checkbox
-                          checked={
-                            selectedDocuments.length ===
-                              getPageDocuments().length &&
-                            getPageDocuments().length > 0
-                          }
-                          onCheckedChange={handleSelectAll}
-                          className="border-blue-500/50"
-                        />
-                      ) : (
-                        <span>#</span>
-                      )}
-                    </TableHead>
-                    <TableHead className="text-blue-300 w-52">
-                      {renderSortableHeader(
-                        "Document Code",
-                        "documentKey",
-                        <Tag className="h-4 w-4" />
-                      )}
-                    </TableHead>
-                    <TableHead className="text-blue-300">
-                      {renderSortableHeader(
-                        "Title",
-                        "title",
-                        <FileText className="h-4 w-4" />
-                      )}
-                    </TableHead>
-                    <TableHead className="text-blue-300">
-                      {renderSortableHeader(
-                        "Type",
-                        "documentType",
-                        <Filter className="h-4 w-4" />
-                      )}
-                    </TableHead>
-                    <TableHead className="text-blue-300">
-                      {renderSortableHeader(
-                        "Document Date",
-                        "docDate",
-                        <CalendarDays className="h-4 w-4" />
-                      )}
-                    </TableHead>
-                    <TableHead className="text-blue-300">
-                      {renderSortableHeader(
-                        "Created By",
-                        "createdBy",
-                        <Avatar className="h-4 w-4" />
-                      )}
-                    </TableHead>
-                    <TableHead className="w-24 text-right text-blue-300">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {getPageDocuments().map((document, index) => (
-                    <TableRow
-                      key={document.id}
-                      className={`border-blue-900/30 hover:bg-blue-900/20 transition-all ${
-                        selectedDocuments.includes(document.id)
-                          ? "bg-blue-900/30 border-l-4 border-l-blue-500"
-                          : ""
-                      }`}
-                    >
-                      <TableCell>
-                        {canManageDocuments ? (
-                          <Checkbox
-                            checked={selectedDocuments.includes(document.id)}
-                            onCheckedChange={() =>
-                              handleSelectDocument(document.id)
-                            }
-                            className="border-blue-500/50"
-                          />
-                        ) : (
-                          <span className="text-sm text-gray-500">
-                            {index + 1 + (page - 1) * pageSize}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="font-mono text-sm text-blue-300">
-                        {document.documentKey}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Link
-                            to={`/documents/${document.id}`}
-                            className="text-blue-400 hover:text-blue-300 font-medium hover:underline"
-                          >
-                            {document.title}
-                          </Link>
-                          {getStatusBadge(document.status)}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-blue-100">
-                        {document.documentType.typeName}
-                      </TableCell>
-                      <TableCell className="text-blue-100/70 text-sm">
-                        {new Date(document.docDate).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarFallback className="bg-blue-800 text-xs">
-                              {document.createdBy.firstName[0]}
-                              {document.createdBy.lastName[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm text-blue-100/80">
-                            {document.createdBy.username}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end space-x-1">
-                          {canManageDocuments ? (
-                            <>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
-                                    onClick={() =>
-                                      openAssignCircuitDialog(document)
-                                    }
-                                  >
-                                    <GitBranch className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-[#0a1033]/90 border-blue-900/50">
-                                  <p>Assign to circuit</p>
-                                </TooltipContent>
-                              </Tooltip>
-
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/40"
-                                    asChild
-                                  >
-                                    <Link to={`/documents/${document.id}/edit`}>
-                                      <Edit className="h-4 w-4" />
-                                    </Link>
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-[#0a1033]/90 border-blue-900/50">
-                                  <p>Edit document</p>
-                                </TooltipContent>
-                              </Tooltip>
-
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/30"
-                                    onClick={() =>
-                                      openDeleteDialog(document.id)
-                                    }
-                                  >
-                                    <Trash className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-[#0a1033]/90 border-blue-900/50">
-                                  <p>Delete document</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </>
-                          ) : (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="cursor-not-allowed opacity-50"
-                                  >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-[#0a1033]/90 border-blue-900/50">
-                                  <p>
-                                    Only Admin or FullUser can edit documents
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <File className="mx-auto h-12 w-12 text-blue-500/50" />
-              <h3 className="mt-2 text-lg font-semibold text-white">
-                No documents found
-              </h3>
-              <p className="mt-1 text-sm text-blue-300/80">
-                {searchQuery || dateRange
-                  ? "No documents match your search criteria"
-                  : canManageDocuments
-                  ? "Get started by creating your first document"
-                  : "No documents are available for viewing"}
-              </p>
-              <div className="mt-6">
-                {canManageDocuments ? (
-                  <Button className="bg-blue-600 hover:bg-blue-700" asChild>
-                    <Link to="/documents/create">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Create Document
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button disabled className="cursor-not-allowed opacity-60">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create Document
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {totalPages > 1 && filteredItems.length > 0 && (
-            <div className="p-4 border-t border-blue-900/30">
-              <Pagination className="justify-center">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      className={
-                        page === 1
-                          ? "pointer-events-none opacity-50"
-                          : "hover:bg-blue-800/30"
-                      }
-                    />
-                  </PaginationItem>
-
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    // Show pagination numbers around current page
-                    let pageNum = page;
-                    if (page <= 3) {
-                      pageNum = i + 1;
-                    } else if (page >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = page - 2 + i;
-                    }
-
-                    // Make sure we're showing valid page numbers
-                    if (pageNum > 0 && pageNum <= totalPages) {
-                      return (
-                        <PaginationItem key={i}>
-                          <PaginationLink
-                            onClick={() => setPage(pageNum)}
-                            isActive={page === pageNum}
-                            className={
-                              page === pageNum
-                                ? "bg-blue-600"
-                                : "hover:bg-blue-800/30"
-                            }
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    }
-                    return null;
-                  })}
-
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() =>
-                        setPage((p) => Math.min(totalPages, p + 1))
-                      }
-                      className={
-                        page === totalPages
-                          ? "pointer-events-none opacity-50"
-                          : "hover:bg-blue-800/30"
-                      }
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <DocumentsWrapper
+        documents={getPageDocuments()}
+        selectedDocuments={selectedDocuments}
+        canManageDocuments={canManageDocuments}
+        handleSelectDocument={handleSelectDocument}
+        handleSelectAll={handleSelectAll}
+        onView={(document) => navigate(`/documents/${document.id}`)}
+        onEdit={(document) => navigate(`/documents/${document.id}/edit`)}
+        onDelete={openDeleteDialog}
+        onCreateDocument={() => navigate("/documents/new")}
+        sortConfig={sortConfig}
+        requestSort={requestSort}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        showFilters={showFilters}
+        toggleFilters={() => setShowFilters(!showFilters)}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalItems={documents.length}
+        onPageChange={setPage}
+        onPageSizeChange={changePageSize}
+        isLoading={isLoading}
+      />
 
       {selectedDocuments.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-[#0a1033]/90 border-t border-blue-900/30 p-4 flex justify-between items-center transition-all duration-300 z-10 backdrop-blur-sm">

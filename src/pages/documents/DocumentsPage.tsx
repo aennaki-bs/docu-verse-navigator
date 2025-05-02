@@ -161,7 +161,7 @@ const DocumentsPage = () => {
         }}
       />
 
-      <Card className="border-blue-900/30 bg-[#0a1033]/80 backdrop-blur-sm shadow-lg overflow-hidden">
+      <Card className=" backdrop-blur-sm shadow-lg overflow-hidden">
         <CardHeader className="p-4 border-b border-blue-900/30">
           <DocumentsFilterBar />
         </CardHeader>
