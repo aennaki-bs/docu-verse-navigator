@@ -2,6 +2,7 @@ import { Table, TableBody, TableRow, TableCell } from '@/components/ui/table';
 import { DocumentType } from '@/models/document';
 import { DocumentTypeTableHeader } from './table/DocumentTypeTableHeader';
 import { DocumentTypeTableRow } from './table/DocumentTypeTableRow';
+import { useSettings } from '@/context/SettingsContext';
 
 interface DocumentTypeTableProps {
   types: DocumentType[];
@@ -28,13 +29,18 @@ const DocumentTypeTable = ({
   sortField,
   sortDirection,
 }: DocumentTypeTableProps) => {
+  const { theme } = useSettings();
   const areAllEligibleSelected = types.length > 0 && 
     types.filter(type => type.documentCounter === 0).length === selectedTypes.length;
   const hasEligibleTypes = types.some(t => t.documentCounter === 0);
 
+  // Define theme-specific classes
+  const borderClass = theme === 'dark' ? 'border-blue-900/20' : 'border-gray-200';
+  const emptyTextClass = theme === 'dark' ? 'text-blue-400' : 'text-gray-500';
+
   return (
     <div className="w-full">
-      <div className="border-t border-blue-900/20 overflow-x-auto">
+      <div className={`border-t ${borderClass} overflow-x-auto`}>
         <Table>
           <DocumentTypeTableHeader
             onSelectAll={onSelectAll}
@@ -47,7 +53,7 @@ const DocumentTypeTable = ({
           <TableBody>
             {types.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-blue-400">
+                <TableCell colSpan={6} className={`h-24 text-center ${emptyTextClass}`}>
                   No document types found
                 </TableCell>
               </TableRow>

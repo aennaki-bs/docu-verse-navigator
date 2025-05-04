@@ -19,6 +19,9 @@ interface ActionsTableProps {
   onViewAction?: (action: ActionItem) => void;
   isSimpleUser?: boolean;
   isRefreshing?: boolean;
+  theme?: string;
+  selectedActions?: ActionItem[];
+  onSelectionChange?: (actions: ActionItem[]) => void;
 }
 
 export function ActionsTable({
@@ -28,14 +31,34 @@ export function ActionsTable({
   onViewAction,
   isSimpleUser = false,
   isRefreshing = false,
+  theme = "dark",
+  selectedActions = [],
+  onSelectionChange = () => {},
 }: ActionsTableProps) {
+  // Theme-based styles
+  const actionKeyClass = theme === "dark"
+    ? "bg-blue-100/70 border-blue-200/60 text-blue-700" 
+    : "bg-blue-50 border-blue-100 text-blue-600";
+  
+  const textClass = theme === "dark"
+    ? "text-muted-foreground" 
+    : "text-gray-500";
+  
+  const loadingBgClass = theme === "dark"
+    ? "text-blue-500" 
+    : "text-blue-600";
+  
+  const loadingTextClass = theme === "dark"
+    ? "text-blue-400" 
+    : "text-blue-500";
+
   // Define columns
   const columns: Column<ActionItem>[] = [
     {
       header: "Action Key",
       key: "actionKey",
       cell: (item) => (
-        <span className="font-mono text-xs px-2.5 py-1 rounded-md bg-blue-100/70 border border-blue-200/60 text-blue-700">
+        <span className={`font-mono text-xs px-2.5 py-1 rounded-md border ${actionKeyClass}`}>
           {item.actionKey}
         </span>
       ),
@@ -49,7 +72,7 @@ export function ActionsTable({
       header: "Description",
       key: "description",
       cell: (item) => (
-        <span className="text-muted-foreground max-w-md truncate block">
+        <span className={`${textClass} max-w-md truncate block`}>
           {item.description || "No description"}
         </span>
       ),
@@ -92,7 +115,12 @@ export function ActionsTable({
         {
           label: "Delete Selected",
           icon: <Trash2 className="h-3.5 w-3.5 mr-1.5" />,
-          onClick: (ids) => console.log("Delete actions", ids),
+          onClick: (ids) => {
+            const selectedItems = actions.filter(a => ids.includes(a.id));
+            if (onSelectionChange && selectedItems.length > 0) {
+              onSelectionChange(selectedItems);
+            }
+          },
           color: "red",
         },
       ]
@@ -102,8 +130,8 @@ export function ActionsTable({
     return (
       <div className="w-full flex items-center justify-center p-8">
         <div className="flex flex-col items-center text-center">
-          <RefreshCw className="h-6 w-6 animate-spin text-blue-500 mb-2" />
-          <p className="text-sm text-blue-400">Refreshing actions...</p>
+          <RefreshCw className={`h-6 w-6 animate-spin mb-2 ${loadingBgClass}`} />
+          <p className={`text-sm ${loadingTextClass}`}>Refreshing actions...</p>
         </div>
       </div>
     );
@@ -117,6 +145,9 @@ export function ActionsTable({
       actions={tableActions}
       bulkActions={bulkActions}
       isSimpleUser={isSimpleUser}
+      className={theme === "dark" ? "dark-mode-table" : "light-mode-table"}
+      selectedItems={selectedActions}
+      onSelectionChange={onSelectionChange}
     />
   );
 }

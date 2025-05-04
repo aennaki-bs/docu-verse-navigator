@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSettings } from "@/context/SettingsContext";
 
 export interface UserSearchFilters {
   query: string;
@@ -31,6 +32,41 @@ export function UserSearchBar({
   availableRoles = [], // Use provided roles or fallback to defaults
 }: UserSearchBarProps) {
   const [localQuery, setLocalQuery] = useState(filters.query);
+  const { theme } = useSettings();
+  const isLightMode = theme === "light";
+
+  // Theme-specific classes
+  const searchBarClass = isLightMode
+    ? "bg-gray-50 border-gray-200 shadow-sm"
+    : "bg-blue-900/10 border-blue-900/30";
+
+  const inputBgClass = isLightMode
+    ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus-visible:ring-blue-500 focus-visible:ring-offset-gray-100"
+    : "bg-blue-950/50 border-blue-900/50 text-white placeholder:text-blue-400/70 focus-visible:ring-blue-600 focus-visible:ring-offset-blue-950";
+
+  const searchIconClass = isLightMode
+    ? "text-gray-400"
+    : "text-blue-400";
+
+  const clearButtonClass = isLightMode
+    ? "text-gray-400 hover:text-gray-800 hover:bg-gray-100"
+    : "text-blue-400 hover:text-white hover:bg-blue-800/50";
+
+  const selectTriggerClass = isLightMode
+    ? "bg-white border-gray-300 text-gray-900"
+    : "bg-blue-950/50 border-blue-900/50 text-white";
+
+  const selectContentClass = isLightMode
+    ? "bg-white border-gray-200 text-gray-900"
+    : "bg-[#0a1033] border-blue-900/30 text-white";
+
+  const selectItemHoverClass = isLightMode
+    ? "hover:bg-gray-100"
+    : "hover:bg-blue-900/20";
+
+  const resetButtonClass = isLightMode
+    ? "bg-white border-gray-300 text-blue-500 hover:text-blue-600 hover:bg-gray-50"
+    : "bg-blue-950/50 border-blue-900/50 text-blue-400 hover:text-white hover:bg-blue-900/30";
 
   // Sync local state with props
   useEffect(() => {
@@ -144,21 +180,21 @@ export function UserSearchBar({
 
   return (
     <div className={`${className}`}>
-      <div className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:gap-3 p-4 bg-blue-900/10 rounded-lg border border-blue-900/30">
+      <div className={`flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:gap-3 p-4 rounded-lg border ${searchBarClass}`}>
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400" />
+          <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${searchIconClass}`} />
           <Input
             placeholder={placeholder}
             value={localQuery}
             onChange={handleQueryChange}
-            className="pl-9 pr-8 w-full bg-blue-950/50 border-blue-900/50 text-white placeholder:text-blue-400/70 focus-visible:ring-blue-600 focus-visible:ring-offset-blue-950"
+            className={`pl-9 pr-8 w-full ${inputBgClass}`}
           />
           {localQuery && (
             <Button
               variant="ghost"
               size="sm"
               onClick={clearSearch}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 text-blue-400 hover:text-white hover:bg-blue-800/50"
+              className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 ${clearButtonClass}`}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -167,15 +203,15 @@ export function UserSearchBar({
 
         <div className="flex flex-wrap gap-3">
           <Select value={filters.field} onValueChange={handleFieldChange}>
-            <SelectTrigger className="w-[140px] bg-blue-950/50 border-blue-900/50 text-white">
+            <SelectTrigger className={`w-[140px] ${selectTriggerClass}`}>
               <SelectValue placeholder="All fields" />
             </SelectTrigger>
-            <SelectContent className="bg-[#0a1033] border-blue-900/30 text-white">
+            <SelectContent className={selectContentClass}>
               {searchFields.map((field) => (
                 <SelectItem
                   key={field.id}
                   value={field.id}
-                  className="hover:bg-blue-900/20"
+                  className={selectItemHoverClass}
                 >
                   {field.label}
                 </SelectItem>
@@ -184,15 +220,15 @@ export function UserSearchBar({
           </Select>
 
           <Select value={filters.role} onValueChange={handleRoleFilterChange}>
-            <SelectTrigger className="w-[140px] bg-blue-950/50 border-blue-900/50 text-white">
+            <SelectTrigger className={`w-[140px] ${selectTriggerClass}`}>
               <SelectValue placeholder="Role" />
             </SelectTrigger>
-            <SelectContent className="bg-[#0a1033] border-blue-900/30 text-white">
+            <SelectContent className={selectContentClass}>
               {uniqueRoles.map((role) => (
                 <SelectItem
                   key={role.id}
                   value={role.id}
-                  className="hover:bg-blue-900/20"
+                  className={selectItemHoverClass}
                 >
                   {role.label}
                 </SelectItem>
@@ -204,15 +240,15 @@ export function UserSearchBar({
             value={filters.status}
             onValueChange={handleStatusFilterChange}
           >
-            <SelectTrigger className="w-[140px] bg-blue-950/50 border-blue-900/50 text-white">
+            <SelectTrigger className={`w-[140px] ${selectTriggerClass}`}>
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent className="bg-[#0a1033] border-blue-900/30 text-white">
+            <SelectContent className={selectContentClass}>
               {statuses.map((status) => (
                 <SelectItem
                   key={status.id}
                   value={status.id}
-                  className="hover:bg-blue-900/20"
+                  className={selectItemHoverClass}
                 >
                   {status.label}
                 </SelectItem>
@@ -225,7 +261,7 @@ export function UserSearchBar({
               variant="outline"
               size="sm"
               onClick={resetFilters}
-              className="bg-blue-950/50 border-blue-900/50 text-blue-400 hover:text-white hover:bg-blue-900/30"
+              className={resetButtonClass}
             >
               Clear Filters
             </Button>

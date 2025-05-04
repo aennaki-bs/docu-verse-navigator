@@ -1,6 +1,7 @@
 import { ArrowUpDown } from 'lucide-react';
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useSettings } from '@/context/SettingsContext';
 
 interface DocumentTypeTableHeaderProps {
   onSelectAll: (checked: boolean) => void;
@@ -19,19 +20,34 @@ export const DocumentTypeTableHeader = ({
   sortField,
   sortDirection
 }: DocumentTypeTableHeaderProps) => {
+  const { theme } = useSettings();
+
+  // Theme-specific classes
+  const headerBgClass = theme === 'dark' 
+    ? 'bg-[#0a1033]/80 border-blue-900/30' 
+    : 'bg-gray-50 border-gray-200';
+  
+  const headerTextClass = theme === 'dark' 
+    ? 'text-blue-300 hover:text-blue-200' 
+    : 'text-gray-600 hover:text-gray-800';
+  
+  const sortIconClass = theme === 'dark'
+    ? 'text-blue-400'
+    : 'text-blue-600';
+
   const renderSortIcon = (field: string) => {
     if (sortField === field) {
       return sortDirection === 'asc' 
-        ? <ArrowUpDown className="ml-1 h-3.5 w-3.5 text-blue-400" /> 
-        : <ArrowUpDown className="ml-1 h-3.5 w-3.5 text-blue-400 rotate-180" />;
+        ? <ArrowUpDown className={`ml-1 h-3.5 w-3.5 ${sortIconClass}`} /> 
+        : <ArrowUpDown className={`ml-1 h-3.5 w-3.5 ${sortIconClass} rotate-180`} />;
     }
     return <ArrowUpDown className="ml-1 h-3.5 w-3.5 opacity-30" />;
   };
 
   return (
-    <TableHeader className="bg-[#0a1033]/80 sticky top-0 z-10">
-      <TableRow className="hover:bg-transparent border-b border-blue-900/30 select-none">
-        <TableHead className="w-[50px] text-blue-300 py-2 h-9">
+    <TableHeader className={`${headerBgClass} sticky top-0 z-10`}>
+      <TableRow className={`hover:bg-transparent border-b ${headerBgClass} select-none`}>
+        <TableHead className={`w-[50px] ${headerTextClass} py-2 h-9`}>
           <Checkbox 
             checked={areAllEligibleSelected && hasEligibleTypes}
             onCheckedChange={onSelectAll}
@@ -40,7 +56,7 @@ export const DocumentTypeTableHeader = ({
           />
         </TableHead>
         <TableHead 
-          className="w-1/6 cursor-pointer text-blue-300 hover:text-blue-200 py-2 h-9"
+          className={`w-1/6 cursor-pointer ${headerTextClass} py-2 h-9`}
           onClick={() => onSort('typeKey')}
         >
           <div className="flex items-center">
@@ -49,7 +65,7 @@ export const DocumentTypeTableHeader = ({
           </div>
         </TableHead>
         <TableHead 
-          className="w-1/3 cursor-pointer text-blue-300 hover:text-blue-200 py-2 h-9"
+          className={`w-1/3 cursor-pointer ${headerTextClass} py-2 h-9`}
           onClick={() => onSort('typeName')}
         >
           <div className="flex items-center">
@@ -58,7 +74,7 @@ export const DocumentTypeTableHeader = ({
           </div>
         </TableHead>
         <TableHead 
-          className="w-1/4 cursor-pointer text-blue-300 hover:text-blue-200 py-2 h-9"
+          className={`w-1/4 cursor-pointer ${headerTextClass} py-2 h-9`}
           onClick={() => onSort('typeAttr')}
         >
           <div className="flex items-center">
@@ -67,7 +83,7 @@ export const DocumentTypeTableHeader = ({
           </div>
         </TableHead>
         <TableHead 
-          className="w-[120px] cursor-pointer text-blue-300 hover:text-blue-200 py-2 h-9"
+          className={`w-[120px] cursor-pointer ${headerTextClass} py-2 h-9`}
           onClick={() => onSort('documentCounter')}
         >
           <div className="flex items-center">
@@ -75,7 +91,7 @@ export const DocumentTypeTableHeader = ({
             {renderSortIcon('documentCounter')}
           </div>
         </TableHead>
-        <TableHead className="w-[120px] text-blue-300 py-2 h-9 text-right pr-4">Actions</TableHead>
+        <TableHead className={`w-[120px] ${headerTextClass} py-2 h-9 text-right pr-4`}>Actions</TableHead>
       </TableRow>
     </TableHeader>
   );

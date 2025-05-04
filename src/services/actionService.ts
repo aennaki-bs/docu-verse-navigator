@@ -9,6 +9,11 @@ import {
   ActionPriority
 } from '@/models/action';
 
+// Cache for steps data
+let stepsCache: any[] = [];
+let stepsCacheTime: number = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 /**
  * Service for managing actions
  */
@@ -18,8 +23,14 @@ export const actionService = {
    * @returns Promise<Action[]> List of all actions
    */
   getAllActions: async (): Promise<Action[]> => {
-    const response = await api.get('/Action');
-    return response.data;
+    try {
+      const response = await api.get('/Action');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch actions:', error);
+      // Return empty array instead of propagating error
+      return [];
+    }
   },
 
   /**
@@ -85,8 +96,13 @@ export const actionService = {
    * @returns Promise<Action[]> List of actions for the step
    */
   getActionsByStep: async (stepId: number): Promise<Action[]> => {
-    const response = await api.get(`/Action/by-step/${stepId}`);
-    return response.data;
+    try {
+      const response = await api.get(`/Action/by-step/${stepId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to fetch actions for step ${stepId}:`, error);
+      return [];
+    }
   },
 
   /**
@@ -95,8 +111,13 @@ export const actionService = {
    * @returns Promise<Action[]> List of actions in the category
    */
   getActionsByCategory: async (category: ActionCategory): Promise<Action[]> => {
-    const response = await api.get(`/Action/by-category/${category}`);
-    return response.data;
+    try {
+      const response = await api.get(`/Action/by-category/${category}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to fetch actions for category ${category}:`, error);
+      return [];
+    }
   },
 
   /**
@@ -105,8 +126,13 @@ export const actionService = {
    * @returns Promise<Action[]> List of actions with the specified priority
    */
   getActionsByPriority: async (priority: ActionPriority): Promise<Action[]> => {
-    const response = await api.get(`/Action/by-priority/${priority}`);
-    return response.data;
+    try {
+      const response = await api.get(`/Action/by-priority/${priority}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to fetch actions for priority ${priority}:`, error);
+      return [];
+    }
   },
 
   /**
@@ -117,5 +143,37 @@ export const actionService = {
    */
   updateStatusEffects: async (stepId: number, actionId: number, statusEffects: StatusEffectDto[]): Promise<void> => {
     await api.put(`/Action/step/${stepId}/action/${actionId}/status-effects`, { statusEffects });
+  },
+  
+  /**
+   * Get cached or fresh steps for action assignments
+   * Uses a local cache to avoid unnecessary API calls when assigning actions to steps
+   * @param forceRefresh Force refresh the cache
+   * @returns Promise<any[]> List of steps
+   */
+  getCachedSteps: async (forceRefresh: boolean = false): Promise<any[]> => {
+    const now = Date.now();
+    
+    // Return cached steps if they're still valid
+    if (!forceRefresh && stepsCache.length > 0 && (now - stepsCacheTime < CACHE_TTL)) {
+      console.log('Using cached steps data');
+      return stepsCache;
+    }
+    
+    try {
+      // Fetch fresh steps data
+      const response = await api.get('/Steps');
+      stepsCache = response.data;
+      stepsCacheTime = now;
+      return stepsCache;
+    } catch (error) {
+      console.error('Failed to fetch steps:', error);
+      // If fresh fetch fails but we have a cache, return it even if expired
+      if (stepsCache.length > 0) {
+        console.log('Failed to fetch fresh steps, using expired cache');
+        return stepsCache;
+      }
+      return [];
+    }
   }
 }; 

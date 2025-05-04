@@ -1,12 +1,48 @@
-
 import { toast } from 'sonner';
 import api from './core';
+import axios from 'axios';
 import { handleErrorResponse, shouldSkipAuthRedirect, shouldSkipErrorToast } from './errorHandlers';
+
+// Check if we're in a browser environment
+const isBrowserEnvironment = () => typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+
+// Track if we already have a pending auth redirect to prevent multiple redirects
+let pendingAuthRedirect = false;
+
+// Request throttling to prevent excessive API calls
+const requestThrottleMap = new Map<string, number>();
+const THROTTLE_TIME_MS = 1000; // 1 second minimum between identical requests
 
 // Request interceptor for API calls
 const setupRequestInterceptor = () => {
   api.interceptors.request.use(
     (config) => {
+      // Ensure we're in a browser environment
+      if (!isBrowserEnvironment()) {
+        console.warn('Running in a non-browser environment, skipping auth headers');
+        return config;
+      }
+
+      // Implement request throttling for GET requests
+      if (config.method?.toLowerCase() === 'get' && config.url) {
+        const requestKey = `${config.method}-${config.url}`;
+        const lastRequestTime = requestThrottleMap.get(requestKey) || 0;
+        const now = Date.now();
+        
+        // If the same request was made too recently, cancel it
+        if (now - lastRequestTime < THROTTLE_TIME_MS) {
+          console.log(`Throttling request to: ${config.url} (too many requests)`);
+          // Return a canceled request using axios CancelToken
+          const source = axios.CancelToken.source();
+          source.cancel(`Request to ${config.url} was throttled to prevent excessive API calls`);
+          config.cancelToken = source.token;
+          return config;
+        }
+        
+        // Update the last request time
+        requestThrottleMap.set(requestKey, now);
+      }
+
       const token = localStorage.getItem('token');
       if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
@@ -59,6 +95,15 @@ const setupResponseInterceptor = () => {
       return response;
     },
     async (error) => {
+      // If request was canceled due to throttling, just return a resolved promise
+      if (axios.isCancel(error)) {
+        console.log('Request canceled:', error.message);
+        return Promise.resolve({ data: null, status: 200, statusText: 'Throttled' });
+      }
+      
+      // Ensure we're in a browser environment before accessing localStorage
+      const isBrowser = isBrowserEnvironment();
+      
       // Dismiss loading toast if it exists
       // @ts-ignore - Access the custom property from the config
       if (error.config?.requestId) {
@@ -103,17 +148,42 @@ const setupResponseInterceptor = () => {
         originalRequest._retry = true;
         
         // If it's not one of the exceptions and is a 401, only then redirect
-        const shouldRedirect = !shouldSkipAuthRedirect(originalRequest.url);
+        const shouldRedirect = !shouldSkipAuthRedirect(originalRequest.url) && !pendingAuthRedirect;
         
-        if (shouldRedirect) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
+        if (shouldRedirect && isBrowser) {
+          try {
+            // Set pending flag to prevent multiple redirects
+            pendingAuthRedirect = true;
+            
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            
+            // Instead of directly redirecting, dispatch a custom event to handle this at the app level
+            const authEvent = new CustomEvent('auth:expired', { 
+              detail: { message: 'Authentication token has expired' } 
+            });
+            window.dispatchEvent(authEvent);
+            
+            // Only redirect if we're not already on the login page
+            if (!window.location.pathname.includes('/login')) {
+              // Use setTimeout to prevent immediate redirect
+              setTimeout(() => {
+                window.location.href = '/login';
+                // Reset the flag after redirect
+                pendingAuthRedirect = false;
+              }, 100);
+            } else {
+              pendingAuthRedirect = false;
+            }
+          } catch (err) {
+            console.error('Error during auth redirect:', err);
+            pendingAuthRedirect = false;
+          }
         }
       }
       
       // Handle 403 Forbidden errors (e.g., accessing admin endpoints without permission)
-      if (error.response?.status === 403) {
+      if (error.response?.status === 403 && isBrowser) {
         toast.error('Permission Denied', {
           description: 'You do not have permission to perform this action.'
         });
@@ -129,7 +199,27 @@ const setupResponseInterceptor = () => {
   );
 };
 
+// Clean up throttle map every minute to prevent memory leaks
+if (isBrowserEnvironment()) {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, timestamp] of requestThrottleMap.entries()) {
+      if (now - timestamp > 60000) { // Remove entries older than 1 minute
+        requestThrottleMap.delete(key);
+      }
+    }
+  }, 60000);
+}
+
 export const setupInterceptors = () => {
   setupRequestInterceptor();
   setupResponseInterceptor();
 };
+
+// Setup a listener for auth:expired events to handle token expiration
+if (isBrowserEnvironment()) {
+  window.addEventListener('auth:expired', (event) => {
+    console.log('Auth expired event detected:', event);
+    // Additional auth expiration handling if needed
+  });
+}

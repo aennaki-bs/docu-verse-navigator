@@ -2,8 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -47,6 +49,70 @@ const queryClient = new QueryClient({
   },
 });
 
+// Component that listens for auth expiration events
+const AuthListener = () => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  
+  useEffect(() => {
+    // Ensure we're in a browser environment
+    if (typeof window === 'undefined') {
+      console.warn('AuthListener: Not in browser environment, skipping event listeners');
+      return;
+    }
+    
+    // Keep track of if this component is mounted
+    let isMounted = true;
+    
+    // Variable to track if we're currently processing an auth expiration
+    let isProcessingExpiration = false;
+    
+    const handleAuthExpired = (event: Event) => {
+      // Prevent duplicate handling
+      if (isProcessingExpiration) return;
+      
+      console.log('Auth expired event received in AuthListener');
+      isProcessingExpiration = true;
+      
+      // Show a toast notification
+      toast.error('Authentication expired', {
+        description: 'Please log in again to continue.',
+        duration: 5000
+      });
+      
+      // Use setTimeout to ensure we're not creating a refresh loop
+      setTimeout(() => {
+        // Only proceed if still mounted
+        if (isMounted) {
+          // Log the user out through the auth context
+          logout(navigate);
+        }
+        isProcessingExpiration = false;
+      }, 100);
+    };
+
+    window.addEventListener('auth:expired', handleAuthExpired);
+    
+    return () => {
+      isMounted = false;
+      window.removeEventListener('auth:expired', handleAuthExpired);
+    };
+  }, [logout, navigate]);
+
+  return null; // This component doesn't render anything
+};
+
+// Helper component that handles automatic redirection based on auth status
+const IndexRedirect = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  // Show nothing while checking authentication state
+  if (isLoading) return null;
+  
+  // If user is authenticated, redirect to dashboard, otherwise show the landing page
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Index />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -55,9 +121,10 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <AuthListener />
             <Routes>
               {/* Public routes */}
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<IndexRedirect />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/registration-success" element={<RegistrationSuccess />} />

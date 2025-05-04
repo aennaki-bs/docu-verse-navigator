@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import adminService, { CreateUserRequest } from "@/services/adminService";
 import { Eye, EyeOff, ArrowRight, ArrowLeft, Check } from "lucide-react";
+import { useSettings } from "@/context/SettingsContext";
 
 // Password validation schema
 const passwordSchema = z
@@ -86,6 +87,8 @@ export function CreateUserDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const { theme } = useSettings();
+  const isLightMode = theme === "light";
 
   const steps = [
     { title: "Basic Information", description: "Enter user account details" },
@@ -214,12 +217,89 @@ export function CreateUserDialog({
 
   const passwordStrength = getPasswordStrength();
 
+  // Theme-specific styling
+  const dialogContentClass = isLightMode
+    ? "bg-white border-gray-200 text-gray-900 shadow-xl"
+    : "bg-[#0a1033] border-blue-900/30 text-white backdrop-blur-md";
+
+  const dialogTitleClass = isLightMode
+    ? "text-xl text-gray-900"
+    : "text-xl text-white";
+
+  const dialogDescriptionClass = isLightMode
+    ? "text-gray-600"
+    : "text-blue-300";
+
+  const stepActiveClass = isLightMode
+    ? "text-blue-600"
+    : "text-blue-400";
+
+  const stepInactiveClass = isLightMode
+    ? "text-gray-400"
+    : "text-gray-500";
+
+  const stepActiveCircle = isLightMode
+    ? "bg-blue-500 text-white"
+    : "bg-blue-600 text-white";
+
+  const stepCurrentCircle = isLightMode
+    ? "bg-blue-400 text-white"
+    : "bg-blue-500 text-white";
+
+  const stepInactiveCircle = isLightMode
+    ? "bg-gray-200 text-gray-600"
+    : "bg-gray-700";
+
+  const stepConnectorActive = isLightMode
+    ? "bg-blue-400"
+    : "bg-blue-600";
+
+  const stepConnectorInactive = isLightMode
+    ? "bg-gray-200"
+    : "bg-gray-700";
+
+  const formLabelClass = isLightMode
+    ? "text-gray-700"
+    : "text-blue-200";
+
+  const formControlClass = isLightMode
+    ? "bg-white border-gray-300 focus-visible:ring-blue-500"
+    : "bg-blue-950/50 border-blue-900/50 text-white";
+
+  const formDescriptionClass = isLightMode
+    ? "text-gray-500"
+    : "text-blue-300";
+
+  const buttonPrimaryClass = isLightMode
+    ? "bg-blue-500 hover:bg-blue-600 text-white"
+    : "bg-blue-600 hover:bg-blue-700 text-white";
+
+  const buttonSecondaryClass = isLightMode
+    ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+    : "bg-blue-900/20 border-blue-900/50 text-blue-300";
+
+  const selectTriggerClass = isLightMode
+    ? "bg-white border-gray-300 text-gray-900"
+    : "bg-blue-950/50 border-blue-900/50 text-white";
+
+  const selectContentClass = isLightMode
+    ? "bg-white border-gray-200"
+    : "bg-[#0a1033] border-blue-900/30";
+
+  const selectItemClass = isLightMode
+    ? "text-gray-800 hover:bg-gray-100"
+    : "text-white hover:bg-blue-900/20";
+  
+  const passwordToggleClass = isLightMode
+    ? "text-gray-500 hover:text-gray-700"
+    : "text-blue-400 hover:text-blue-200";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] max-h-[85vh] overflow-y-auto bg-[#0a1033] border-blue-900/30 text-white backdrop-blur-md">
+      <DialogContent className={`sm:max-w-[550px] max-h-[85vh] overflow-y-auto ${dialogContentClass}`}>
         <DialogHeader className="mb-2">
-          <DialogTitle className="text-xl text-white">Create User</DialogTitle>
-          <DialogDescription className="text-blue-300">
+          <DialogTitle className={dialogTitleClass}>Create User</DialogTitle>
+          <DialogDescription className={dialogDescriptionClass}>
             Create a new user with specific role and permissions.
           </DialogDescription>
         </DialogHeader>
@@ -230,7 +310,7 @@ export function CreateUserDialog({
               <div
                 key={idx}
                 className={`flex flex-col items-center ${
-                  idx <= currentStep ? "text-blue-400" : "text-gray-500"
+                  idx <= currentStep ? stepActiveClass : stepInactiveClass
                 }`}
                 style={{ width: `${100 / steps.length}%` }}
               >
@@ -238,10 +318,10 @@ export function CreateUserDialog({
                   className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 
                   ${
                     idx < currentStep
-                      ? "bg-blue-600 text-white"
+                      ? stepActiveCircle
                       : idx === currentStep
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-700"
+                      ? stepCurrentCircle
+                      : stepInactiveCircle
                   }`}
                 >
                   {idx < currentStep ? <Check size={16} /> : idx + 1}
@@ -252,216 +332,213 @@ export function CreateUserDialog({
               </div>
             ))}
           </div>
-          <div className="relative h-2 bg-gray-700 rounded-full">
-            <div
-              className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all"
-              style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
-            ></div>
-          </div>
-          <div className="text-center mt-2 text-sm text-blue-200">
-            {steps[currentStep].description}
+
+          <div className="flex mb-6">
+            {steps.map((_, idx) => (
+              <div
+                key={idx}
+                className={`h-1 flex-1 ${
+                  idx < currentStep
+                    ? stepConnectorActive
+                    : stepConnectorInactive
+                } ${idx === 0 ? "rounded-l" : ""} ${
+                  idx === steps.length - 1 ? "rounded-r" : ""
+                }`}
+              ></div>
+            ))}
           </div>
         </div>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             {currentStep === 0 && (
-              <div className="space-y-4 animate-fade-in">
+              <>
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Email</FormLabel>
+                      <FormLabel className={formLabelClass}>Email</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="user@example.com"
                           {...field}
-                          className="bg-[#111633] border-blue-900/50 text-white placeholder:text-blue-300/50"
+                          className={formControlClass}
+                          autoComplete="off"
                         />
                       </FormControl>
+                      <FormDescription className={formDescriptionClass}>
+                        This email will be used for login and notifications.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Username</FormLabel>
+                      <FormLabel className={formLabelClass}>Username</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="username"
                           {...field}
-                          className="bg-[#111633] border-blue-900/50 text-white placeholder:text-blue-300/50"
+                          className={formControlClass}
+                          autoComplete="off"
+                        />
+                      </FormControl>
+                      <FormDescription className={formDescriptionClass}>
+                        Choose a unique username for the account.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+
+            {currentStep === 1 && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className={formLabelClass}>First Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="John"
+                          {...field}
+                          className={formControlClass}
+                          autoComplete="off"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-            )}
-
-            {currentStep === 1 && (
-              <div className="space-y-4 animate-fade-in">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">First Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="First Name"
-                            {...field}
-                            className="bg-[#111633] border-blue-900/50 text-white placeholder:text-blue-300/50"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Last Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Last Name"
-                            {...field}
-                            className="bg-[#111633] border-blue-900/50 text-white placeholder:text-blue-300/50"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className={formLabelClass}>Last Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Doe"
+                          {...field}
+                          className={formControlClass}
+                          autoComplete="off"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
             )}
 
             {currentStep === 2 && (
-              <div className="space-y-4 animate-fade-in">
+              <>
                 <FormField
                   control={form.control}
                   name="passwordHash"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Password</FormLabel>
+                      <FormLabel className={formLabelClass}>Password</FormLabel>
                       <div className="relative">
                         <FormControl>
-                          <div className="relative">
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="••••••••"
-                              {...field}
-                              className="bg-[#111633] border-blue-900/50 text-white pr-10 placeholder:text-blue-300/50"
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={togglePasswordVisibility}
-                              className="absolute right-0 top-0 h-full px-3 text-blue-400 hover:text-blue-300"
-                            >
-                              {showPassword ? (
-                                <EyeOff size={16} />
-                              ) : (
-                                <Eye size={16} />
-                              )}
-                            </Button>
-                          </div>
+                          <Input
+                            placeholder="••••••••"
+                            type={showPassword ? "text" : "password"}
+                            className={formControlClass}
+                            {...field}
+                            autoComplete="new-password"
+                          />
                         </FormControl>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 ${passwordToggleClass}`}
+                          onClick={togglePasswordVisibility}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
                       </div>
 
-                      {field.value && (
-                        <div className="mt-2">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-blue-300">
-                              Password Strength:
-                            </span>
-                            <span
-                              className={`text-xs font-medium ${
-                                passwordStrength.strength < 40
-                                  ? "text-red-400"
-                                  : passwordStrength.strength < 60
-                                  ? "text-yellow-400"
-                                  : "text-green-400"
-                              }`}
-                            >
-                              {passwordStrength.text}
-                            </span>
-                          </div>
-                          <div className="h-1.5 w-full bg-gray-700 rounded-full">
-                            <div
-                              className={`h-full rounded-full ${passwordStrength.color}`}
-                              style={{ width: `${passwordStrength.strength}%` }}
-                            ></div>
-                          </div>
-
-                          <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
-                            <div
-                              className={`flex items-center ${
-                                /[A-Z]/.test(field.value)
-                                  ? "text-green-400"
-                                  : "text-gray-400"
-                              }`}
-                            >
-                              <Check size={12} className="mr-1" /> Uppercase
-                              letter
-                            </div>
-                            <div
-                              className={`flex items-center ${
-                                /[a-z]/.test(field.value)
-                                  ? "text-green-400"
-                                  : "text-gray-400"
-                              }`}
-                            >
-                              <Check size={12} className="mr-1" /> Lowercase
-                              letter
-                            </div>
-                            <div
-                              className={`flex items-center ${
-                                /[0-9]/.test(field.value)
-                                  ? "text-green-400"
-                                  : "text-gray-400"
-                              }`}
-                            >
-                              <Check size={12} className="mr-1" /> Number
-                            </div>
-                            <div
-                              className={`flex items-center ${
-                                /[^A-Za-z0-9]/.test(field.value)
-                                  ? "text-green-400"
-                                  : "text-gray-400"
-                              }`}
-                            >
-                              <Check size={12} className="mr-1" /> Special
-                              character
-                            </div>
-                            <div
-                              className={`flex items-center ${
-                                field.value.length >= 8
-                                  ? "text-green-400"
-                                  : "text-gray-400"
-                              }`}
-                            >
-                              <Check size={12} className="mr-1" /> 8+ characters
-                            </div>
-                          </div>
+                      <div className="mt-2 space-y-2">
+                        <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+                          <div
+                            className={`h-full ${passwordStrength.color}`}
+                            style={{ width: `${passwordStrength.strength}%` }}
+                          ></div>
                         </div>
-                      )}
 
+                        {passwordStrength.text && (
+                          <p className={`text-xs ${formDescriptionClass}`}>
+                            Password strength: {passwordStrength.text}
+                          </p>
+                        )}
+
+                        <ul className={`text-xs space-y-1 ${formDescriptionClass}`}>
+                          <li className="flex items-center space-x-2">
+                            <span
+                              className={`h-2 w-2 rounded-full inline-block ${
+                                /[A-Z]/.test(field.value)
+                                  ? "bg-green-500"
+                                  : "bg-gray-300"
+                              }`}
+                            ></span>
+                            <span>One uppercase letter</span>
+                          </li>
+                          <li className="flex items-center space-x-2">
+                            <span
+                              className={`h-2 w-2 rounded-full inline-block ${
+                                /[a-z]/.test(field.value)
+                                  ? "bg-green-500"
+                                  : "bg-gray-300"
+                              }`}
+                            ></span>
+                            <span>One lowercase letter</span>
+                          </li>
+                          <li className="flex items-center space-x-2">
+                            <span
+                              className={`h-2 w-2 rounded-full inline-block ${
+                                /[0-9]/.test(field.value)
+                                  ? "bg-green-500"
+                                  : "bg-gray-300"
+                              }`}
+                            ></span>
+                            <span>One number</span>
+                          </li>
+                          <li className="flex items-center space-x-2">
+                            <span
+                              className={`h-2 w-2 rounded-full inline-block ${
+                                /[^A-Za-z0-9]/.test(field.value)
+                                  ? "bg-green-500"
+                                  : "bg-gray-300"
+                              }`}
+                            ></span>
+                            <span>One special character</span>
+                          </li>
+                          <li className="flex items-center space-x-2">
+                            <span
+                              className={`h-2 w-2 rounded-full inline-block ${
+                                field.value.length >= 8
+                                  ? "bg-green-500"
+                                  : "bg-gray-300"
+                              }`}
+                            ></span>
+                            <span>At least 8 characters</span>
+                          </li>
+                        </ul>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -472,143 +549,115 @@ export function CreateUserDialog({
                   name="roleName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Role</FormLabel>
+                      <FormLabel className={formLabelClass}>Role</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="bg-[#111633] border-blue-900/50 text-white">
+                          <SelectTrigger className={selectTriggerClass}>
                             <SelectValue placeholder="Select a role" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-[#0a1033] border-blue-900/50 text-white">
-                          {roles && roles.length > 0 ? (
-                            // If roles are provided, use those
-                            roles.map((role, index) => (
-                              <SelectItem
-                                key={index}
-                                value={getRoleName(role)}
-                                className="hover:bg-blue-900/30"
-                              >
-                                {getRoleName(role)}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            // Otherwise use the default roles
-                            <>
-                              <SelectItem
-                                value="Admin"
-                                className="hover:bg-blue-900/30"
-                              >
-                                Admin
-                              </SelectItem>
-                              <SelectItem
-                                value="FullUser"
-                                className="hover:bg-blue-900/30"
-                              >
-                                Full User
-                              </SelectItem>
-                              <SelectItem
-                                value="SimpleUser"
-                                className="hover:bg-blue-900/30"
-                              >
-                                Simple User
-                              </SelectItem>
-                            </>
-                          )}
+                        <SelectContent className={selectContentClass}>
+                          {roles && roles.length > 0
+                            ? roles.map((role, index) => (
+                                <SelectItem
+                                  key={index}
+                                  value={getRoleName(role)}
+                                  className={selectItemClass}
+                                >
+                                  {getRoleName(role)}
+                                </SelectItem>
+                              ))
+                            : ["Admin", "FullUser", "SimpleUser"].map((role) => (
+                                <SelectItem
+                                  key={role}
+                                  value={role}
+                                  className={selectItemClass}
+                                >
+                                  {role}
+                                </SelectItem>
+                              ))}
                         </SelectContent>
                       </Select>
+                      <FormDescription className={formDescriptionClass}>
+                        This determines what permissions the user will have.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
+              </>
             )}
 
             {currentStep === 3 && (
-              <div className="space-y-4 animate-fade-in pb-4">
-                <h3 className="text-lg font-medium text-white">
-                  User Information Summary
-                </h3>
-
-                <div className="bg-[#111633] rounded-md p-4 border border-blue-900/30">
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-sm text-blue-300">Email</p>
-                      <p className="font-medium text-white break-all">
-                        {form.getValues("email")}
-                      </p>
+              <div className="space-y-4">
+                <div className="rounded-lg border p-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className={formLabelClass}>Email</h4>
+                      <p className={formDescriptionClass}>{form.getValues("email")}</p>
                     </div>
-                    <div className="space-y-1">
-                      <p className="text-sm text-blue-300">Username</p>
-                      <p className="font-medium text-white">
-                        {form.getValues("username")}
-                      </p>
+                    <div>
+                      <h4 className={formLabelClass}>Username</h4>
+                      <p className={formDescriptionClass}>{form.getValues("username")}</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <p className="text-sm text-blue-300">First Name</p>
-                        <p className="font-medium text-white">
-                          {form.getValues("firstName")}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm text-blue-300">Last Name</p>
-                        <p className="font-medium text-white">
-                          {form.getValues("lastName")}
-                        </p>
-                      </div>
+                    <div>
+                      <h4 className={formLabelClass}>First Name</h4>
+                      <p className={formDescriptionClass}>{form.getValues("firstName")}</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <p className="text-sm text-blue-300">Password</p>
-                        <p className="font-medium text-white">••••••••</p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm text-blue-300">Role</p>
-                        <p className="font-medium text-white">
-                          {form.getValues("roleName")}
-                        </p>
-                      </div>
+                    <div>
+                      <h4 className={formLabelClass}>Last Name</h4>
+                      <p className={formDescriptionClass}>{form.getValues("lastName")}</p>
+                    </div>
+                    <div>
+                      <h4 className={formLabelClass}>Role</h4>
+                      <p className={formDescriptionClass}>{form.getValues("roleName")}</p>
+                    </div>
+                    <div>
+                      <h4 className={formLabelClass}>Password</h4>
+                      <p className={formDescriptionClass}>••••••••</p>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            <DialogFooter className="gap-2 sm:gap-0 mt-6">
-              {currentStep > 0 && (
+            <div className="flex justify-between mt-6">
+              {currentStep > 0 ? (
                 <Button
                   type="button"
-                  variant="outline"
                   onClick={prevStep}
-                  className="border-blue-900/30 text-blue-300 hover:bg-blue-900/20"
+                  className={buttonSecondaryClass}
+                  variant="outline"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" /> Back
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
                 </Button>
+              ) : (
+                <div></div>
               )}
 
               {currentStep < steps.length - 1 ? (
                 <Button
                   type="button"
                   onClick={nextStep}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className={buttonPrimaryClass}
                 >
-                  Next <ArrowRight className="h-4 w-4 ml-2" />
+                  Next
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (
                 <Button
-                  type="button"
-                  onClick={form.handleSubmit(handleSubmit)}
+                  type="submit"
+                  className={buttonPrimaryClass}
                   disabled={isSubmitting}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {isSubmitting ? "Creating..." : "Create User"}
-                  {!isSubmitting && <Check className="h-4 w-4 ml-2" />}
                 </Button>
               )}
-            </DialogFooter>
+            </div>
           </form>
         </Form>
       </DialogContent>

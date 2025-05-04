@@ -1,7 +1,6 @@
-
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
@@ -17,19 +16,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
+  const loggedInitialState = useRef(false);
   
   // UI development mode - allow navigation to all routes regardless of authentication
   const allowAllAccess = false; // Changed to false to enforce proper authentication
 
+  // Only log the state once on initial load and when auth state changes
   useEffect(() => {
-    console.log('ProtectedRoute - Auth state:', { 
-      isAuthenticated, 
-      isLoading, 
-      userId: user?.userId,
-      role: user?.role,
-      currentPath: location.pathname,
-      bypassingAuth: allowAllAccess
-    });
+    if (!loggedInitialState.current || isAuthenticated || !isLoading) {
+      console.log('ProtectedRoute - Auth state:', { 
+        isAuthenticated, 
+        isLoading, 
+        userId: user?.userId,
+        role: user?.role,
+        currentPath: location.pathname,
+        bypassingAuth: allowAllAccess
+      });
+      loggedInitialState.current = true;
+    }
   }, [isAuthenticated, isLoading, user, location, allowAllAccess]);
 
   // Show loading state while checking authentication
@@ -43,13 +47,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // If in development mode, bypass all authentication checks
   if (allowAllAccess) {
-    console.log('Development mode: Bypassing authentication checks');
     return children ? <>{children}</> : <Outlet />;
   }
 
   // Regular authentication check (will only run if allowAllAccess is false)
   if (!isAuthenticated) {
-    console.log('Not authenticated, redirecting to login');
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
@@ -88,7 +90,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }
 
-  console.log('User is authenticated, rendering protected content');
+  // Only log this once per authenticated rendering session
+  if (!loggedInitialState.current) {
+    console.log('User is authenticated, rendering protected content');
+  }
+  
   return children ? <>{children}</> : <Outlet />;
 };
 

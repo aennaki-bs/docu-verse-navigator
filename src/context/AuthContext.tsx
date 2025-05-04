@@ -1,5 +1,4 @@
-
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useRef } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import authService, { 
   LoginCredentials, 
@@ -48,26 +47,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserInfo | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const initComplete = useRef(false);
+  const lastStateLog = useRef<string>('');
+  const refreshInProgress = useRef(false);
 
   useEffect(() => {
-    // Check if user is logged in on initial load
+    // Check if user is logged in on initial load - only once
     const initAuth = async () => {
+      if (initComplete.current) return;
+      initComplete.current = true;
+      
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
       
       if (storedToken && storedUser) {
         try {
           setToken(storedToken);
-          const parsedUser = JSON.parse(storedUser);
-          setUser(parsedUser);
           
-          console.log('Stored user data:', parsedUser);
+          let parsedUser: UserInfo | null = null;
+          try {
+            parsedUser = JSON.parse(storedUser);
+            // Only log this once during initialization
+            console.log('Stored user data:', parsedUser);
+            setUser(parsedUser);
+          } catch (e) {
+            console.error('Failed to parse stored user data', e);
+          }
           
           // Verify token is still valid by fetching user info
           const userInfo = await authService.getUserInfo();
           console.log('User info verified on init:', userInfo);
-          setUser(userInfo);
-          localStorage.setItem('user', JSON.stringify(userInfo));
+          
+          // Only update if there are actual changes
+          if (JSON.stringify(parsedUser) !== JSON.stringify(userInfo)) {
+            setUser(userInfo);
+            localStorage.setItem('user', JSON.stringify(userInfo));
+          }
         } catch (error) {
           console.error('Session expired or invalid', error);
           localStorage.removeItem('token');
@@ -77,6 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
       
+      // Always turn off loading when init is complete
       setIsLoading(false);
     };
 
@@ -86,16 +102,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshUserInfo = async () => {
     if (!token) return;
     
-    try {
+    // Prevent concurrent refresh calls
+    if (refreshInProgress.current) {
+      console.log('User info refresh already in progress, skipping');
+      return;
+    }
+    
+    refreshInProgress.current = true;
+    
+    // Prevent excessive loading state changes for quick sequential refreshes
+    const wasLoading = isLoading;
+    if (!wasLoading) {
       setIsLoading(true);
+    }
+    
+    try {
       const userInfo = await authService.getUserInfo();
-      setUser(userInfo);
-      localStorage.setItem('user', JSON.stringify(userInfo));
-      console.log('User info refreshed:', userInfo);
+      
+      // Only update user state if something actually changed
+      if (JSON.stringify(user) !== JSON.stringify(userInfo)) {
+        setUser(userInfo);
+        localStorage.setItem('user', JSON.stringify(userInfo));
+        console.log('User info refreshed:', userInfo);
+      } else {
+        console.log('User info refreshed (no changes)');
+      }
     } catch (error) {
       console.error('Error refreshing user info', error);
     } finally {
-      setIsLoading(false);
+      if (!wasLoading) {
+        setIsLoading(false);
+      }
+      refreshInProgress.current = false;
     }
   };
   
@@ -252,11 +290,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     hasRole,
   };
 
-  console.log('Auth context current state:', { 
+  // Only log auth state when it actually changes
+  const currentState = JSON.stringify({ 
     isAuthenticated: !!user && !!token, 
-    user, 
+    userId: user?.userId,
     isLoading 
   });
+  
+  if (lastStateLog.current !== currentState) {
+    lastStateLog.current = currentState;
+    console.log('Auth context current state:', { 
+      isAuthenticated: !!user && !!token, 
+      user, 
+      isLoading 
+    });
+  }
 
   return (
     <AuthContext.Provider value={authValue}>

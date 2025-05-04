@@ -1,9 +1,17 @@
-
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DocuVerseLogo from "@/components/DocuVerseLogo";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 
 const Index = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // If user is already authenticated, redirect to dashboard
+  if (isAuthenticated && !isLoading) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navigation */}
