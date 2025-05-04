@@ -27,6 +27,7 @@ interface CircuitListContentProps {
   confirmDelete: () => Promise<void>;
   refetch: () => void;
   hasNoSearchResults?: boolean;
+  isRefreshing?: boolean;
 }
 
 export function CircuitListContent({
@@ -48,11 +49,16 @@ export function CircuitListContent({
   confirmDelete,
   refetch,
   hasNoSearchResults,
+  isRefreshing = false,
 }: CircuitListContentProps) {
   const { theme } = useSettings();
 
-  if (isLoading) {
-    return <CircuitLoadingState />;
+  // Determine if we're in initial loading or just refreshing
+  const isInitialLoading = isLoading && !circuits;
+  const isRefreshingData = isLoading && circuits && circuits.length > 0;
+
+  if (isInitialLoading) {
+    return <CircuitLoadingState message="Loading circuits..." />;
   }
 
   if (isError) {
@@ -79,6 +85,40 @@ export function CircuitListContent({
     );
   }
 
+  if (!circuits || circuits.length === 0) {
+    return (
+      <Card
+        className={`w-full shadow-md ${
+          theme === "dark"
+            ? "bg-[#111633]/70 border-blue-900/30"
+            : "bg-white border-blue-200/60"
+        }`}
+      >
+        <CardHeader
+          className={`flex flex-row items-center justify-between ${
+            theme === "dark"
+              ? "border-b border-blue-900/30 bg-blue-900/20"
+              : "border-b border-blue-100 bg-blue-50/50"
+          }`}
+        >
+          <CardTitle
+            className={`text-xl ${
+              theme === "dark" ? "text-blue-100" : "text-blue-700"
+            }`}
+          >
+            Circuits
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <CircuitEmptyState
+            searchQuery={searchQuery}
+            isSimpleUser={isSimpleUser}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card
       className={`w-full shadow-md ${
@@ -101,7 +141,19 @@ export function CircuitListContent({
         >
           Circuits
         </CardTitle>
-        {circuits && circuits.length > 0 && (
+        <div className="flex items-center gap-2">
+          {isRefreshingData && (
+            <Badge 
+              variant="outline"
+              className={
+                theme === "dark"
+                  ? "bg-blue-900/40 text-blue-200 border-blue-700/50 animate-pulse"
+                  : "bg-blue-50 text-blue-600 border-blue-300/80 animate-pulse"
+              }
+            >
+              Refreshing...
+            </Badge>
+          )}
           <Badge
             variant="outline"
             className={
@@ -112,23 +164,16 @@ export function CircuitListContent({
           >
             {circuits.length} {circuits.length === 1 ? "Circuit" : "Circuits"}
           </Badge>
-        )}
+        </div>
       </CardHeader>
-      <CardContent className="p-0">
-        {circuits && circuits.length > 0 ? (
-          <CircuitsTable
-            circuits={circuits}
-            isSimpleUser={isSimpleUser}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onViewDetails={onViewDetails}
-          />
-        ) : (
-          <CircuitEmptyState
-            searchQuery={searchQuery}
-            isSimpleUser={isSimpleUser}
-          />
-        )}
+      <CardContent className={`p-0 ${isRefreshingData ? 'opacity-70' : ''}`}>
+        <CircuitsTable
+          circuits={circuits}
+          isSimpleUser={isSimpleUser}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onViewDetails={onViewDetails}
+        />
       </CardContent>
 
       {selectedCircuit && (

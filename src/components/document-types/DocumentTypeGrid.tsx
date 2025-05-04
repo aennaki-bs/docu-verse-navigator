@@ -1,9 +1,7 @@
-
 import { DocumentType } from '@/models/document';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Edit2, Trash2 } from 'lucide-react';
-import { DocumentTypeSearchBar } from './table/DocumentTypeSearchBar';
 import {
   Tooltip,
   TooltipContent,
@@ -15,24 +13,15 @@ interface DocumentTypeGridProps {
   types: DocumentType[];
   onDeleteType: (id: number) => void;
   onEditType: (type: DocumentType) => void;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
 }
 
 const DocumentTypeGrid = ({
   types,
   onDeleteType,
   onEditType,
-  searchQuery,
-  onSearchChange
 }: DocumentTypeGridProps) => {
   return (
-    <div className="w-full space-y-4">
-      <DocumentTypeSearchBar
-        searchQuery={searchQuery}
-        onSearchChange={onSearchChange}
-      />
-
+    <div className="w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         {types.map((type) => (
           <Card key={type.id} className="bg-[#0f1642] border-blue-900/30 shadow-lg overflow-hidden hover:border-blue-700/50 transition-all">

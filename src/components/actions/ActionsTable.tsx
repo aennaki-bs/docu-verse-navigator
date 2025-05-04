@@ -1,4 +1,4 @@
-import { Pencil, Trash2, Eye } from "lucide-react";
+import { Pencil, Trash2, Eye, RefreshCw } from "lucide-react";
 import { Column, Action, BulkAction } from "@/components/table/DataTable";
 import { createDataTable } from "@/components/table/create-data-table";
 
@@ -14,18 +14,20 @@ const ActionItemTable = createDataTable<ActionItem>();
 
 interface ActionsTableProps {
   actions: ActionItem[];
-  onEdit?: (action: ActionItem) => void;
-  onDelete?: (action: ActionItem) => void;
-  onView?: (action: ActionItem) => void;
+  onEditAction?: (action: ActionItem) => void;
+  onDeleteAction?: (action: ActionItem) => void;
+  onViewAction?: (action: ActionItem) => void;
   isSimpleUser?: boolean;
+  isRefreshing?: boolean;
 }
 
 export function ActionsTable({
   actions,
-  onEdit,
-  onDelete,
-  onView,
+  onEditAction,
+  onDeleteAction,
+  onViewAction,
   isSimpleUser = false,
+  isRefreshing = false,
 }: ActionsTableProps) {
   // Define columns
   const columns: Column<ActionItem>[] = [
@@ -64,23 +66,23 @@ export function ActionsTable({
     {
       label: "View Details",
       icon: <Eye className="h-4 w-4 mr-2" />,
-      onClick: onView || (() => {}),
+      onClick: onViewAction || (() => {}),
       color: "blue",
-      show: () => !!onView,
+      show: () => !!onViewAction,
     },
     {
       label: "Edit Action",
       icon: <Pencil className="h-4 w-4 mr-2" />,
-      onClick: onEdit || (() => {}),
+      onClick: onEditAction || (() => {}),
       color: "amber",
-      show: () => !isSimpleUser && !!onEdit,
+      show: () => !isSimpleUser && !!onEditAction,
     },
     {
       label: "Delete Action",
       icon: <Trash2 className="h-4 w-4 mr-2" />,
-      onClick: onDelete || (() => {}),
+      onClick: onDeleteAction || (() => {}),
       color: "red",
-      show: () => !isSimpleUser && !!onDelete,
+      show: () => !isSimpleUser && !!onDeleteAction,
     },
   ];
 
@@ -95,6 +97,17 @@ export function ActionsTable({
         },
       ]
     : [];
+
+  if (isRefreshing) {
+    return (
+      <div className="w-full flex items-center justify-center p-8">
+        <div className="flex flex-col items-center text-center">
+          <RefreshCw className="h-6 w-6 animate-spin text-blue-500 mb-2" />
+          <p className="text-sm text-blue-400">Refreshing actions...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ActionItemTable

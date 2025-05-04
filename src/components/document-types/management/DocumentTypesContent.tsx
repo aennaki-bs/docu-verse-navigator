@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DocumentType } from '@/models/document';
@@ -26,6 +25,7 @@ interface DocumentTypesContentProps {
   setCurrentPage: (page: number) => void;
   totalPages: number;
   filteredAndSortedTypes: DocumentType[];
+  onNewTypeClick?: () => void;
 }
 
 const DocumentTypesContent = ({
@@ -37,22 +37,21 @@ const DocumentTypesContent = ({
   onEditType,
   onSelectType,
   onSelectAll,
-  searchQuery,
-  setSearchQuery,
   sortField,
   sortDirection,
   handleSort,
   currentPage,
   setCurrentPage,
   totalPages,
-  filteredAndSortedTypes
+  filteredAndSortedTypes,
+  onNewTypeClick
 }: DocumentTypesContentProps) => {
   if (isLoading) {
     return <LoadingState />;
   }
 
   if (types.length === 0) {
-    return <EmptyState onAddType={() => {}} />;
+    return <EmptyState onAddType={onNewTypeClick || (() => {})} />;
   }
 
   return (
@@ -63,7 +62,7 @@ const DocumentTypesContent = ({
             <div>
               <CardTitle className="text-lg text-white">Document Types</CardTitle>
               <CardDescription className="text-sm text-blue-300">
-                {filteredAndSortedTypes.length} {filteredAndSortedTypes.length === 1 ? 'type' : 'types'} {searchQuery ? 'found' : 'available'}
+                {filteredAndSortedTypes.length} {filteredAndSortedTypes.length === 1 ? 'type' : 'types'} {filteredAndSortedTypes.length !== types.length ? 'found' : 'available'}
               </CardDescription>
             </div>
           </div>
@@ -73,7 +72,7 @@ const DocumentTypesContent = ({
             <div className="min-w-full">
               {viewMode === 'table' ? (
                 <DocumentTypeTable 
-                  types={types}
+                  types={filteredAndSortedTypes}
                   selectedTypes={selectedTypes}
                   onSelectType={onSelectType}
                   onSelectAll={onSelectAll}
@@ -82,16 +81,12 @@ const DocumentTypesContent = ({
                   onSort={handleSort}
                   sortField={sortField}
                   sortDirection={sortDirection}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
                 />
               ) : (
                 <DocumentTypeGrid
-                  types={types}
+                  types={filteredAndSortedTypes}
                   onDeleteType={onDeleteType}
                   onEditType={onEditType}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
                 />
               )}
             </div>

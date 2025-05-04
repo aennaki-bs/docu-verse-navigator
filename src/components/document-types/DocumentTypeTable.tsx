@@ -1,9 +1,7 @@
-
 import { Table, TableBody, TableRow, TableCell } from '@/components/ui/table';
 import { DocumentType } from '@/models/document';
 import { DocumentTypeTableHeader } from './table/DocumentTypeTableHeader';
 import { DocumentTypeTableRow } from './table/DocumentTypeTableRow';
-import { DocumentTypeSearchBar } from './table/DocumentTypeSearchBar';
 
 interface DocumentTypeTableProps {
   types: DocumentType[];
@@ -15,10 +13,8 @@ interface DocumentTypeTableProps {
   onSort: (field: string) => void;
   sortField: string | null;
   sortDirection: 'asc' | 'desc';
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  onToggleFilters?: () => void;
-  showFilters?: boolean;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
 const DocumentTypeTable = ({
@@ -31,10 +27,6 @@ const DocumentTypeTable = ({
   onSort,
   sortField,
   sortDirection,
-  searchQuery,
-  onSearchChange,
-  onToggleFilters,
-  showFilters
 }: DocumentTypeTableProps) => {
   const areAllEligibleSelected = types.length > 0 && 
     types.filter(type => type.documentCounter === 0).length === selectedTypes.length;
@@ -42,13 +34,6 @@ const DocumentTypeTable = ({
 
   return (
     <div className="w-full">
-      <DocumentTypeSearchBar
-        searchQuery={searchQuery}
-        onSearchChange={onSearchChange}
-        onToggleFilters={onToggleFilters}
-        showFilters={showFilters}
-      />
-
       <div className="border-t border-blue-900/20 overflow-x-auto">
         <Table>
           <DocumentTypeTableHeader

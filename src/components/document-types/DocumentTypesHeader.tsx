@@ -1,9 +1,9 @@
-
 import { Link } from 'react-router-dom';
-import { ArrowLeft, LayoutGrid, LayoutList, Plus, Search, Filter } from 'lucide-react';
+import { LayoutGrid, LayoutList, Plus, Search, Filter, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 interface DocumentTypesHeaderProps {
   viewMode: 'table' | 'grid';
@@ -42,37 +42,48 @@ const DocumentTypesHeader = ({
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-300/70" />
+        <div className="flex items-center gap-3 w-full max-w-md">
+          <div className="relative flex-grow">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <Search className="h-4 w-4 text-blue-300/70" />
+            </div>
             <Input 
-              placeholder="Search types..." 
+              placeholder="Search document types..." 
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-9 bg-blue-900/20 border-blue-800/30 text-white placeholder:text-blue-300/50 w-full"
+              className="pl-10 pr-20 py-2 bg-blue-900/20 border-blue-800/30 text-white placeholder:text-blue-300/50 w-full h-10 rounded-md"
             />
+            {searchQuery && (
+              <button
+                onClick={() => onSearchChange('')}
+                className="absolute inset-y-0 right-16 flex items-center pr-3 text-blue-300 hover:text-blue-200"
+              >
+                <span className="text-xs">Clear</span>
+              </button>
+            )}
+            <div className="absolute inset-y-0 right-0 flex items-center gap-1 pr-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-8 w-8 ${showFilters ? 'bg-blue-700/50 text-blue-200' : 'text-blue-300/70'}`}
+                onClick={onToggleFilters}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline"
-              size="icon"
-              className={`${showFilters ? 'bg-blue-800/30 text-blue-300' : 'text-blue-300/70'}`}
-              onClick={onToggleFilters}
-            >
-              <Filter className="h-4 w-4" />
-            </Button>
-            
-            <ToggleGroup type="single" value={viewMode} onValueChange={handleViewModeChange}>
-              <ToggleGroupItem value="table" aria-label="Table view">
+            <ToggleGroup type="single" value={viewMode} onValueChange={handleViewModeChange} className="hidden sm:flex">
+              <ToggleGroupItem value="table" aria-label="Table view" className="h-10 w-10">
                 <LayoutList className="h-4 w-4" />
               </ToggleGroupItem>
-              <ToggleGroupItem value="grid" aria-label="Grid view">
+              <ToggleGroupItem value="grid" aria-label="Grid view" className="h-10 w-10">
                 <LayoutGrid className="h-4 w-4" />
               </ToggleGroupItem>
             </ToggleGroup>
 
-            <Button className="h-9 bg-blue-600 hover:bg-blue-700" onClick={onNewTypeClick}>
+            <Button className="h-10 px-4 bg-blue-600 hover:bg-blue-700" onClick={onNewTypeClick}>
               <Plus className="mr-2 h-4 w-4" /> New Type
             </Button>
           </div>

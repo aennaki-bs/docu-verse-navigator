@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -10,6 +9,7 @@ import DocumentTypeForm from '@/components/document-types/DocumentTypeForm';
 import { DocumentType } from '@/models/document';
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
 
 interface DocumentTypeDrawerProps {
   isOpen: boolean;
@@ -34,8 +34,27 @@ const DocumentTypeDrawer = ({
   onSuccess,
   onCancel
 }: DocumentTypeDrawerProps) => {
+  // Debug logging
+  useEffect(() => {
+    console.log("DocumentTypeDrawer - isOpen state changed:", isOpen);
+    if (!isOpen) return;
+    
+    // Check for potential rendering issues
+    try {
+      console.log("DocumentTypeDrawer - documentType:", documentType);
+      console.log("DocumentTypeDrawer - isEditMode:", isEditMode);
+    } catch (error) {
+      console.error("Error in DocumentTypeDrawer useEffect:", error);
+    }
+  }, [isOpen, documentType, isEditMode]);
+
+  const handleDialogOpenChange = (open: boolean) => {
+    console.log("DialogOpenChange triggered with value:", open);
+    onOpenChange(open);
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center">

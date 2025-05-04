@@ -2,6 +2,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCircuitList } from "./hooks/useCircuitList";
 import { CircuitListContent } from "./CircuitListContent";
 import { DateRange } from "react-day-picker";
+import { useEffect } from "react";
 
 // Define the search column type
 type SearchColumn = "code" | "title" | "description";
@@ -12,6 +13,8 @@ interface CircuitsListProps {
   dateRange?: DateRange;
   flowType?: string;
   searchColumns?: SearchColumn[];
+  refreshTrigger?: number; // A counter to trigger refreshes
+  isRefreshing?: boolean; // Indicates if the list is currently refreshing
 }
 
 export default function CircuitsList({
@@ -20,6 +23,8 @@ export default function CircuitsList({
   dateRange,
   flowType,
   searchColumns = ["code", "title", "description"],
+  refreshTrigger = 0,
+  isRefreshing = false,
 }: CircuitsListProps) {
   const { user } = useAuth();
   const isSimpleUser = user?.role === "SimpleUser";
@@ -48,6 +53,13 @@ export default function CircuitsList({
     searchColumns,
   });
 
+  // Refetch data when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      refetch();
+    }
+  }, [refreshTrigger, refetch]);
+
   return (
     <CircuitListContent
       circuits={circuits}
@@ -67,6 +79,7 @@ export default function CircuitsList({
       setDetailsDialogOpen={setDetailsDialogOpen}
       confirmDelete={confirmDelete}
       refetch={refetch}
+      isRefreshing={isRefreshing}
     />
   );
 }

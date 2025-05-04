@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useDocumentTypes } from '@/hooks/useDocumentTypes';
 import DocumentTypesHeaderSection from './DocumentTypesHeaderSection';
@@ -60,7 +59,7 @@ const DocumentTypesManagementPage = () => {
   const handleEditType = (type: DocumentType) => {
     setCurrentType(type);
     setIsEditMode(true);
-    setIsDrawerOpen(true);
+    openDrawer();
   };
 
   const handleBulkDelete = async () => {
@@ -95,12 +94,24 @@ const DocumentTypesManagementPage = () => {
     // The actual filtering logic would be implemented in the useDocumentTypes hook
   };
 
+  const openDrawer = () => {
+    try {
+      console.log("Opening document type drawer...");
+      setIsDrawerOpen(true);
+      console.log("Drawer state set to open:", isDrawerOpen);
+    } catch (error) {
+      console.error("Error opening document type drawer:", error);
+      // Fall back to a simpler approach if the drawer has issues
+      toast.error("There was a problem opening the form. Please try again.");
+    }
+  };
+
   return (
     <div className="h-full flex flex-col bg-[#070b28]">
       <DocumentTypesHeaderSection 
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
-        onNewTypeClick={() => setIsDrawerOpen(true)}
+        onNewTypeClick={openDrawer}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         showFilters={showFilters}
@@ -127,6 +138,7 @@ const DocumentTypesManagementPage = () => {
         onSelectAll={handleSelectAll}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        onNewTypeClick={openDrawer}
         {...documentTypesProps}
       />
 
